@@ -11,6 +11,9 @@ export default class TravelSupportBrasil extends React.Component<ITravelSupportB
   }
 
   public render(): React.ReactElement<ITravelSupportBrasilProps> {
-    return (<Provider><Routes /></Provider>);
+    return (
+    <Provider>
+      <Routes />
+    </Provider>);
   }
 }

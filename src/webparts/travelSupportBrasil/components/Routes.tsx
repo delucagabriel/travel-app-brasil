@@ -36,7 +36,7 @@ export const Routes = ()=>{
   function PrivateRoute({ children, ...rest }) {
     return (
       <Route {...rest } render={
-        ({ location }) => employeeInfos.isAdmin ? ( children ) : ( <Redirect to={{ pathname: "/",  state: { from: location } }} /> )
+        ({ location }) => employeeInfos && employeeInfos.isAdmin ? ( children ) : ( <Redirect to={{ pathname: "/",  state: { from: location } }} /> )
         }
       />
     );
