@@ -7,16 +7,16 @@ import {
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 
-import * as strings from 'CreditCardRequestsWebPartStrings';
-import CreditCardRequests from './components/CreditCardRequests';
-import { ICreditCardRequestsProps } from './components/ICreditCardRequestsProps';
+import * as strings from 'TravelSupportBrasilWebPartStrings';
+import TravelSupportBrasil from './components/TravelSupportBrasil';
+import { ITravelSupportBrasilProps } from './components/ITravelSupportBrasilProps';
 import { sp } from "@pnp/sp/presets/all";
 
-export interface ICreditCardRequestsWebPartProps {
+export interface ITravelSupportBrasilWebPartProps {
   description: string;
 }
 
-export default class CreditCardRequestsWebPart extends BaseClientSideWebPart<ICreditCardRequestsWebPartProps> {
+export default class TravelSupportBrasilWebPart extends BaseClientSideWebPart<ITravelSupportBrasilWebPartProps> {
   protected onInit(): Promise<void> {
 
     return super.onInit().then(_ => {
@@ -26,10 +26,9 @@ export default class CreditCardRequestsWebPart extends BaseClientSideWebPart<ICr
     });
   }
 
-
   public render(): void {
-    const element: React.ReactElement<ICreditCardRequestsProps> = React.createElement(
-      CreditCardRequests,
+    const element: React.ReactElement<ITravelSupportBrasilProps> = React.createElement(
+      TravelSupportBrasil,
       {
         description: this.properties.description,
         context: this.context

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
+  "id": "3b1c60d5-1ca3-4c4d-9f94-32a452aa3900",
+  "alias": "TravelSupportBrasilWebPart",
+  "componentType": "WebPart",
+
+  // The "*" signifies that the version should be taken from the package.json
+  "version": "*",
+  "manifestVersion": 2,
+
+  // If true, the component can only be installed on sites where Custom Script is allowed.
+  // Components that allow authors to embed arbitrary script code should set this to true.
+  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart"],
+
+  "preconfiguredEntries": [{
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
+    "group": { "default": "Other" },
+    "title": { "default": "travelSupportBrasil" },
+    "description": { "default": "Soluçao para criaçao e atendimento de chamados relacionados aos serviçoes de Viagens Corporativas " },
+    "officeFabricIconFontName": "Page",
+    "properties": {
+      "description": "travelSupportBrasil"
+    }
+  }]
+}

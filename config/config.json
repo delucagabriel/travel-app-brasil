@@ -2,18 +2,18 @@
   "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
   "version": "2.0",
   "bundles": {
-    "credit-card-requests-web-part": {
+    "travel-support-brasil-web-part": {
       "components": [
         {
-          "entrypoint": "./lib/webparts/creditCardRequests/CreditCardRequestsWebPart.js",
-          "manifest": "./src/webparts/creditCardRequests/CreditCardRequestsWebPart.manifest.json"
+          "entrypoint": "./lib/webparts/travelSupportBrasil/TravelSupportBrasilWebPart.js",
+          "manifest": "./src/webparts/travelSupportBrasil/TravelSupportBrasilWebPart.manifest.json"
         }
       ]
     }
   },
   "externals": {},
   "localizedResources": {
-    "CreditCardRequestsWebPartStrings": "lib/webparts/creditCardRequests/loc/{locale}.js",
-    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js"
+    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js",
+    "TravelSupportBrasilWebPartStrings": "lib/webparts/travelSupportBrasil/loc/{locale}.js"
   }
 }
