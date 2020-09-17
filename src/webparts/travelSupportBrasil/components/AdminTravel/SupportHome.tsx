@@ -2,7 +2,7 @@ import * as React from 'react';
 import HocCard from '../HOC/HocCardCard';
 import { Grid, Avatar, Paper, Typography, makeStyles, Theme, createStyles, Card, CardContent } from '@material-ui/core';
 import { useContext, useState, useEffect } from 'react';
-import { Context } from '../Utils/Context';
+import { Context } from '../Context';
 import DoneAllSharpIcon from '@material-ui/icons/DoneAllSharp';
 import TimerIcon from '@material-ui/icons/Timer';
 import * as moment from 'moment';
@@ -51,8 +51,8 @@ export function SupportHome() {
     setEmployeesServed( unique( allRequests.map( req => req.BeneficiaryID ) ).length );
     setAverageRequestsPerDay( averagePerDay( allRequests ) );
     setRequestsInThisYear( allRequests.filter( req => moment(req.Created).year === moment().year ).length );
-    setPendingReqTotal( allRequests.filter( req => req.ApprovalStatus === 'Approved' && ( req.Status !== 'Success' && req.Status !== 'Unsuccess' ) ).length );
-    setCompletedReqTotal( allRequests.filter( req => req.Status === 'Success' || req.Status === 'Unsuccess' ).length );
+    setPendingReqTotal( allRequests.filter( req => req.STATUS_APROVACAO === 'Aprovado' && ( req.STATUS !== 'Successo' && req.STATUS !== 'Rejeitado' ) ).length );
+    setCompletedReqTotal( allRequests.filter( req => req.STATUS === 'Successo' || req.Status === 'Rejeitado' ).length );
   };
 
   useEffect(()=> {
@@ -78,10 +78,10 @@ export function SupportHome() {
         </Paper>
       </Grid>
       <Grid item xs={12} sm={6} md={6} lg={6}>
-        <HocCard content="Pending  requests " qtd={pendingReqTotal} destination="/all-pending-requests" icon={<TimerIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
+        <HocCard content="Solicitações pendentes" qtd={pendingReqTotal} destination="/todasSolicitacoesPendentes" icon={<TimerIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
       </Grid>
       <Grid item xs={12} sm={6} md={6} lg={6}>
-        <HocCard content="Completed requests" qtd={completedReqTotal} destination="/all-completed-requests" icon={<DoneAllSharpIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
+        <HocCard content="Solicitações concluídas" qtd={completedReqTotal} destination="/todasSolicitacoesConcluidas" icon={<DoneAllSharpIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
       </Grid>
 
       <Grid item xs={12} sm={12} md={12} lg={12}>

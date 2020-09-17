@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { batchInsertEmployees, GetAllEmployees, batchUpdateEmployees } from './services/EmployeesService';
-import { IEmployee } from './Interfaces/IEmployee';
+import { batchInsertEmployees, GetAllEmployees, batchUpdateEmployees } from '../services/EmployeesService';
+import { IEmployee } from '../Interfaces/IEmployee';
 import * as moment from 'moment';
 
 let Employees:IEmployee[];

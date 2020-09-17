@@ -3,7 +3,7 @@ import { ITravelSupportBrasilProps } from './ITravelSupportBrasilProps';
 import { Routes } from './Routes';
 
 import "./globalStyles.module.scss";
-import { Provider } from './Utils/Context';
+import { Provider } from './Context';
 
 export default class TravelSupportBrasil extends React.Component<ITravelSupportBrasilProps, {}> {
   public constructor(context: ITravelSupportBrasilProps){

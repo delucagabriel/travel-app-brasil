@@ -24,8 +24,8 @@ const Provider = ({children}) => {
   const [updateInfos, setUpdateInfos] = useState(true);
 
   const handleGetMyRequests = ()=> {
-    myInfos? sp.web.lists.getByTitle("Requests").items
-    .filter(`Author/EMail eq '${employeeInfos && employeeInfos.Email}' or BeneficiaryID eq '${employeeInfos && employeeInfos.IAM_ACCESS_IDENTIFIER}'`)
+    myInfos? sp.web.lists.getByTitle("SOLICITACOES").items
+    .filter(`Author/EMail eq '${employeeInfos && employeeInfos.Email}' or BENEFICIARIO_ID eq '${employeeInfos && employeeInfos.IAM_ACCESS_IDENTIFIER}'`)
     .select('*', 'Author/Title', 'Editor/Title')
     .expand('Author', 'Editor')
     .top(4999)

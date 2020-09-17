@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useContext, useState, useEffect } from 'react';
-import { Context } from '../Utils/Context';
+import { Context } from '../Context';
 import { CSVLink } from "react-csv";
 import { TableContainer, Paper, Table, TableHead, TableRow, TableCell,
   TableBody, Grid, Dialog, Hidden, TextField, Button } from '@material-ui/core';
@@ -18,23 +18,23 @@ export default function AllCompletedRequests() {
 
 
   useEffect(()=>{
-    setFilteredRequests(allRequests.filter(request => request.Status === "Success" || request.Status === "Unsuccess" ));
+    setFilteredRequests(allRequests.filter(request => request.STATUS === "Successo" || request.STATUS === "Rejeitado" ));
   }, [allRequests]);
 
   const handleFilter= event => setFilter(event.target.value.toLowerCase());
 
   useEffect(()=>{
-    setFilteredDownload(filteredRequests.filter( row => row.EmployeeName.includes(filter) ));
+    setFilteredDownload(filteredRequests.filter( row => row.BENEFICIARIO_NOME.includes(filter) ));
   }, [filter]);
 
   return (
     <Grid container>
       <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-        <TextField label="Beneficiary filter" variant="outlined" onChange={handleFilter}/>
+        <TextField label="Beneficiário" variant="outlined" onChange={handleFilter}/>
         <Button color='secondary' style={{float:'right'}}>
           <CSVLink
             data={filteredDownload}
-            filename={"requests.csv"}
+            filename={"TRAVEL_SUPPORT_SOLICITACOES.csv"}
             style={{textDecoration:'none'}}
           >
             Export
@@ -50,43 +50,43 @@ export default function AllCompletedRequests() {
               <TableCell>#</TableCell>
               <TableCell align="center">Status</TableCell>
               <Hidden smDown>
-                  <TableCell variant="head" align="center">Process</TableCell>
+                  <TableCell variant="head" align="center">Processo</TableCell>
                 </Hidden>
               <Hidden smDown>
-                  <TableCell variant="head" align="center">Approval Status</TableCell>
+                  <TableCell variant="head" align="center">Status de aprovação</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Service Status</TableCell>
+                  <TableCell variant="head" align="center">Status do atendimento</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Beneficiary</TableCell>
+                  <TableCell variant="head" align="center">Beneficiário</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Created</TableCell>
+                  <TableCell variant="head" align="center">Data de abertura</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Modified</TableCell>
+                  <TableCell variant="head" align="center">Data da última modificação</TableCell>
                 </Hidden>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredRequests
-              .filter(row => row.EmployeeName.toLowerCase().includes(filter))
+              .filter(row => row.BENEFICIARIO_NOME.toLowerCase().includes(filter))
               .map((row) => (
               <TableRow key={row.Id} onClick={() =>setRequestDetails({...row, open:true})}>
                 <TableCell align="center">{row.Id}</TableCell>
-                <TableCell align="center">{row.Status}</TableCell>
+                <TableCell align="center">{row.STATUS}</TableCell>
                 <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.Process}</TableCell>
+                    <TableCell variant="body" align="center">{row.PROCESSO}</TableCell>
                   </Hidden>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.ApprovalStatus}</TableCell>
+                    <TableCell variant="body" align="center">{row.STATUS_APROVACAO}</TableCell>
                   </Hidden>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.ServiceStatus}</TableCell>
+                    <TableCell variant="body" align="center">{row.STATUS_ATENDIMENTO}</TableCell>
                   </Hidden>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.EmployeeName}</TableCell>
+                    <TableCell variant="body" align="center">{row.BENEFICIARIO_NOME}</TableCell>
                   </Hidden>
                   <Hidden smDown>
                     <TableCell variant="body" align="center">{row.Created}</TableCell>

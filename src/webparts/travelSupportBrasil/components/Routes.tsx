@@ -1,20 +1,20 @@
 import * as React from 'react';
+import { useContext } from 'react';
+import { Switch, Route, HashRouter, Redirect } from 'react-router-dom';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import Home from './HomeUsers/Home';
 import MyPendingRequests from './Lists/MyPendingRequests';
 import MyCompletedRequests from './Lists/MyCompletedRequests';
-import NewCreditCard from './Forms/newCreditCard';
-import CancelCard from './Forms/cancelCard';
-import ChangeLimit from './Forms/changeLimit';
-import { Switch, Route, HashRouter, Redirect } from 'react-router-dom';
+import NewCreditCard from './Forms/cartoes/NewCreditCard';
+import CancelCard from './Forms/cartoes/CancelCard';
+import ChangeLimit from './Forms/cartoes/LimitChange';
 import Menu from './Drawer/Menu';
 
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { SupportHome } from './AdminTravel/SupportHome';
 import AllPendingRequests from './Lists/AllPendingRequests';
 import AllCompletedRequests from './Lists/AllCompletedRequests';
 import { InsertOrUpdateEmployees } from './InsertOrUpdateEmployees';
-import { useContext } from 'react';
-import { Context } from './Utils/Context';
+import { Context } from './Context';
 
 const theme = createMuiTheme({
   palette: {
@@ -27,7 +27,7 @@ const theme = createMuiTheme({
   },
 });
 
-const NotFound = ()=> <h1>Page Not Found :( </h1>;
+const NotFound = ()=> <h1>Página não encontrada :( </h1>;
 
 
 export const Routes = ()=>{
@@ -49,21 +49,20 @@ export const Routes = ()=>{
           <Switch>
           {/* { Public routes } */}
             <Route path="/" exact={true} component={Home} />
-            <Route path="/my-pending-requests" exact={true} component={MyPendingRequests} />
-            <Route path="/my-completed-requests" exact={true} component={MyCompletedRequests} />
-            <Route path="/newCreditCard" exact={true} component={NewCreditCard} />
-            <Route path="/CancelCard" exact={true} component={CancelCard} />
-            <Route path="/ChangeLimit" exact={true} component={ChangeLimit} />
-            {/* <Route path="/all-pending-requests" exact={true} component={AllPendingRequests} />
-            <Route path="/all-completed-requests" exact={true} component={AllCompletedRequests} /> */}
+            <Route path="/minhasSolicitacoesPendentes" exact={true} component={MyPendingRequests} />
+            <Route path="/minhasSolicitacoesConcluidas" exact={true} component={MyCompletedRequests} />
+            <Route path="/novoCartao" exact={true} component={NewCreditCard} />
+            <Route path="/cancelarCartao" exact={true} component={CancelCard} />
+            <Route path="/alterarLimite" exact={true} component={ChangeLimit} />
+
           {/* { Private routes } */}
-            <PrivateRoute path="/all-pending-requests" exact={true} >
+            <PrivateRoute path="/todasSolicitacoesPendentes" exact={true} >
               <AllPendingRequests/>
             </PrivateRoute>
-            <PrivateRoute path="/all-completed-requests" exact={true} >
+            <PrivateRoute path="/todasSolicitacoesConcluidas" exact={true} >
               <AllCompletedRequests/>
             </PrivateRoute>
-            <PrivateRoute path="/support" exact={true} >
+            <PrivateRoute path="/atendimento" exact={true} >
               <SupportHome/>
             </PrivateRoute>
             <PrivateRoute path="/InsertOrUpdateEmployees" exact={true} >

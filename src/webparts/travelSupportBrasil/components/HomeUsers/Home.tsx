@@ -2,7 +2,7 @@ import * as React from 'react';
 import HocCard from '../HOC/HocCardCard';
 import { Grid, Avatar, Paper, Typography, makeStyles, Theme, createStyles } from '@material-ui/core';
 import { useContext, useState, useEffect } from 'react';
-import { Context } from '../Utils/Context';
+import { Context } from '../Context';
 import DoneAllSharpIcon from '@material-ui/icons/DoneAllSharp';
 import TimerIcon from '@material-ui/icons/Timer';
 
@@ -48,10 +48,10 @@ export default function Home() {
                 <Avatar style={{height:"80px", width:"80px"}} alt={employeeInfos && employeeInfos.Title}
                 src={employeeInfos && employeeInfos.Photo} />
                   <Typography variant="subtitle1">
-                    Hello, { employeeInfos && employeeInfos.Title.split(" ")[0]}!
+                    Olá, { employeeInfos && employeeInfos.Title.split(" ")[0]}!
                   </Typography>
                   <Typography variant="subtitle2">
-                    Here is your history with us
+                    Essa é a sua história aqui conosco
                   </Typography>
               </Grid>
               <Grid className={classes.information} item xs={6} sm={6} md={6} lg={6} direction="column" >

@@ -2,13 +2,13 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { createStyles, makeStyles, useTheme, Theme } from '@material-ui/core/styles';
 import { Drawer, AppBar, CssBaseline, Toolbar, IconButton, Typography,
-  List, ListItem, ListItemIcon, ListItemText, Accordion, AccordionSummary, CircularProgress, Button, Hidden, Divider  } from '@material-ui/core';
+  List, ListItem, ListItemIcon, ListItemText, Accordion, AccordionSummary, CircularProgress, Button, Divider  } from '@material-ui/core';
 import { Menu, ChevronLeft, ChevronRight, HowToReg } from '@material-ui/icons';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import Cancel from '@material-ui/icons/CancelPresentation';
 import Swap from '@material-ui/icons/SwapVerticalCircle';
 import { useHistory } from 'react-router-dom';
-import { Context } from '../Utils/Context';
+import { Context } from '../Context';
 import { useContext, useState } from 'react';
 
 const drawerWidth = 200;
@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     toolbar: {
       display: 'flex',
-      alignItems: 'center',
+      aligncartaoCorporativo: 'center',
       justifyContent: 'flex-end',
       padding: theme.spacing(0, 1),
       // necessary for content to be below app bar
@@ -94,21 +94,89 @@ export default function MiniDrawer({children}) {
   const theme = useTheme();
   const [open, setOpen] = useState(true);
 
-  const items = [
+  const cartaoCorporativo = [
     {
-      text: "New card",
+      text: "Novo cartão",
       icon: <AddBoxIcon />,
-      onClick: ()=> history.push("/newCreditCard")
+      onClick: ()=> history.push("/novoCartao")
     },
     {
-      text: "Cancel Card",
+      text: "Cancelar cartão",
       icon: <Cancel />,
-      onClick: ()=> history.push("/cancelCard")
+      onClick: ()=> history.push("/cancelarCartao")
     },
     {
-      text: "Change limit",
+      text: "Alterar limite",
       icon:<Swap />,
-      onClick: ()=> history.push("/changeLimit")
+      onClick: ()=> history.push("/alterarLimite")
+    },
+  ];
+  const cartaoCombustivel = [
+    {
+      text: "Novo cartão",
+      icon: <AddBoxIcon />,
+      onClick: ()=> history.push("/novoCartao")
+    },
+    {
+      text: "Cancelar cartão",
+      icon: <Cancel />,
+      onClick: ()=> history.push("/cancelarCartao")
+    },
+    {
+      text: "Alterar limite",
+      icon:<Swap />,
+      onClick: ()=> history.push("/alterarLimite")
+    },
+  ];
+  const prestacaoDeContas = [
+    {
+      text: "Novo cartão",
+      icon: <AddBoxIcon />,
+      onClick: ()=> history.push("/novoCartao")
+    },
+    {
+      text: "Cancelar cartão",
+      icon: <Cancel />,
+      onClick: ()=> history.push("/cancelarCartao")
+    },
+    {
+      text: "Alterar limite",
+      icon:<Swap />,
+      onClick: ()=> history.push("/alterarLimite")
+    },
+  ];
+  const normativo_relatorios = [
+    {
+      text: "Novo cartão",
+      icon: <AddBoxIcon />,
+      onClick: ()=> history.push("/novoCartao")
+    },
+    {
+      text: "Cancelar cartão",
+      icon: <Cancel />,
+      onClick: ()=> history.push("/cancelarCartao")
+    },
+    {
+      text: "Alterar limite",
+      icon:<Swap />,
+      onClick: ()=> history.push("/alterarLimite")
+    },
+  ];
+  const solicitacaoDeViagem = [
+    {
+      text: "Novo cartão",
+      icon: <AddBoxIcon />,
+      onClick: ()=> history.push("/novoCartao")
+    },
+    {
+      text: "Cancelar cartão",
+      icon: <Cancel />,
+      onClick: ()=> history.push("/cancelarCartao")
+    },
+    {
+      text: "Alterar limite",
+      icon:<Swap />,
+      onClick: ()=> history.push("/alterarLimite")
     },
   ];
 
@@ -149,7 +217,7 @@ export default function MiniDrawer({children}) {
           </Button>
           <div className={classes.grow} />
           { employeeInfos && employeeInfos.isAdmin &&
-            <Button color="inherit" onClick={()=> history.push("/support")}>
+            <Button color="inherit" onClick={()=> history.push("/atendimento")}>
               <HowToReg color="inherit" fontSize='large'/>
             </Button>
           }
@@ -180,21 +248,90 @@ export default function MiniDrawer({children}) {
           </IconButton>
         </div>
         <Divider />
-        <Accordion defaultExpanded={true} square={true} >
+
+        <Accordion defaultExpanded={false} square={true} >
           <AccordionSummary>
-              <Typography variant="body2" align="center">Card Services</Typography>
-        </AccordionSummary>
-        <List style={{whiteSpace:"nowrap"}}>
-          { items.map(item=>{
-            const { icon, text, onClick } = item;
-            return(
-              <ListItem button key={text} onClick={onClick}>
-              <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItem>
-            );
-          }) }
-        </List>
+              <Typography variant="caption" align="center">Cartão corporativo</Typography>
+          </AccordionSummary>
+          <List style={{whiteSpace:"nowrap"}}>
+            { cartaoCorporativo.map(item=>{
+              const { icon, text, onClick } = item;
+              return(
+                <ListItem button key={text} onClick={onClick}>
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={<Typography variant="caption">{text}</Typography>} />
+                </ListItem>
+              );
+            }) }
+          </List>
+        </Accordion>
+
+        <Accordion defaultExpanded={false} square={true} >
+          <AccordionSummary>
+              <Typography variant="caption" align="center">Cartão combustível</Typography>
+          </AccordionSummary>
+          <List style={{whiteSpace:"nowrap"}}>
+            { cartaoCorporativo.map(item=>{
+              const { icon, text, onClick } = item;
+              return(
+                <ListItem button key={text} onClick={onClick}>
+                <ListItemIcon>{icon}</ListItemIcon>
+                  <ListItemText primary={<Typography variant="caption">{text}</Typography>} />
+                </ListItem>
+              );
+            }) }
+          </List>
+        </Accordion>
+
+        <Accordion defaultExpanded={false} square={true} >
+          <AccordionSummary>
+              <Typography variant="caption" align="center">Documentos normativos e relatórios</Typography>
+          </AccordionSummary>
+          <List style={{whiteSpace:"nowrap"}}>
+            { cartaoCorporativo.map(item=>{
+              const { icon, text, onClick } = item;
+              return(
+                <ListItem button key={text} onClick={onClick}>
+                <ListItemIcon>{icon}</ListItemIcon>
+                  <ListItemText primary={<Typography variant="caption">{text}</Typography>} />
+                </ListItem>
+              );
+            }) }
+          </List>
+        </Accordion>
+
+        <Accordion defaultExpanded={false} square={true} >
+          <AccordionSummary>
+              <Typography variant="caption" align="center">Prestação de contas</Typography>
+          </AccordionSummary>
+          <List style={{whiteSpace:"nowrap"}}>
+            { cartaoCorporativo.map(item=>{
+              const { icon, text, onClick } = item;
+              return(
+                <ListItem button key={text} onClick={onClick}>
+                <ListItemIcon>{icon}</ListItemIcon>
+                  <ListItemText primary={<Typography variant="caption">{text}</Typography>} />
+                </ListItem>
+              );
+            }) }
+          </List>
+        </Accordion>
+
+        <Accordion defaultExpanded={false} square={true} >
+          <AccordionSummary>
+              <Typography variant="caption" align="center">Solicitação de viagem</Typography>
+          </AccordionSummary>
+          <List style={{whiteSpace:"nowrap"}}>
+            { cartaoCorporativo.map(item=>{
+              const { icon, text, onClick } = item;
+              return(
+                <ListItem button key={text} onClick={onClick}>
+                <ListItemIcon>{icon}</ListItemIcon>
+                  <ListItemText primary={<Typography variant="caption">{text}</Typography>} />
+                </ListItem>
+              );
+            }) }
+          </List>
         </Accordion>
       </Drawer>
 

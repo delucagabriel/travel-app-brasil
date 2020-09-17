@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useContext, useState } from 'react';
-import { Context } from '../Utils/Context';
+import { Context } from '../Context';
 import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Dialog, Hidden, Button, Snackbar } from '@material-ui/core';
 import { RequestDetailsComponent } from '../Details/RequestDetailsComponent';
 import ServiceApproval from '../Forms/ServiceApproval';
@@ -30,7 +30,7 @@ export default function AllPendingRequests() {
 
   const unique = arr => arr.filter((el, i, array) => array.indexOf(el) === i);
 
-  const processButtons = unique(allRequests.filter(request => request.ApprovalStatus === 'Approved' && (request.Status !== "Success" && request.Status !=="Unsuccess")).map(row => row.Process));
+  const processButtons = unique(allRequests.filter(request => request.STATUS_APROVACAO === 'Aprovado' && (request.STATUS !== "Successo" && request.STATUS !=="Rejeitado")).map(row => row.PROCESSO));
 
   return (
     <Grid container spacing={2}>
@@ -50,16 +50,16 @@ export default function AllPendingRequests() {
                 <TableCell variant="head">#</TableCell>
                 <TableCell variant="head" align="center">Status</TableCell>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Process</TableCell>
+                  <TableCell variant="head" align="center">Processo</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Approval Status</TableCell>
+                  <TableCell variant="head" align="center">Status da aprovação</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Service Status</TableCell>
+                  <TableCell variant="head" align="center">Status do atendimento</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Beneficiary</TableCell>
+                  <TableCell variant="head" align="center">Beneficiário</TableCell>
                 </Hidden>
                 <Hidden smDown>
                   <TableCell variant="head" align="center">Created</TableCell>
@@ -71,25 +71,25 @@ export default function AllPendingRequests() {
             </TableHead>
             <TableBody>
               {allRequests
-              .filter(request => request.ApprovalStatus === 'Approved' && (request.Status !== "Success" && request.Status !=="Unsuccess") )
-              .filter(request => request.Process.includes(filter))
+              .filter(request => request.STATUS_APROVACAO === 'Aprovado' && (request.STATUS !== "Successo" && request.STATUS !=="Rejeitado") )
+              .filter(request => request.PROCESSO.includes(filter))
               .map((row) => (
                 <TableRow key={row.Id}
                   onClick={() =>setRequestDetails({...row, open:true})}
                 >
                   <TableCell variant="body" align="center">{row.Id}</TableCell>
-                  <TableCell variant="body" align="center">{row.Status}</TableCell>
+                  <TableCell variant="body" align="center">{row.STATUS}</TableCell>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.Process}</TableCell>
+                    <TableCell variant="body" align="center">{row.PROCESSO}</TableCell>
                   </Hidden>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.ApprovalStatus}</TableCell>
+                    <TableCell variant="body" align="center">{row.STATUS_APROVACAO}</TableCell>
                   </Hidden>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.ServiceStatus}</TableCell>
+                    <TableCell variant="body" align="center">{row.STATUS_ATENDIMENTO}</TableCell>
                   </Hidden>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.EmployeeName}</TableCell>
+                    <TableCell variant="body" align="center">{row.BENEFICIARIO_NOME}</TableCell>
                   </Hidden>
                   <Hidden smDown>
                     <TableCell variant="body" align="center">{row.Created}</TableCell>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useContext, useState } from 'react';
-import { Context } from '../Utils/Context';
+import { Context } from '../Context';
 import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Dialog, Hidden, Button } from '@material-ui/core';
 import { RequestDetailsComponent } from '../Details/RequestDetailsComponent';
 import CloseIcon from '@material-ui/icons/Close';
