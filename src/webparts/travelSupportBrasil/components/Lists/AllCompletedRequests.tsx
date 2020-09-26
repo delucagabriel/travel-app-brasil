@@ -34,7 +34,7 @@ export default function AllCompletedRequests() {
         <Button color='secondary' style={{float:'right'}}>
           <CSVLink
             data={filteredDownload}
-            filename={"TRAVEL_SUPPORT_SOLICITACOES.csv"}
+            filename={"TS+Brasil_SOLICITACOES.csv"}
             style={{textDecoration:'none'}}
           >
             Export

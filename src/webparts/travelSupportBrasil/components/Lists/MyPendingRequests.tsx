@@ -19,45 +19,45 @@ export default function MyPendingRequests() {
                 <TableCell variant="head">#</TableCell>
                 <TableCell variant="head" align="center">Status</TableCell>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Process</TableCell>
+                  <TableCell variant="head" align="center">Processo</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Approval Status</TableCell>
+                  <TableCell variant="head" align="center">Status: Aprovação</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Service Status</TableCell>
+                  <TableCell variant="head" align="center">Status: Atendimento</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Beneficiary</TableCell>
+                  <TableCell variant="head" align="center">Empregado</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Created</TableCell>
+                  <TableCell variant="head" align="center">Criação</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Modified</TableCell>
+                  <TableCell variant="head" align="center">Modificação</TableCell>
                 </Hidden>
               </TableRow>
             </TableHead>
             <TableBody>
               {myRequests
-              .filter(request => request.Status !== "Success" && request.Status !=="Unsuccess" )
+              .filter(request => request.STATUS !== "Success" && request.STATUS !=="Unsuccess" )
               .map((row) => (
                 <TableRow key={row.Id}
                   onClick={() =>setRequestDetails({...row, open:true})}
                 >
                   <TableCell variant="body" align="center">{row.Id}</TableCell>
-                  <TableCell variant="body" align="center">{row.Status}</TableCell>
+                  <TableCell variant="body" align="center">{row.STATUS}</TableCell>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.Process}</TableCell>
+                    <TableCell variant="body" align="center">{row.PROCESSO}</TableCell>
                   </Hidden>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.ApprovalStatus}</TableCell>
+                    <TableCell variant="body" align="center">{row.STATUS_APROVACAO}</TableCell>
                   </Hidden>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.ServiceStatus}</TableCell>
+                    <TableCell variant="body" align="center">{row.STATUS_ATENDIMENTO}</TableCell>
                   </Hidden>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.EmployeeName}</TableCell>
+                    <TableCell variant="body" align="center">{row.BENEFICIARIO_NOME}</TableCell>
                   </Hidden>
                   <Hidden smDown>
                     <TableCell variant="body" align="center">{row.Created}</TableCell>

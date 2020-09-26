@@ -1,4 +1,4 @@
-function TestaCPF(strCPF) {
+export function TestaCPF(strCPF) {
   let Soma = 0;
   let Resto: number;
 

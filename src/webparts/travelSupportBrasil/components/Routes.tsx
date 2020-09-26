@@ -7,7 +7,7 @@ import MyPendingRequests from './Lists/MyPendingRequests';
 import MyCompletedRequests from './Lists/MyCompletedRequests';
 import NewCreditCard from './Forms/cartoes/NewCreditCard';
 import CancelCard from './Forms/cartoes/CancelCard';
-import ChangeLimit from './Forms/cartoes/LimitChange';
+import LimitChange from './Forms/cartoes/LimitChange';
 import Menu from './Drawer/Menu';
 
 import { SupportHome } from './AdminTravel/SupportHome';
@@ -15,6 +15,8 @@ import AllPendingRequests from './Lists/AllPendingRequests';
 import AllCompletedRequests from './Lists/AllCompletedRequests';
 import { InsertOrUpdateEmployees } from './InsertOrUpdateEmployees';
 import { Context } from './Context';
+import InternetPurchaseUnlock from './Forms/cartoes/InternetPurchaseUnlock';
+import CorporateCardProblems from './Forms/cartoes/CorporateCardProblems';
 
 const theme = createMuiTheme({
   palette: {
@@ -53,7 +55,9 @@ export const Routes = ()=>{
             <Route path="/minhasSolicitacoesConcluidas" exact={true} component={MyCompletedRequests} />
             <Route path="/novoCartao" exact={true} component={NewCreditCard} />
             <Route path="/cancelarCartao" exact={true} component={CancelCard} />
-            <Route path="/alterarLimite" exact={true} component={ChangeLimit} />
+            <Route path="/alterarLimite" exact={true} component={LimitChange} />
+            <Route path="/liberarCompraPelaInternet" exact={true} component={InternetPurchaseUnlock} />
+            <Route path="/ProblemasComCartaoCorporativo" exact={true} component={CorporateCardProblems} />
 
           {/* { Private routes } */}
             <PrivateRoute path="/todasSolicitacoesPendentes" exact={true} >

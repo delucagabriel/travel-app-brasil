@@ -8,40 +8,39 @@ import { yupResolver } from '@hookform/resolvers';
 import { getEmployee } from '../../../services/EmployeesService';
 import { newRequest } from '../../../services/RequestServices';
 import { IEmployee } from '../../../Interfaces/IEmployee';
-import { IRequest_CancelCard } from '../../../Interfaces/Requests/IRequest_CancelCard';
+import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
+import { TestaCPF } from '../../../Utils/validaCPF';
 
 
 
-const schema: yup.ObjectSchema<IRequest_CancelCard> = yup.object().shape({
+const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
   SLA: yup.number().default(48),
   AREA_RESOLVEDORA: yup.string().default("Bradesco"),
   ALCADA_APROVACAO: yup.string().default(""),
+  WF_APROVACAO: yup.boolean().default(false),
+  DATA_DE_APROVACAO: yup.date().default(new Date()),
+  STATUS_APROVACAO: yup.string().default('Aprovado'),
 
   BENEFICIARIO_ID: yup.string().required(),
   BENEFICIARIO_NOME: yup.string().required(),
   BENEFICIARIO_EMAIL: yup.string().required(),
   BENEFICIARIO_EMPRESA_COD: yup.string().required(),
   BENEFICIARIO_EMPRESA_NOME: yup.string().required(),
+  CPF: yup.string().test('validCPF','CPF inválido',(cpf)=>TestaCPF(cpf)).required(),
 
-  ULTIMOS_DIGITOS_DO_CARTAO: yup.string()
-    .length(4)
-    .matches(/\d/, "Only numbers")
-    .required(),
+  ESTABELECIMENTO: yup.string().min(10).required(),
+  DATA_DE_UTILIZACAO: yup.date().required(),
   MOTIVO: yup.string()
-    .min(10)
-    .required(),
-  WF_APROVACAO: yup.boolean().default(false),
-  DATA_DE_APROVACAO: yup.date().default(new Date()),
-  STATUS_APROVACAO: yup.string().default('Aprovado')
-
+  .min(50)
+  .required()
 });
 
-export default function CancelCard() {
-  const { register, handleSubmit, control, errors, reset } = useForm<IRequest_CancelCard>({
+export default function CorporateCardProblems() {
+  const { register, handleSubmit, control, errors, reset } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
@@ -56,7 +55,7 @@ export default function CancelCard() {
     .then(emp => setEmployee(emp));
 
 
-  const onSubmit = (data:IRequest_CancelCard, e) => {
+  const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
       .then(res => {
         setSnackMessage({open:true, message: `Solicitação gravada com suceso! ID:${res.data.ID}`, severity:"success"});
@@ -84,7 +83,6 @@ export default function CancelCard() {
               }
               name="MACROPROCESSO"
               defaultValue="Cartão corporativo"
-              rules={{ required: "Campo obrigatório" }}
               control={control}
               error={errors.MACROPROCESSO?true:false}
               helperText={errors.MACROPROCESSO && errors.MACROPROCESSO.message}
@@ -95,21 +93,20 @@ export default function CancelCard() {
             <Controller
               as={
                 <Select disabled fullWidth>
-                  <MenuItem value="Cancelar cartão">Cancelar cartão</MenuItem>
+                  <MenuItem value="Problemas com cartão">Problemas com cartão</MenuItem>
                 </Select>
               }
               id="Process"
               name="PROCESSO"
-              defaultValue="Cancelar cartão"
-              rules={{ required: "Campo obrigatório" }}
+              defaultValue="Problemas com cartão"
               control={control}
               error={errors.PROCESSO?true:false}
               helperText={errors.PROCESSO && errors.PROCESSO.message}
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField fullWidth type="text" required name="BENEFICIARIO_ID" variant="outlined"
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField fullWidth type="text" name="BENEFICIARIO_ID" variant="outlined"
               label="Matrícula do empregado" onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
               error={errors.BENEFICIARIO_ID?true:false}
@@ -117,7 +114,15 @@ export default function CancelCard() {
             />
           </Grid>
           <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField fullWidth variant="outlined" type="text" required name="ULTIMOS_DIGITOS_DO_CARTAO" label="Últimos 4 dígitos"
+            <TextField fullWidth type="text" name="CPF" variant="outlined"
+              label="CPF"
+              inputRef={register}
+              error={errors.CPF?true:false}
+              helperText={errors.CPF && errors.CPF.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
+            <TextField fullWidth variant="outlined" type="text" name="ULTIMOS_DIGITOS_DO_CARTAO" label="Últimos 4 dígitos"
               inputRef={register}
               error={errors.ULTIMOS_DIGITOS_DO_CARTAO?true:false}
               helperText={errors.ULTIMOS_DIGITOS_DO_CARTAO && errors.ULTIMOS_DIGITOS_DO_CARTAO.message}
@@ -149,8 +154,28 @@ export default function CancelCard() {
             />
           </Grid>
 
+          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
+            <TextField fullWidth
+              variant="outlined"
+              type="date"
+              name="DATA_DE_UTILIZACAO" label="Data de utilização"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.DATA_DE_UTILIZACAO?true:false}
+              helperText={errors.DATA_DE_UTILIZACAO && errors.DATA_DE_UTILIZACAO.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={7} md={7} lg={7} xl={7} >
+            <TextField fullWidth variant="outlined" type="text" name="ESTABELECIMENTO" label="Estabelecimento" inputRef={register}
+              error={errors.ESTABELECIMENTO?true:false}
+              helperText={errors.ESTABELECIMENTO && errors.ESTABELECIMENTO.message}
+            />
+          </Grid>
+
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
-            <TextField fullWidth variant="outlined" type="text" name="MOTIVO" label="Motivo" inputRef={register}
+            <TextField fullWidth variant="outlined" type="text"
+            multiline rows={5}
+            name="MOTIVO" label="Descrição detalhada do problema" inputRef={register}
               error={errors.MOTIVO?true:false}
               helperText={errors.MOTIVO && errors.MOTIVO.message}
             />

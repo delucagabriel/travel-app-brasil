@@ -78,10 +78,10 @@ export default function Home() {
         </Paper>
       </Grid>
       <Grid item xs={12} sm={6} md={6} lg={6}>
-        <HocCard content="Pending  requests " qtd={pendingReqTotal} destination="/my-pending-requests" icon={<TimerIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
+        <HocCard content="Pending  requests " qtd={pendingReqTotal} destination="/minhasSolicitacoesPendentes" icon={<TimerIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
       </Grid>
       <Grid item xs={12} sm={6} md={6} lg={6}>
-        <HocCard content="Completed requests" qtd={completedReqTotal} destination="/my-completed-requests" icon={<DoneAllSharpIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
+        <HocCard content="Completed requests" qtd={completedReqTotal} destination="/minhasSolicitacoesConcluidas" icon={<DoneAllSharpIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
       </Grid>
 
     </Grid>

@@ -1,8 +1,9 @@
 import { sp } from "@pnp/sp";
+import { IRequests_AllFields } from '../Interfaces/Requests/IRequests';
 
-export const newRequest = data => sp.web.lists.getByTitle('SOLICITACOES').items.add(data);
+export const newRequest = (data:IRequests_AllFields) => sp.web.lists.getByTitle('SOLICITACOES').items.add(data);
 
-export const updateRequest = data => sp.web.lists.getByTitle('SOLICITACOES').items
+export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTitle('SOLICITACOES').items
   .getById(data.Id)
   .update(data);
 
@@ -10,7 +11,7 @@ export const updateRequest = data => sp.web.lists.getByTitle('SOLICITACOES').ite
     let requests = [];
     let items = await sp.web.lists.getByTitle("SOLICITACOES").items
         .select(
-          'ID',
+          'Id',
           'Created',
           'Modified',
           'STATUS',
@@ -33,6 +34,8 @@ export const updateRequest = data => sp.web.lists.getByTitle('SOLICITACOES').ite
           'END_NUMERO',
           'END_COMPLEMENTO',
           'NOVO_LIMITE',
+          'TIPO_DE_LIMITE',
+          'TIPO_LIMITE_VALOR',
           'APROVADOR_ID',
           'APROVADOR_LEVEL',
           'APROVADOR_NOME',
@@ -45,7 +48,7 @@ export const updateRequest = data => sp.web.lists.getByTitle('SOLICITACOES').ite
           'CNPJ_DE_FATURAMENTO',
           'COD_DO_DESCONTO_NO_CONTRACHEQUE',
           'CODIGO_DA_BASE',
-          'CODIGO_DO_RAMO_DE_ATIVIDADE',
+          'COD_DO_RAMO_DE_ATIVIDADE',
           'CPF',
           'DATA_DE_UTILIZACAO',
           'DATA_DO_DESCONTO',
@@ -63,7 +66,8 @@ export const updateRequest = data => sp.web.lists.getByTitle('SOLICITACOES').ite
           'GESTOR_DA_BASE_NOME',
           'MOTIVO',
           'NACIONAL_INTERNACIONAL',
-          'PERIODO',
+          'PERIODO_INICIO',
+          'PERIODO_FIM',
           'QUANTIDADE_DE_CARTOES',
           'RELATORIO_CONCUR',
           'RESP_MEDICAO_EMAIL',
@@ -75,7 +79,6 @@ export const updateRequest = data => sp.web.lists.getByTitle('SOLICITACOES').ite
           'TELEFONE',
           'TIPO_DE_DELEGACAO',
           'TIPO_DE_SOLICITACAO',
-          'ULTIMO_PERIODO_DA_MEDICAO',
           'ULTIMOS_DIGITOS_DO_CARTAO',
           'VALOR',
           'Author/Title',

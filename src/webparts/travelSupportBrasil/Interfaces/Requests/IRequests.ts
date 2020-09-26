@@ -1,4 +1,15 @@
+
 export interface IRequests {
+  Id?: number;
+  MACROPROCESSO: string;
+  PROCESSO: string;
+  WF_APROVACAO: boolean;
+  ALCADA_APROVACAO: string;
+  SLA: number;
+  AREA_RESOLVEDORA: string;
+}
+
+export interface IRequests_AllFields {
   Id?: number;
   MACROPROCESSO: string;
   PROCESSO: string;
@@ -18,14 +29,16 @@ export interface IRequests {
   CENTRO_DE_CUSTOS?: string;
   CNPJ_DE_FATURAMENTO?: string;
   NOVO_LIMITE?: string;
-  QUANTIDADE_DE_CARTOES?: string;
+  TIPO_DE_LIMITE?: String;
+  TIPO_LIMITE_VALOR?: string;
+  QUANTIDADE_DE_CARTOES?: number;
   CODIGO_DA_BASE?: string;
   MOTIVO?: string;
-  ULTIMO_PERIODO_DA_MEDICAO?: string;
-  PERIODO?: string;
+  PERIODO_INICIO?: Date;
+  PERIODO_FIM?: Date;
   ESTABELECIMENTO?: string;
   DATA_DE_UTILIZACAO?: Date;
-  CODIGO_DO_RAMO_DE_ATIVIDADE?: string;
+  COD_DO_RAMO_DE_ATIVIDADE?: string;
   CPF?: string;
   TELEFONE?: string;
   TIPO_DE_SOLICITACAO?: string;

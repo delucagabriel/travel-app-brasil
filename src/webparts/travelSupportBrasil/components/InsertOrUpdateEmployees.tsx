@@ -8,7 +8,7 @@ let employeesToAdd:IEmployee[]= [];
 let employeesToUpdate:IEmployee[]= [];
 
 async function getExcelData (start, end):Promise<any>{
-  const results = await fetch(`/teams/travel_support/_vti_bin/ExcelRest.aspx/Shared%20Documents/MDM.xlsx/model/Ranges('Planilha1!A${start}:Q${end}')?$format=json`);
+  const results = await fetch(`/teams/portal_viagens/_vti_bin/ExcelRest.aspx/Documentos%20Compartilhados/MDM.xlsx/model/Ranges('Planilha1!A${start}:Q${end}')?$format=json`);
   const data = await results.json();
   return data.rows;
 }
@@ -21,7 +21,7 @@ const handleInsertOrUpdateEmployees = ()=>{
   GetAndCompareInformation.push(GetAllEmployees().then(res => Employees = res));
 
   const dados = [];
-  fetch(`/teams/travel_support/_vti_bin/ExcelRest.aspx/Shared%20Documents/MDM.xlsx/Model/Ranges('Planilha2!A1')?$format=json`)
+  fetch(`/teams/portal_viagens/_vti_bin/ExcelRest.aspx/Documentos%20Compartilhados/MDM.xlsx/Model/Ranges('Planilha2!A1')?$format=json`)
   .then(res =>
     res.json().then(data => {
       data.rows[0].map(cell => lastCell = cell.v);
@@ -58,53 +58,52 @@ const handleInsertOrUpdateEmployees = ()=>{
           }
         }
       }));
-    }}
-  );
+    }})
+  .then(()=>
+    Promise.all(GetAndCompareInformation)
+      .then(()=> {
+        dados
+        .filter(dado =>
+          dado.IAM_ACCESS_IDENTIFIER !== 'IAM_ACCESS_IDENTIFIER' &&
+          dado.IAM_ACCESS_IDENTIFIER !== '' &&
+          dado.IAM_ACCESS_IDENTIFIER !== null)
+        .map((dado, index, arr ) => {
+          let tempEmployeesAdd = Employees.filter(emp => emp.IAM_ACCESS_IDENTIFIER === dado.IAM_ACCESS_IDENTIFIER);
+          let tempEmployeeUpdate = tempEmployeesAdd.filter(emp => moment(emp.UPDATE_DATE_TIME) !== moment(dado.UPDATE_DATE_TIME));
 
-  Promise.all(GetAndCompareInformation)
-    .then(()=> {
-      dados
-      .filter(dado =>
-        dado.IAM_ACCESS_IDENTIFIER !== 'IAM_ACCESS_IDENTIFIER' &&
-        dado.IAM_ACCESS_IDENTIFIER !== '' &&
-        dado.IAM_ACCESS_IDENTIFIER !== null)
-      .map((dado, index, arr ) => {
-        let tempEmployeesAdd = Employees.filter(emp => emp.IAM_ACCESS_IDENTIFIER === dado.IAM_ACCESS_IDENTIFIER);
-        let tempEmployeeUpdate = tempEmployeesAdd.filter(emp => moment(emp.UPDATE_DATE_TIME) !== moment(dado.UPDATE_DATE_TIME));
+          if(tempEmployeesAdd.length === 0){
+            employeesToAdd.push(dado);
+          }
+          else if(tempEmployeeUpdate.length > 0){
+            let employeeID = tempEmployeeUpdate[0].Id;
+            employeesToUpdate.push({'Id':employeeID, ...dado});
+          }
 
-        if(tempEmployeesAdd.length === 0){
-          employeesToAdd.push(dado);
-        }
-        else if(tempEmployeeUpdate.length > 0){
-          let employeeID = tempEmployeeUpdate[0].Id;
-          employeesToUpdate.push({'Id':employeeID, ...dado});
-        }
+          if (employeesToUpdate.length === 100){
+            callEmployeesServices.push(batchUpdateEmployees(employeesToUpdate));
+            employeesToUpdate = [];
+          }
 
-        if (employeesToUpdate.length === 100){
-          callEmployeesServices.push(batchUpdateEmployees(employeesToUpdate));
-          employeesToUpdate = [];
-        }
+          if (employeesToAdd.length === 100){
+            callEmployeesServices.push(batchInsertEmployees(employeesToAdd));
+            employeesToAdd = [];
+          }
 
-        if (employeesToAdd.length === 100){
-          callEmployeesServices.push(batchInsertEmployees(employeesToAdd));
-          employeesToAdd = [];
-        }
-
-        if(index === arr.length && (employeesToAdd.length < 100 || employeesToUpdate.length < 100)){
-          callEmployeesServices.push(batchInsertEmployees(employeesToAdd));
-          callEmployeesServices.push(batchUpdateEmployees(employeesToUpdate));
-          employeesToAdd = [];
-          employeesToUpdate = [];
-        }
-      });
-    })
-    .then(()=> {
-      Employees =[];
-      Promise.all(callEmployeesServices)
-        .then(()=> alert('###### Finish All!!!! ######'))
-        .catch(error => console.log(error));
-    })
-    .catch(error=>console.log('Erro:', error));
+          if(index === arr.length && (employeesToAdd.length < 100 || employeesToUpdate.length < 100)){
+            callEmployeesServices.push(batchInsertEmployees(employeesToAdd));
+            callEmployeesServices.push(batchUpdateEmployees(employeesToUpdate));
+            employeesToAdd = [];
+            employeesToUpdate = [];
+          }
+        });
+      }))
+  .then(()=> {
+    Employees =[];
+    Promise.all(callEmployeesServices)
+      .then(()=> alert('###### Finish All!!!! ######'))
+      .catch(error => console.log(error));
+  })
+  .catch(error=>console.log('Erro:', error));
 };
 
 

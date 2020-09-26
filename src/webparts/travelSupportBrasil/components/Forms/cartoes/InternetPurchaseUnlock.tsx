@@ -8,18 +8,21 @@ import { yupResolver } from '@hookform/resolvers';
 import { getEmployee } from '../../../services/EmployeesService';
 import { newRequest } from '../../../services/RequestServices';
 import { IEmployee } from '../../../Interfaces/IEmployee';
-import { IRequest_CancelCard } from '../../../Interfaces/Requests/IRequest_CancelCard';
+import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
 
 
 
-const schema: yup.ObjectSchema<IRequest_CancelCard> = yup.object().shape({
+const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
   SLA: yup.number().default(48),
   AREA_RESOLVEDORA: yup.string().default("Bradesco"),
   ALCADA_APROVACAO: yup.string().default(""),
+  WF_APROVACAO: yup.boolean().default(false),
+  DATA_DE_APROVACAO: yup.date().default(new Date()),
+  STATUS_APROVACAO: yup.string().default('Aprovado'),
 
   BENEFICIARIO_ID: yup.string().required(),
   BENEFICIARIO_NOME: yup.string().required(),
@@ -27,21 +30,18 @@ const schema: yup.ObjectSchema<IRequest_CancelCard> = yup.object().shape({
   BENEFICIARIO_EMPRESA_COD: yup.string().required(),
   BENEFICIARIO_EMPRESA_NOME: yup.string().required(),
 
-  ULTIMOS_DIGITOS_DO_CARTAO: yup.string()
-    .length(4)
-    .matches(/\d/, "Only numbers")
-    .required(),
-  MOTIVO: yup.string()
-    .min(10)
-    .required(),
-  WF_APROVACAO: yup.boolean().default(false),
-  DATA_DE_APROVACAO: yup.date().default(new Date()),
-  STATUS_APROVACAO: yup.string().default('Aprovado')
+  VALOR: yup.number()
+  .positive()
+  .required(),
+  COD_DO_RAMO_DE_ATIVIDADE: yup.string()
+  .min(2)
+  .required(),
+
 
 });
 
-export default function CancelCard() {
-  const { register, handleSubmit, control, errors, reset } = useForm<IRequest_CancelCard>({
+export default function InternetPurchaseUnlock() {
+  const { register, handleSubmit, control, errors, reset } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
@@ -56,7 +56,7 @@ export default function CancelCard() {
     .then(emp => setEmployee(emp));
 
 
-  const onSubmit = (data:IRequest_CancelCard, e) => {
+  const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
       .then(res => {
         setSnackMessage({open:true, message: `Solicitação gravada com suceso! ID:${res.data.ID}`, severity:"success"});
@@ -95,13 +95,12 @@ export default function CancelCard() {
             <Controller
               as={
                 <Select disabled fullWidth>
-                  <MenuItem value="Cancelar cartão">Cancelar cartão</MenuItem>
+                  <MenuItem value="Liberar compra pela internet">Desbloq. compra online</MenuItem>
                 </Select>
               }
               id="Process"
               name="PROCESSO"
-              defaultValue="Cancelar cartão"
-              rules={{ required: "Campo obrigatório" }}
+              defaultValue="Liberar compra pela internet"
               control={control}
               error={errors.PROCESSO?true:false}
               helperText={errors.PROCESSO && errors.PROCESSO.message}
@@ -109,15 +108,15 @@ export default function CancelCard() {
           </Grid>
 
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField fullWidth type="text" required name="BENEFICIARIO_ID" variant="outlined"
+            <TextField fullWidth type="text" name="BENEFICIARIO_ID" variant="outlined"
               label="Matrícula do empregado" onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
             />
           </Grid>
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField fullWidth variant="outlined" type="text" required name="ULTIMOS_DIGITOS_DO_CARTAO" label="Últimos 4 dígitos"
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+            <TextField fullWidth variant="outlined" type="text" name="ULTIMOS_DIGITOS_DO_CARTAO" label="Últimos 4 dígitos do cartão"
               inputRef={register}
               error={errors.ULTIMOS_DIGITOS_DO_CARTAO?true:false}
               helperText={errors.ULTIMOS_DIGITOS_DO_CARTAO && errors.ULTIMOS_DIGITOS_DO_CARTAO.message}
@@ -149,10 +148,16 @@ export default function CancelCard() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
-            <TextField fullWidth variant="outlined" type="text" name="MOTIVO" label="Motivo" inputRef={register}
-              error={errors.MOTIVO?true:false}
-              helperText={errors.MOTIVO && errors.MOTIVO.message}
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+            <TextField fullWidth variant="outlined" type="number" name="VALOR" label="Valor da transação" inputRef={register}
+              error={errors.VALOR?true:false}
+              helperText={errors.VALOR && errors.VALOR.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+            <TextField fullWidth variant="outlined" type="text" name="COD_DO_RAMO_DE_ATIVIDADE" label="Cód. ramo de atividade" inputRef={register}
+              error={errors.COD_DO_RAMO_DE_ATIVIDADE?true:false}
+              helperText={errors.COD_DO_RAMO_DE_ATIVIDADE && errors.COD_DO_RAMO_DE_ATIVIDADE.message}
             />
           </Grid>
 

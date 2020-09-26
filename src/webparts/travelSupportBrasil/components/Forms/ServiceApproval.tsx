@@ -6,7 +6,7 @@ import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers';
 import { Context } from '../Context';
 import { updateRequest } from '../../services/RequestServices';
-import { IRequests } from '../../Interfaces/IRequests';
+import { IRequest_ServiceApproval } from '../../Interfaces/Requests/IRequest_ServiceApproval';
 
 const schema = yup.object().shape({
   Id:yup.number()
@@ -19,13 +19,13 @@ const schema = yup.object().shape({
 });
 
 export default function ServiceApproval({request, callbackParent}) {
-  const { register, handleSubmit, control, errors } = useForm<IRequests>({
+  const { register, handleSubmit, control, errors } = useForm<IRequest_ServiceApproval>({
     resolver: yupResolver(schema)
   });
 
   const { updateContext } = useContext(Context);
 
-  const onSubmit = (data:IRequests) => {
+  const onSubmit = (data:IRequest_ServiceApproval) => {
     updateRequest(data)
       .then(res => {
         callbackParent({dialogOpen:false, snack:{open:true, message: 'Atendimento efetuado com sucesso', severity:"success"}});

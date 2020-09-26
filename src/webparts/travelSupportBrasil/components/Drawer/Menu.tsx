@@ -4,6 +4,8 @@ import { createStyles, makeStyles, useTheme, Theme } from '@material-ui/core/sty
 import { Drawer, AppBar, CssBaseline, Toolbar, IconButton, Typography,
   List, ListItem, ListItemIcon, ListItemText, Accordion, AccordionSummary, CircularProgress, Button, Divider  } from '@material-ui/core';
 import { Menu, ChevronLeft, ChevronRight, HowToReg } from '@material-ui/icons';
+import ReportProblemIcon from '@material-ui/icons/ReportProblem';
+import LockOpenIcon from '@material-ui/icons/LockOpen';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import Cancel from '@material-ui/icons/CancelPresentation';
 import Swap from '@material-ui/icons/SwapVerticalCircle';
@@ -11,7 +13,7 @@ import { useHistory } from 'react-router-dom';
 import { Context } from '../Context';
 import { useContext, useState } from 'react';
 
-const drawerWidth = 200;
+const drawerWidth = 300;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -109,6 +111,16 @@ export default function MiniDrawer({children}) {
       text: "Alterar limite",
       icon:<Swap />,
       onClick: ()=> history.push("/alterarLimite")
+    },
+    {
+      text: "Liberar compra pela internet",
+      icon:<LockOpenIcon />,
+      onClick: ()=> history.push("/liberarCompraPelaInternet")
+    },
+    {
+      text: "Problemas com cartão corporativo",
+      icon:<ReportProblemIcon />,
+      onClick: ()=> history.push("/ProblemasComCartaoCorporativo")
     },
   ];
   const cartaoCombustivel = [
@@ -212,7 +224,7 @@ export default function MiniDrawer({children}) {
           </IconButton>
           <Button color="inherit" onClick={()=> history.push("/")}>
           <Typography color="inherit" variant="subtitle1" noWrap>
-            Travel Support
+            Travel Support Brasil
           </Typography>
           </Button>
           <div className={classes.grow} />
