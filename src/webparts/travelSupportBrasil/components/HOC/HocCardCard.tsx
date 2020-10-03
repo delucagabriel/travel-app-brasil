@@ -23,7 +23,7 @@ export default function HocCard({content, qtd, destination, icon=null}) {
         </Typography>
       </CardContent>
       <CardActions style={{float:"right"}}>
-        <Button onClick={ ()=> history.push(destination) } size="small"> <small>More information </small><More/></Button>
+        <Button onClick={ ()=> history.push(destination) } size="small"> <small>Detalhes</small><More/></Button>
       </CardActions>
     </Card>
   );

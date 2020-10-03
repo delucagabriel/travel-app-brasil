@@ -14,6 +14,7 @@ import { IEmployee } from '../../../Interfaces/IEmployee';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { IRequest_NewCard } from '../../../Interfaces/Requests/IRequest_NewCard';
 import { TestaCPF } from '../../../Utils/validaCPF';
+import HocDialog from '../../HOC/HocDialog';
 
 const schema: yup.ObjectSchema<IRequest_NewCard> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
@@ -103,6 +104,18 @@ export default function NewCreditCard(){
 console.log(errors);
   return (
     <Paper>
+        <HocDialog>
+          <p>
+            Alçadas de aprovação de acordo com a NFN-0018:<br/>
+            Tipo I - R$ 1.000 - Aprovação DE-3<br/>
+            Tipo II - R$ 2.500 - Aprovação DE-3<br/>
+            Tipo III - R$ 5.000 - Aprovação DE-3<br/>
+            Tipo IV - R$ 10.000 - Aprovação DE-3<br/>
+            Tipo V - R$ 20.000 - Aprovação DE-2<br/>
+            Tipo VI - R$ 30.0000 - Aprovação DE-2<br/>
+            Tipo VII - R$ 60.000 - Aprovação DE-1
+          </p>
+        </HocDialog>
         <div style={{padding:"20px"}}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={3} justify="space-between">
@@ -121,7 +134,7 @@ console.log(errors);
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-                <FormLabel id="Process" component="legend">Process</FormLabel>
+                <FormLabel id="Process" component="legend">Processo</FormLabel>
                 <Controller
                   as={
                     <Select disabled fullWidth>
@@ -143,7 +156,7 @@ console.log(errors);
                   variant="outlined"
                   type="search"
                   name="BENEFICIARIO_ID"
-                  label="Matrícula"
+                  label="Empregado: Matrícula"
                   onBlur={ e=> handleGetEmployee(e.target.value) }
                   inputRef={register}
                   error={errors.BENEFICIARIO_ID?true:false}
@@ -152,7 +165,7 @@ console.log(errors);
               </Grid>
               <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
                 <TextField fullWidth type="text" name="CPF"
-                  label="CPF" variant="outlined"
+                  label="Empregado: CPF" variant="outlined"
                   inputRef={register}
                   error={errors.CPF?true:false}
                   helperText={errors.CPF && errors.CPF.message}
@@ -160,13 +173,35 @@ console.log(errors);
               </Grid>
               <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
                 <TextField fullWidth type="tel" name="TELEFONE"
-                  label="Telefone" variant="outlined"
+                  label="Empregado: Telefone" variant="outlined"
                   inputRef={register}
                   error={errors.TELEFONE?true:false}
                   helperText={errors.TELEFONE && errors.TELEFONE.message}
                 />
               </Grid>
-              <Grid item xs={12} sm={7} md={7} lg={7} xl={7}>
+
+
+              <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+              <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME"
+                label="Empregado: Nome" variant="outlined"
+                value={employee? employee.FULL_NAME : ""}
+                inputRef={register}
+                InputLabelProps={{ shrink: true }}
+                error={errors.BENEFICIARIO_NOME?true:false}
+                helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
+              />
+            </Grid>
+              <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+              <TextField disabled fullWidth type="text" name="BENEFICIARIO_EMAIL" label="Empregado: e-mail" variant="outlined"
+                value={employee ? employee.WORK_EMAIL_ADDRESS : "" }
+                inputRef={register}
+                InputLabelProps={{ shrink: true }}
+                error={errors.BENEFICIARIO_EMAIL?true:false}
+                helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+              />
+            </Grid>
+
+              <Grid item xs={12} sm={9} md={9} lg={9} xl={9}>
                 <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Limite</FormLabel>
                 <Controller
                   as={
@@ -188,26 +223,6 @@ console.log(errors);
                   helperText={errors.TIPO_LIMITE_VALOR && errors.TIPO_LIMITE_VALOR.message}
                 />
               </Grid>
-
-              <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-              <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME"
-                label="Empregado: Nome" variant="outlined"
-                value={employee? employee.FULL_NAME : ""}
-                inputRef={register}
-                InputLabelProps={{ shrink: true }}
-                error={errors.BENEFICIARIO_NOME?true:false}
-                helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
-              />
-            </Grid>
-              <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-              <TextField disabled fullWidth type="text" name="BENEFICIARIO_EMAIL" label="Empregado: e-mail" variant="outlined"
-                value={employee ? employee.WORK_EMAIL_ADDRESS : "" }
-                inputRef={register}
-                InputLabelProps={{ shrink: true }}
-                error={errors.BENEFICIARIO_EMAIL?true:false}
-                helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
-              />
-            </Grid>
 
               <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
                 <TextField fullWidth type="text" name="END_CEP"
@@ -246,8 +261,8 @@ console.log(errors);
               </Grid>
 
 
-              <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-                <TextField fullWidth type="search" required name="APROVADOR_ID" variant="outlined" label="Approver"
+              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+                <TextField fullWidth type="search" name="APROVADOR_ID" variant="outlined" label="Aprovador: Matrícula"
                   error={errors.APROVADOR_ID?true:false}
                   helperText={errors.APROVADOR_ID && errors.APROVADOR_ID.message}
                   inputRef={register}
@@ -260,7 +275,7 @@ console.log(errors);
                   fullWidth
                   type="text"
                   name="APROVADOR_NOME"
-                  label="Nome do aprovador"
+                  label="Aprovador: Nome"
                   variant="outlined"
                   InputLabelProps={{ shrink: true }}
                   value={approver ? approver.FULL_NAME : "" }
@@ -276,7 +291,7 @@ console.log(errors);
                   fullWidth
                   type="text"
                   name="APROVADOR_LEVEL"
-                  label="Nível do aprovador"
+                  label="Aprovador: Nível"
                   value={approver && approver.APPROVAL_LEVEL_CODE}
                   InputLabelProps={{ shrink: true }}
                   inputRef={register}

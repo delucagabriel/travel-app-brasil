@@ -11,6 +11,7 @@ import { IEmployee } from '../../../Interfaces/IEmployee';
 import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
+import HocDialog from '../../HOC/HocDialog';
 
 
 
@@ -71,6 +72,11 @@ export default function InternetPurchaseUnlock() {
 
   return (
     <Paper>
+      <HocDialog>
+        <p>
+          Após a conclusão do chamado, o ramo de atividade ficará liberado para compra durante 8 dias corridos ou será bloqueado imediatamente após a transação. Caso você não saiba o código do ramo de atividade, é necessário que seja realizada uma tentativa de despesa no site do fornecedor para que o Banco identifique o ramo pela transação negada.
+        </p>
+      </HocDialog>
       <div style={{padding:"20px"}}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={3} justify="space-between">
@@ -163,7 +169,7 @@ export default function InternetPurchaseUnlock() {
 
           <Grid xs={12} sm={12} md={12} lg={12} xl={12} item justify="flex-end" alignItems="flex-end">
             <Button type="submit"
-            variant="contained" color="primary" style={{float:'right'}}> Submit </Button>
+            variant="contained" color="primary" style={{float:'right'}}> Enviar </Button>
           </Grid>
 
           <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_COD" name="BENEFICIARIO_EMPRESA_COD"

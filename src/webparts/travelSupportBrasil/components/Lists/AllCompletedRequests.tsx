@@ -18,7 +18,7 @@ export default function AllCompletedRequests() {
 
 
   useEffect(()=>{
-    setFilteredRequests(allRequests.filter(request => request.STATUS === "Successo" || request.STATUS === "Rejeitado" ));
+    setFilteredRequests(allRequests.filter(request => request.STATUS === "Sucesso" || request.STATUS === "Rejeitado" ));
   }, [allRequests]);
 
   const handleFilter= event => setFilter(event.target.value.toLowerCase());

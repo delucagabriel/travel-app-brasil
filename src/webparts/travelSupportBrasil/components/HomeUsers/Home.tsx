@@ -34,8 +34,8 @@ export default function Home() {
   const [completedReqTotal, setCompletedReqTotal] = useState(0);
 
   useEffect(()=> {
-    setPendingReqTotal(myRequests.filter(req => req.Status !== 'Success' && req.Status !== 'Unsuccess').length);
-    setCompletedReqTotal(myRequests.filter(req => req.Status === 'Success' || req.Status === 'Unsuccess').length);
+    setPendingReqTotal(myRequests.filter(req => req.STATUS !== 'Sucesso' && req.STATUS !== 'Rejeitado').length);
+    setCompletedReqTotal(myRequests.filter(req => req.STATUS == 'Sucesso' || req.STATUS == 'Rejeitado').length);
   }, [myRequests]);
 
 
@@ -59,29 +59,29 @@ export default function Home() {
                   ID: {employeeInfos && employeeInfos.IAM_ACCESS_IDENTIFIER}
                 </Typography>
                 <Typography variant="body2">
-                  Function: {employeeInfos && employeeInfos.JOB_DESCRIPTION}
+                  Função: {employeeInfos && employeeInfos.JOB_DESCRIPTION}
                 </Typography>
                 <Typography variant="body2">
-                  Company: {employeeInfos && employeeInfos.COMPANY_DESC}
+                  Empresa: {employeeInfos && employeeInfos.COMPANY_DESC}
                 </Typography>
                 <Typography variant="body2">
-                  Country: {employeeInfos && employeeInfos.FACILITY_COUNTRY}
+                  País: {employeeInfos && employeeInfos.FACILITY_COUNTRY}
                 </Typography>
                 <Typography variant="body2">
-                  Province: {employeeInfos && employeeInfos.FACILITY_PROVINCE}
+                  UF: {employeeInfos && employeeInfos.FACILITY_PROVINCE}
                 </Typography>
                 <Typography variant="body2">
-                  City: {employeeInfos && employeeInfos.FACILITY_CITY}
+                  Cidade: {employeeInfos && employeeInfos.FACILITY_CITY}
                 </Typography>
               </Grid>
           </Grid>
         </Paper>
       </Grid>
       <Grid item xs={12} sm={6} md={6} lg={6}>
-        <HocCard content="Pending  requests " qtd={pendingReqTotal} destination="/minhasSolicitacoesPendentes" icon={<TimerIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
+        <HocCard content="Solicitações pendentes" qtd={pendingReqTotal} destination="/minhasSolicitacoesPendentes" icon={<TimerIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
       </Grid>
       <Grid item xs={12} sm={6} md={6} lg={6}>
-        <HocCard content="Completed requests" qtd={completedReqTotal} destination="/minhasSolicitacoesConcluidas" icon={<DoneAllSharpIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
+        <HocCard content="Solicitações concluídas" qtd={completedReqTotal} destination="/minhasSolicitacoesConcluidas" icon={<DoneAllSharpIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
       </Grid>
 
     </Grid>

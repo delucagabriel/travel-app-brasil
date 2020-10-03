@@ -1,27 +1,30 @@
 import * as React from 'react';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { Context } from '../Context';
-import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Dialog, Hidden, Button, Snackbar } from '@material-ui/core';
-import { RequestDetailsComponent } from '../Details/RequestDetailsComponent';
+import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Dialog, Hidden, Button, Snackbar, Select, MenuItem, FormLabel } from '@material-ui/core';
 import ServiceApproval from '../Forms/ServiceApproval';
-import { Alert, AlertProps } from '@material-ui/lab';
+import { Alert } from '@material-ui/lab';
 import CloseIcon from '@material-ui/icons/Close';
-
-
-interface ISnack extends AlertProps {
-  open: boolean;
-  message: string;
-}
+import { HocRenderDetails } from '../HOC/HocRenderDetails';
+import { ISnack } from '../../Interfaces/ISnack';
 
 export default function AllPendingRequests() {
   const { allRequests } = useContext(Context);
   const [requestDetails, setRequestDetails] = useState({...allRequests[0], open:false});
-  const [filter, setFilter] = useState('');
+  const [filter, setFilter] = useState({
+    macroprocesso: '',
+    processo: ''
+  });
+  const [solicitacoesFiltradas, setSolicitacoesFiltradas] = useState(allRequests.filter(request => request.STATUS_APROVACAO === 'Aprovado' && (request.STATUS !== "Sucesso" && request.STATUS !=="Rejeitado") ));
   const [snackMessage, setSnackMessage] = useState<ISnack>({
     open: false,
     message: "",
     severity:'info'
   });
+
+  useEffect(()=>setSolicitacoesFiltradas(allRequests
+    .filter(request => request.MACROPROCESSO.includes(filter.macroprocesso))
+    .filter(request => request.PROCESSO.includes(filter.processo))), [filter]);
 
   const onChildChanged = callback => {
     setSnackMessage(callback.snack);
@@ -30,17 +33,37 @@ export default function AllPendingRequests() {
 
   const unique = arr => arr.filter((el, i, array) => array.indexOf(el) === i);
 
-  const processButtons = unique(allRequests.filter(request => request.STATUS_APROVACAO === 'Aprovado' && (request.STATUS !== "Successo" && request.STATUS !=="Rejeitado")).map(row => row.PROCESSO));
+  const uniqueMacroprocesso = unique(allRequests.map(row => row.MACROPROCESSO));
+
+  const uniqueProcesso = unique(solicitacoesFiltradas.map(row => row.PROCESSO));
+
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-        <Grid container xs={12} sm={12} md={12} lg={12} xl={12} justify='space-between' alignItems="center">
-        <Button variant="outlined" color="secondary" onClick={()=> setFilter('')}> All </Button>
-        {
-          processButtons.map(row => <Button variant="outlined" color="secondary" onClick={()=> setFilter(row)}> { row } </Button>)
-        }
-        </Grid>
+      <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
+        <FormLabel id="filtro_macro" component="legend">Macroprocesso</FormLabel>
+        <Select
+          fullWidth
+          id="filtro_macro"
+          onChange={e=> setFilter({...filter, macroprocesso:String(e.target.value)})}>
+            <MenuItem value=''>Tudo</MenuItem>
+            {
+              uniqueMacroprocesso.map(row => <MenuItem value={row}>{row}</MenuItem>)
+            }
+        </Select>
+      </Grid>
+      <Grid item xs={6} sm={6} md={6} lg={6} xl={6}>
+        <FormLabel id="filtro_processo" component="legend">Processo</FormLabel>
+        <Select
+          fullWidth
+          id="filtro_processo"
+          onChange={e=> setFilter({...filter, processo:String(e.target.value)})}
+        >
+          <MenuItem value=''>Tudo</MenuItem>
+          {
+            uniqueProcesso.map(row => <MenuItem value={row}>{row}</MenuItem>)
+          }
+        </Select>
       </Grid>
       <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
         <TableContainer component={Paper}>
@@ -49,14 +72,9 @@ export default function AllPendingRequests() {
               <TableRow>
                 <TableCell variant="head">#</TableCell>
                 <TableCell variant="head" align="center">Status</TableCell>
+                <TableCell variant="head" align="center">Macroprocesso</TableCell>
                 <Hidden smDown>
                   <TableCell variant="head" align="center">Processo</TableCell>
-                </Hidden>
-                <Hidden smDown>
-                  <TableCell variant="head" align="center">Status da aprovação</TableCell>
-                </Hidden>
-                <Hidden smDown>
-                  <TableCell variant="head" align="center">Status do atendimento</TableCell>
                 </Hidden>
                 <Hidden smDown>
                   <TableCell variant="head" align="center">Beneficiário</TableCell>
@@ -70,35 +88,29 @@ export default function AllPendingRequests() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {allRequests
-              .filter(request => request.STATUS_APROVACAO === 'Aprovado' && (request.STATUS !== "Successo" && request.STATUS !=="Rejeitado") )
-              .filter(request => request.PROCESSO.includes(filter))
-              .map((row) => (
-                <TableRow key={row.Id}
-                  onClick={() =>setRequestDetails({...row, open:true})}
-                >
-                  <TableCell variant="body" align="center">{row.Id}</TableCell>
-                  <TableCell variant="body" align="center">{row.STATUS}</TableCell>
-                  <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.PROCESSO}</TableCell>
-                  </Hidden>
-                  <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.STATUS_APROVACAO}</TableCell>
-                  </Hidden>
-                  <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.STATUS_ATENDIMENTO}</TableCell>
-                  </Hidden>
-                  <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.BENEFICIARIO_NOME}</TableCell>
-                  </Hidden>
-                  <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.Created}</TableCell>
-                  </Hidden>
-                  <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.Modified}</TableCell>
-                  </Hidden>
-                </TableRow>
-              ))
+              {
+                solicitacoesFiltradas
+                  .map((row) => (
+                    <TableRow key={row.Id}
+                      onClick={() =>setRequestDetails({...row, open:true})}
+                    >
+                      <TableCell variant="body" align="center">{row.Id}</TableCell>
+                      <TableCell variant="body" align="center">{row.STATUS}</TableCell>
+                      <TableCell variant="body" align="center">{row.MACROPROCESSO}</TableCell>
+                      <Hidden smDown>
+                        <TableCell variant="body" align="center">{row.PROCESSO}</TableCell>
+                      </Hidden>
+                      <Hidden smDown>
+                        <TableCell variant="body" align="center">{row.BENEFICIARIO_NOME}</TableCell>
+                      </Hidden>
+                      <Hidden smDown>
+                        <TableCell variant="body" align="center">{row.Created}</TableCell>
+                      </Hidden>
+                      <Hidden smDown>
+                        <TableCell variant="body" align="center">{row.Modified}</TableCell>
+                      </Hidden>
+                    </TableRow>
+                  ))
               }
             </TableBody>
           </Table>
@@ -111,10 +123,9 @@ export default function AllPendingRequests() {
           >
             <CloseIcon/>
           </Button>
-          <RequestDetailsComponent requestDetails={requestDetails}>
-            <ServiceApproval request={requestDetails} callbackParent={cb => onChildChanged(cb)}/>
-          </RequestDetailsComponent>
-
+            <HocRenderDetails type={requestDetails.MACROPROCESSO} details={requestDetails}>
+              <ServiceApproval request={requestDetails} callbackParent={cb => onChildChanged(cb)}/>
+            </HocRenderDetails> :
         </Dialog>
       </Grid>
 

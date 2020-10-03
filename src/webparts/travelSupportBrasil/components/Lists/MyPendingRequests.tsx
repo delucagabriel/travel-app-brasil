@@ -2,12 +2,15 @@ import * as React from 'react';
 import { useContext, useState } from 'react';
 import { Context } from '../Context';
 import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Dialog, Hidden, Button } from '@material-ui/core';
-import { RequestDetailsComponent } from '../Details/RequestDetailsComponent';
 import CloseIcon from '@material-ui/icons/Close';
+import { HocRenderDetails } from '../HOC/HocRenderDetails';
+
 
 export default function MyPendingRequests() {
   const { myRequests } = useContext(Context);
   const [requestDetails, setRequestDetails] = useState({...myRequests[0], open:false});
+
+
 
   return (
     <Grid container>
@@ -79,7 +82,8 @@ export default function MyPendingRequests() {
           >
             <CloseIcon/>
           </Button>
-          <RequestDetailsComponent requestDetails={requestDetails}/>
+          <HocRenderDetails type={requestDetails.MACROPROCESSO} details={requestDetails} />
+
         </Dialog>
       </Grid>
 

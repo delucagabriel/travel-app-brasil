@@ -11,12 +11,14 @@ import { newRequest } from '../../../services/RequestServices';
 import { IEmployee } from '../../../Interfaces/IEmployee';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { IRequest_LimitChange } from '../../../Interfaces/Requests/IRequest_LimitChange';
+import HocDialog from '../../HOC/HocDialog';
 
 const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
   ALCADA_APROVACAO: yup.string()
-  .when('TIPO_LIMITE_VALOR', (TIPO_LIMITE_VALOR, sch) => {
+  .when(['TIPO_LIMITE_VALOR', 'TIPO_DE_LIMITE'], (TIPO_LIMITE_VALOR, TIPO_DE_LIMITE, sch) => {
+    if(TIPO_DE_LIMITE === 'Saque') return sch.default('D-2');
     if(['Tipo I', 'Tipo II', 'Tipo III', 'Tipo IV'].indexOf(TIPO_LIMITE_VALOR) >=0 ) return sch.default('D-3');
     if(['Tipo V', 'Tipo VI'].indexOf(TIPO_LIMITE_VALOR)>=0) return sch.default('D-2');
     if(TIPO_LIMITE_VALOR === 'Tipo VII') return sch.default('D-1');
@@ -46,7 +48,9 @@ const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
 
   TIPO_DE_LIMITE: yup.string().required(),
   TIPO_LIMITE_VALOR: yup.string().required(),
-  PERIODO_FIM: yup.date().required(),
+  VALIDADE_NOVO_LIMITE: yup.string()
+  .when('TIPO_DE_LIMITE', (tipo, schm)=> tipo === 'Saque'? schm.oneOf(['90 dias']):schm.oneOf(['90 dias', 'Indeterminado']))
+  .required(),
   WF_APROVACAO: yup.boolean().default(true),
   ULTIMOS_DIGITOS_DO_CARTAO: yup.string()
   .length(4)
@@ -88,6 +92,17 @@ export default function LimitChange() {
   };
   return (
     <Paper>
+      <HocDialog>
+        <p>
+          Limite de saque:<br/>
+          O limite mensal de saque conforme NFN-0018 é de R$ 800 e este limite poderá se alterado provisoriamente mediante de acordo de um DE-2. O novo limite ficará disponível por um prazo máximo de 90 dias.
+        </p>
+
+        <p>
+          Limite de crédito:<br/>
+          O novo limite poderá ser alterado  por tempo indeterminado ou ficar disponível pelo prazo de 90 dias.
+        </p>
+      </HocDialog>
       <div style={{padding:"20px"}}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={3} justify="space-between">
@@ -125,8 +140,8 @@ export default function LimitChange() {
 
 
           <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-          <TextField fullWidth type="text" required name="BENEFICIARIO_ID" variant="outlined"
-              label="Matrícula" onBlur={ e=> handleGetEmployee(e.target.value) }
+          <TextField fullWidth type="text" name="BENEFICIARIO_ID" variant="outlined"
+              label="Empregado: Matrícula" onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
@@ -191,16 +206,25 @@ export default function LimitChange() {
               helperText={errors.TIPO_LIMITE_VALOR && errors.TIPO_LIMITE_VALOR.message}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField fullWidth id="EndDate" type="date" name="PERIODO_FIM" label="Vencimento do novo limite"
-            variant="outlined" InputLabelProps={{ shrink: true }} inputRef={register}
-            error={errors.PERIODO_FIM?true:false}
-            helperText={errors.PERIODO_FIM && errors.PERIODO_FIM.message}
-            >End Date</TextField>
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
+            <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Validade</FormLabel>
+            <Controller
+              as={
+                <Select fullWidth inputRef={register}>
+                  <MenuItem value='90 dias'>90 dias</MenuItem>
+                  <MenuItem value='Indeterminado'>Indeterminado</MenuItem>
+                </Select>
+              }
+              id="EndDate"
+              name="VALIDADE_NOVO_LIMITE"
+              defaultValue="90 dias"
+              control={control}
+              error={errors.VALIDADE_NOVO_LIMITE?true:false}
+              helperText={errors.VALIDADE_NOVO_LIMITE && errors.VALIDADE_NOVO_LIMITE.message}
+            />
           </Grid>
-
-          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-            <TextField fullWidth type="search" required name="APROVADOR_ID" variant="outlined" label="Approver"
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField fullWidth type="search" name="APROVADOR_ID" variant="outlined" label="Aprovador: Matrícula"
               error={errors.APROVADOR_ID?true:false}
               helperText={errors.APROVADOR_ID && errors.APROVADOR_ID.message}
               inputRef={register}
@@ -213,7 +237,7 @@ export default function LimitChange() {
               fullWidth
               type="text"
               name="APROVADOR_NOME"
-              label="Nome do aprovador"
+              label="Aprovador: Nome"
               variant="outlined"
               InputLabelProps={{ shrink: true }}
               value={approver ? approver.FULL_NAME : "" }
@@ -229,7 +253,7 @@ export default function LimitChange() {
               fullWidth
               type="text"
               name="APROVADOR_LEVEL"
-              label="Nível do aprovador"
+              label="Aprovador: Nível"
               value={approver && approver.APPROVAL_LEVEL_CODE}
               InputLabelProps={{ shrink: true }}
               inputRef={register}

@@ -48,11 +48,11 @@ export function SupportHome() {
 
   const handleStatistics = async()=>{
     setUniqueRequesters( unique( allRequests.map( req => req.Author.Title ) ).length );
-    setEmployeesServed( unique( allRequests.map( req => req.BeneficiaryID ) ).length );
+    setEmployeesServed( unique( allRequests.map( req => req.BENEFICIARIO_ID ) ).length );
     setAverageRequestsPerDay( averagePerDay( allRequests ) );
     setRequestsInThisYear( allRequests.filter( req => moment(req.Created).year === moment().year ).length );
-    setPendingReqTotal( allRequests.filter( req => req.STATUS_APROVACAO === 'Aprovado' && ( req.STATUS !== 'Successo' && req.STATUS !== 'Rejeitado' ) ).length );
-    setCompletedReqTotal( allRequests.filter( req => req.STATUS === 'Successo' || req.Status === 'Rejeitado' ).length );
+    setPendingReqTotal( allRequests.filter( req => req.STATUS_APROVACAO === "Aprovado" && ( req.STATUS !== "Sucesso" && req.STATUS !== "Rejeitado" ) ).length );
+    setCompletedReqTotal( allRequests.filter( req => req.STATUS == "Sucesso" || req.STATUS == "Rejeitado" ).length );
   };
 
   useEffect(()=> {
@@ -68,10 +68,10 @@ export function SupportHome() {
                 <Avatar style={{height:"80px", width:"80px"}} alt={employeeInfos && employeeInfos.Title}
                 src={employeeInfos && employeeInfos.Photo} />
                   <Typography variant="subtitle1">
-                    Hello, { employeeInfos && employeeInfos.Title.split(" ")[0]}!
+                    Olá, { employeeInfos && employeeInfos.Title.split(" ")[0]}!
                   </Typography>
                   <Typography variant="subtitle2">
-                    This is what we have to do
+                    Aqui está o que precisamos resolver
                   </Typography>
               </Grid>
           </Grid>
@@ -88,7 +88,7 @@ export function SupportHome() {
         <Card>
           <CardContent>
             <Typography align="center" variant="h6" component="header">
-              Some Statistics
+              Estatísticas
             </Typography>
           </CardContent>
         </Card>
@@ -101,7 +101,7 @@ export function SupportHome() {
               { uniqueRequesters }
             </Typography>
             <Typography align="center" variant="subtitle1" component="p">
-              Unique requesters
+              Solicitantes atendidos
             </Typography>
           </CardContent>
         </Card>
@@ -113,7 +113,7 @@ export function SupportHome() {
             { employeesServed }
             </Typography>
             <Typography align="center" variant="subtitle1" component="p">
-              Employees served
+              Empregados atendidos
             </Typography>
           </CardContent>
         </Card>
@@ -125,7 +125,7 @@ export function SupportHome() {
             { averageRequestsPerDay }
             </Typography>
             <Typography align="center" variant="subtitle1" component="p">
-              Average requests per day
+              Média diária
             </Typography>
           </CardContent>
         </Card>
@@ -137,7 +137,7 @@ export function SupportHome() {
             { requestsInThisYear }
             </Typography>
             <Typography align="center" variant="subtitle1" component="p">
-              Requests in this year
+              Solicitações neste ano
             </Typography>
           </CardContent>
         </Card>

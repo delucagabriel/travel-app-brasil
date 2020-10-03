@@ -42,7 +42,7 @@ export default function MyCompletedRequests() {
           </TableHead>
           <TableBody>
             {myRequests
-            .filter(request => request.STATUS === "Success" || request.STATUS === "Unsuccess" )
+            .filter(request => request.STATUS === "Sucesso" || request.STATUS === "Rejeitado" )
             .map((row) => (
               <TableRow key={row.Id} onClick={() =>setRequestDetails({...row, open:true})}>
                 <TableCell align="center">{row.Id}</TableCell>

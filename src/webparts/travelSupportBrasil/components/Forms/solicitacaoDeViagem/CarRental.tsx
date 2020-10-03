@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextField, Select, MenuItem, FormLabel, Grid, Button, Input, Paper, Typography, Snackbar } from '@material-ui/core';
+import { TextField, Select, MenuItem, FormLabel, Grid, Button, Input, Paper, Typography, Snackbar, FormControl, RadioGroup, FormControlLabel, Radio } from '@material-ui/core';
 import { useState, useContext } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { Alert } from '@material-ui/lab';
@@ -8,40 +8,35 @@ import { yupResolver } from '@hookform/resolvers';
 import { getEmployee } from '../../../services/EmployeesService';
 import { newRequest } from '../../../services/RequestServices';
 import { IEmployee } from '../../../Interfaces/IEmployee';
-import { IRequest_CancelCard } from '../../../Interfaces/Requests/IRequest_CancelCard';
+import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
 
 
 
-const schema: yup.ObjectSchema<IRequest_CancelCard> = yup.object().shape({
+const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
-  SLA: yup.number().default(48),
-  AREA_RESOLVEDORA: yup.string().default("Bradesco"),
+  SLA: yup.number().default(24),
+  AREA_RESOLVEDORA: yup.string().default("Viagens Corporativas"),
   ALCADA_APROVACAO: yup.string().default(""),
+  WF_APROVACAO: yup.boolean().default(false),
+  DATA_DE_APROVACAO: yup.date().default(new Date()),
+  STATUS_APROVACAO: yup.string().default('Aprovado'),
 
   BENEFICIARIO_ID: yup.string().required(),
   BENEFICIARIO_NOME: yup.string().required(),
-  BENEFICIARIO_EMAIL: yup.string().required(),
-  BENEFICIARIO_EMPRESA_COD: yup.string().required(),
-  BENEFICIARIO_EMPRESA_NOME: yup.string().required(),
+  BENEFICIARIO_EMAIL: yup.string().email().matches(/@vale|@itv|@ctss|@newsteel/).required(),
+  BENEFICIARIO_EMPRESA_COD: yup.string(),
+  BENEFICIARIO_EMPRESA_NOME: yup.string(),
 
-  ULTIMOS_DIGITOS_DO_CARTAO: yup.string()
-    .length(4)
-    .matches(/\d/, "Only numbers")
-    .required(),
   MOTIVO: yup.string()
-    .min(10)
-    .required(),
-  WF_APROVACAO: yup.boolean().default(false),
-  DATA_DE_APROVACAO: yup.date().default(new Date()),
-  STATUS_APROVACAO: yup.string().default('Aprovado')
-
+  .min(50)
+  .required()
 });
 
-export default function CancelCard() {
-  const { register, handleSubmit, control, errors, reset } = useForm<IRequest_CancelCard>({
+export default function CarRental() {
+  const { register, handleSubmit, control, errors, reset, setValue } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
@@ -52,11 +47,20 @@ export default function CancelCard() {
   });
   const { updateContext } = useContext(Context);
 
+  console.log(errors);
+
   const handleGetEmployee = value =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => setEmployee(emp));
+    .then(emp => {
+      setEmployee(emp);
+      setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+        shouldDirty: true
+      });
+      setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+        shouldDirty: true
+      });
+    });
 
-
-  const onSubmit = (data:IRequest_CancelCard, e) => {
+  const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
       .then(res => {
         setSnackMessage({open:true, message: `Solicitação gravada com suceso! ID:${res.data.ID}`, severity:"success"});
@@ -79,12 +83,11 @@ export default function CancelCard() {
             <Controller
               as={
                 <Select disabled fullWidth>
-                  <MenuItem value="Cartão corporativo"> Cartão corporativo </MenuItem>
+                  <MenuItem value="Solicitação de viagem"> Solicitação de viagem </MenuItem>
                 </Select>
               }
               name="MACROPROCESSO"
-              defaultValue="Cartão corporativo"
-              rules={{ required: "Campo obrigatório" }}
+              defaultValue="Solicitação de viagem"
               control={control}
               error={errors.MACROPROCESSO?true:false}
               helperText={errors.MACROPROCESSO && errors.MACROPROCESSO.message}
@@ -95,62 +98,49 @@ export default function CancelCard() {
             <Controller
               as={
                 <Select disabled fullWidth>
-                  <MenuItem value="Cancelar cartão">Cancelar cartão</MenuItem>
+                  <MenuItem value="Locação de veículo">Locação de veículo</MenuItem>
                 </Select>
               }
               id="Process"
               name="PROCESSO"
-              defaultValue="Cancelar cartão"
-              rules={{ required: "Campo obrigatório" }}
+              defaultValue="Locação de veículo"
               control={control}
               error={errors.PROCESSO?true:false}
               helperText={errors.PROCESSO && errors.PROCESSO.message}
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField fullWidth type="text" required name="BENEFICIARIO_ID" variant="outlined"
-              label="Matrícula do empregado" onBlur={ e=> handleGetEmployee(e.target.value) }
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <TextField type="text" name="BENEFICIARIO_ID" variant="outlined"
+              label="Matrícula" onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
             />
           </Grid>
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField fullWidth variant="outlined" type="text" required name="ULTIMOS_DIGITOS_DO_CARTAO" label="Últimos 4 dígitos"
-              inputRef={register}
-              error={errors.ULTIMOS_DIGITOS_DO_CARTAO?true:false}
-              helperText={errors.ULTIMOS_DIGITOS_DO_CARTAO && errors.ULTIMOS_DIGITOS_DO_CARTAO.message}
-            />
-          </Grid>
-
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
             <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do empregado" variant="outlined"
-              value={employee? employee.FULL_NAME: ""}
               inputRef={register}
-              InputProps={{
-                readOnly: true,
-              }}
               InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_NOME?true:false}
               helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
+              value={employee ? employee.FULL_NAME : ""}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField disabled fullWidth type="text" name="BENEFICIARIO_EMAIL" label="E-mail do empregado"
-              variant="outlined"  value={employee ? employee.WORK_EMAIL_ADDRESS : "" }
+            <TextField disabled fullWidth type="email" name="BENEFICIARIO_EMAIL" label="E-mail do empregado"
+              variant="outlined"
               inputRef={register}
-              InputProps={{
-                readOnly: true,
-              }}
               InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_EMAIL?true:false}
               helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+              value={employee ? employee.WORK_EMAIL_ADDRESS : ""}
             />
           </Grid>
-
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
-            <TextField fullWidth variant="outlined" type="text" name="MOTIVO" label="Motivo" inputRef={register}
+            <TextField fullWidth variant="outlined" type="text"
+            multiline rows={5}
+            name="MOTIVO" label="Descrição detalhada do problema" inputRef={register}
               error={errors.MOTIVO?true:false}
               helperText={errors.MOTIVO && errors.MOTIVO.message}
             />

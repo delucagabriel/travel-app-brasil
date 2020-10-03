@@ -17,6 +17,12 @@ import { InsertOrUpdateEmployees } from './InsertOrUpdateEmployees';
 import { Context } from './Context';
 import InternetPurchaseUnlock from './Forms/cartoes/InternetPurchaseUnlock';
 import CorporateCardProblems from './Forms/cartoes/CorporateCardProblems';
+import TravelSystemAccessDificulty from './Forms/solicitacaoDeViagem/TravelSystemAccessDificulty';
+import ApprovalDelegation from './Forms/solicitacaoDeViagem/ApprovalDelegation';
+import CarRental from './Forms/solicitacaoDeViagem/CarRental';
+import VisaIssue from './Forms/solicitacaoDeViagem/VisaIssue';
+import TravelInsurance from './Forms/solicitacaoDeViagem/TravelInsurance';
+import QuestionsInRequest from './Forms/solicitacaoDeViagem/QuestionsInRequest';
 
 const theme = createMuiTheme({
   palette: {
@@ -50,25 +56,43 @@ export const Routes = ()=>{
         <Menu>
           <Switch>
           {/* { Public routes } */}
+            {/*  Listas  */}
             <Route path="/" exact={true} component={Home} />
             <Route path="/minhasSolicitacoesPendentes" exact={true} component={MyPendingRequests} />
             <Route path="/minhasSolicitacoesConcluidas" exact={true} component={MyCompletedRequests} />
+
+            {/*  Cartões  */}
             <Route path="/novoCartao" exact={true} component={NewCreditCard} />
             <Route path="/cancelarCartao" exact={true} component={CancelCard} />
             <Route path="/alterarLimite" exact={true} component={LimitChange} />
             <Route path="/liberarCompraPelaInternet" exact={true} component={InternetPurchaseUnlock} />
             <Route path="/ProblemasComCartaoCorporativo" exact={true} component={CorporateCardProblems} />
 
+            {/*  Solicitaçao de viagem  */}
+            <Route path="/DificuldadeDeAcessoAoSistema" exact={true} component={TravelSystemAccessDificulty} />
+            <Route path="/DelegacaoDaAprovacaoDaViagem" exact={true} component={ApprovalDelegation} />
+            <Route path="/LocacaoDeVeiculo" exact={true} component={CarRental} />
+            <Route path="/EmissaoDeVisto" exact={true} component={VisaIssue} />
+            <Route path="/SeguroViagem" exact={true} component={TravelInsurance} />
+            <Route path="/DuvidaNaSolicitacao" exact={true} component={QuestionsInRequest} />
+            <Route path="/AprovadorInexistente" exact={true} component={TravelSystemAccessDificulty} />
+            <Route path="/TratamentoDeExcecoes" exact={true} component={TravelSystemAccessDificulty} />
+
           {/* { Private routes } */}
+            {/*  Listas  */}
             <PrivateRoute path="/todasSolicitacoesPendentes" exact={true} >
               <AllPendingRequests/>
             </PrivateRoute>
             <PrivateRoute path="/todasSolicitacoesConcluidas" exact={true} >
               <AllCompletedRequests/>
             </PrivateRoute>
+
+            {/*  Atendimento  */}
             <PrivateRoute path="/atendimento" exact={true} >
               <SupportHome/>
             </PrivateRoute>
+
+            {/*  Atualização de empregados  */}
             <PrivateRoute path="/InsertOrUpdateEmployees" exact={true} >
               <InsertOrUpdateEmployees/>
             </PrivateRoute>
