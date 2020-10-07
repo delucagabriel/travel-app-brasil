@@ -51,7 +51,7 @@ export function SupportHome() {
     setEmployeesServed( unique( allRequests.map( req => req.BENEFICIARIO_ID ) ).length );
     setAverageRequestsPerDay( averagePerDay( allRequests ) );
     setRequestsInThisYear( allRequests.filter( req => moment(req.Created).year === moment().year ).length );
-    setPendingReqTotal( allRequests.filter( req => req.STATUS_APROVACAO === "Aprovado" && ( req.STATUS !== "Sucesso" && req.STATUS !== "Rejeitado" ) ).length );
+    setPendingReqTotal( allRequests.filter( req => req.STATUS_APROVACAO === "Aprovado" && req.STATUS != "Sucesso" && req.STATUS != "Rejeitado" ).length );
     setCompletedReqTotal( allRequests.filter( req => req.STATUS == "Sucesso" || req.STATUS == "Rejeitado" ).length );
   };
 

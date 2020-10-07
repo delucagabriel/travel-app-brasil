@@ -94,3 +94,5 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
     }
     return requests;
   };
+
+  export const getRequestById = async (id:number) => sp.web.lists.getByTitle('SOLICITACOES').items.getById(id).get();

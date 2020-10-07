@@ -42,8 +42,9 @@ export default function MyPendingRequests() {
               </TableRow>
             </TableHead>
             <TableBody>
+              { console.log(myRequests) }
               {myRequests
-              .filter(request => request.STATUS !== "Success" && request.STATUS !=="Unsuccess" )
+              .filter(request => request.STATUS.toLowerCase() !== "sucesso" && request.STATUS.toLowerCase() !=="rejeitado" )
               .map((row) => (
                 <TableRow key={row.Id}
                   onClick={() =>setRequestDetails({...row, open:true})}

@@ -5,6 +5,7 @@ import { sp } from "@pnp/sp";
 import { getEmployee, handleGetMyInfos } from '../services/EmployeesService';
 import { IEmployee } from '../Interfaces/IEmployee';
 import { handleGetAllRequests } from '../services/RequestServices';
+import { IRequests_AllFields } from '../Interfaces/Requests/IRequests';
 
 interface User {
   Email:string;
@@ -18,8 +19,8 @@ const Context = createContext(null);
 const Provider = ({children}) => {
   const [myInfos, setMyInfos] = useState<User>();
   const [employeeInfos, setEmployeeInfos] = useState<Employee>();
-  const [myRequests, setMyRequests] = useState([]);
-  const [allRequests, setAllRequests] = useState([]);
+  const [myRequests, setMyRequests] = useState<IRequests_AllFields[]>([]);
+  const [allRequests, setAllRequests] = useState<IRequests_AllFields[]>([]);
   const [loading, setLoading] = useState(true);
   const [updateInfos, setUpdateInfos] = useState(true);
 

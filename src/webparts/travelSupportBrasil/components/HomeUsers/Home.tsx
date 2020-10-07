@@ -34,8 +34,8 @@ export default function Home() {
   const [completedReqTotal, setCompletedReqTotal] = useState(0);
 
   useEffect(()=> {
-    setPendingReqTotal(myRequests.filter(req => req.STATUS !== 'Sucesso' && req.STATUS !== 'Rejeitado').length);
-    setCompletedReqTotal(myRequests.filter(req => req.STATUS == 'Sucesso' || req.STATUS == 'Rejeitado').length);
+    setPendingReqTotal(myRequests.filter(req => req.STATUS.toLowerCase() !== 'sucesso' && req.STATUS.toLowerCase() !== 'rejeitado').length);
+    setCompletedReqTotal(myRequests.filter(req => req.STATUS.toLowerCase() == 'sucesso' || req.STATUS.toLowerCase() == 'rejeitado').length);
   }, [myRequests]);
 
 

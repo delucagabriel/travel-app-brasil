@@ -18,7 +18,7 @@ export default function AllCompletedRequests() {
 
 
   useEffect(()=>{
-    setFilteredRequests(allRequests.filter(request => request.STATUS === "Sucesso" || request.STATUS === "Rejeitado" ));
+    setFilteredRequests(allRequests.filter(request => request.STATUS.toLowerCase() === "sucesso" || request.STATUS.toLowerCase() === "rejeitado" ));
   }, [allRequests]);
 
   const handleFilter= event => setFilter(event.target.value.toLowerCase());
@@ -34,7 +34,7 @@ export default function AllCompletedRequests() {
         <Button color='secondary' style={{float:'right'}}>
           <CSVLink
             data={filteredDownload}
-            filename={"TS+Brasil_SOLICITACOES.csv"}
+            filename={"TS_Brasil_SOLICITACOES.csv"}
             style={{textDecoration:'none'}}
           >
             Export

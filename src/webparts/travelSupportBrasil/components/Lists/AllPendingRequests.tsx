@@ -7,6 +7,7 @@ import { Alert } from '@material-ui/lab';
 import CloseIcon from '@material-ui/icons/Close';
 import { HocRenderDetails } from '../HOC/HocRenderDetails';
 import { ISnack } from '../../Interfaces/ISnack';
+import { IRequests_AllFields } from '../../Interfaces/Requests/IRequests';
 
 export default function AllPendingRequests() {
   const { allRequests } = useContext(Context);
@@ -15,14 +16,19 @@ export default function AllPendingRequests() {
     macroprocesso: '',
     processo: ''
   });
-  const [solicitacoesFiltradas, setSolicitacoesFiltradas] = useState(allRequests.filter(request => request.STATUS_APROVACAO === 'Aprovado' && (request.STATUS !== "Sucesso" && request.STATUS !=="Rejeitado") ));
+  const [solicitacoesFiltradas, setSolicitacoesFiltradas] = useState<IRequests_AllFields[]>(
+    allRequests.filter( (req:IRequests_AllFields) => req.STATUS_APROVACAO === "Aprovado" && ( req.STATUS !== "Sucesso" && req.STATUS !== "Rejeitado"))
+    );
   const [snackMessage, setSnackMessage] = useState<ISnack>({
     open: false,
     message: "",
     severity:'info'
   });
 
+  useEffect(()=>setSolicitacoesFiltradas(allRequests.filter( (req:IRequests_AllFields) => req.STATUS_APROVACAO === "Aprovado" && ( req.STATUS !== "Sucesso" && req.STATUS !== "Rejeitado"))), [allRequests]);
+
   useEffect(()=>setSolicitacoesFiltradas(allRequests
+    .filter( (req:IRequests_AllFields) => req.STATUS_APROVACAO === "Aprovado" && ( req.STATUS !== "Sucesso" && req.STATUS !== "Rejeitado"))
     .filter(request => request.MACROPROCESSO.includes(filter.macroprocesso))
     .filter(request => request.PROCESSO.includes(filter.processo))), [filter]);
 
@@ -32,11 +38,8 @@ export default function AllPendingRequests() {
   };
 
   const unique = arr => arr.filter((el, i, array) => array.indexOf(el) === i);
-
   const uniqueMacroprocesso = unique(allRequests.map(row => row.MACROPROCESSO));
-
   const uniqueProcesso = unique(solicitacoesFiltradas.map(row => row.PROCESSO));
-
 
   return (
     <Grid container spacing={2}>
@@ -80,10 +83,10 @@ export default function AllPendingRequests() {
                   <TableCell variant="head" align="center">Beneficiário</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Created</TableCell>
+                  <TableCell variant="head" align="center">Criado em</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Modified</TableCell>
+                  <TableCell variant="head" align="center">Modificado em</TableCell>
                 </Hidden>
               </TableRow>
             </TableHead>

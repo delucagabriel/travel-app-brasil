@@ -23,6 +23,10 @@ import CarRental from './Forms/solicitacaoDeViagem/CarRental';
 import VisaIssue from './Forms/solicitacaoDeViagem/VisaIssue';
 import TravelInsurance from './Forms/solicitacaoDeViagem/TravelInsurance';
 import QuestionsInRequest from './Forms/solicitacaoDeViagem/QuestionsInRequest';
+import NonExistentApprover from './Forms/solicitacaoDeViagem/NonExistentApprover';
+import VirtualHostingCard from './Forms/solicitacaoDeViagem/VirtualHostingCard';
+import HostingRegularization from './Forms/solicitacaoDeViagem/HostingRegularization';
+import NonPreferredAirline from './Forms/solicitacaoDeViagem/NonPreferredAirline';
 
 const theme = createMuiTheme({
   palette: {
@@ -75,8 +79,10 @@ export const Routes = ()=>{
             <Route path="/EmissaoDeVisto" exact={true} component={VisaIssue} />
             <Route path="/SeguroViagem" exact={true} component={TravelInsurance} />
             <Route path="/DuvidaNaSolicitacao" exact={true} component={QuestionsInRequest} />
-            <Route path="/AprovadorInexistente" exact={true} component={TravelSystemAccessDificulty} />
-            <Route path="/TratamentoDeExcecoes" exact={true} component={TravelSystemAccessDificulty} />
+            <Route path="/AprovadorInexistente" exact={true} component={NonExistentApprover} />
+            <Route path="/emissaoBTB" exact={true} component={VirtualHostingCard} />
+            <Route path="/RegularizacaoBTB" exact={true} component={HostingRegularization} />
+            <Route path="/CiaAereaNaoPreferencial" exact={true} component={NonPreferredAirline} />
 
           {/* { Private routes } */}
             {/*  Listas  */}

@@ -12,6 +12,8 @@ import SecurityIcon from '@material-ui/icons/Security';
 import ContactSupportIcon from '@material-ui/icons/ContactSupport';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import NewReleasesIcon from '@material-ui/icons/NewReleases';
+import CardTravelIcon from '@material-ui/icons/CardTravel';
+import AirplayIcon from '@material-ui/icons/Airplay';
 
 const CreateServices = ()=> {
   const cartaoCorporativo =
@@ -112,7 +114,7 @@ const CreateServices = ()=> {
     process: [
       {
         text: "Dificuldade de acesso ao sistema",
-        icon: <AirplanemodeInactiveIcon />,
+        icon: <AirplayIcon />,
         path: "/DificuldadeDeAcessoAoSistema"
       },
       {
@@ -146,9 +148,19 @@ const CreateServices = ()=> {
         path: "/AprovadorInexistente"
       },
       {
-        text: "Tratamento de exceções",
+        text: "Cartão virtual de hospedagem",
+        icon:<CardTravelIcon />,
+        path: "/emissaoBTB"
+      },
+      {
+        text: "Regularização de hospedagem",
         icon:<NewReleasesIcon />,
-        path: "/TratamentoDeExcecoes"
+        path: "/RegularizacaoBTB"
+      },
+      {
+        text: "Cia Aérea não preferencial",
+        icon:<AirplanemodeInactiveIcon />,
+        path: "/CiaAereaNaoPreferencial"
       },
     ]
   };

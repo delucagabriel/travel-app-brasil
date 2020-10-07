@@ -74,6 +74,7 @@ export interface IRequests_AllFields {
   ACOMPANHANTES?: string;
   ULTIMOS_DIGITOS_DO_CARTAO?: string;
   DATA_DE_APROVACAO?: Date;
+  STATUS?: string;
   STATUS_APROVACAO?: string;
   STATUS_ATENDIMENTO?: string;
   DATA_DE_ATENDIMENTO?: Date;
@@ -84,4 +85,16 @@ export interface IRequests_AllFields {
   VIAGEM_DESTINO?: string;
   TIPO_SERVICO_VIAGEM?: string;
   VALIDADE_NOVO_LIMITE?: string;
+  MOTIVO_DA_VIAGEM?: string;
+  SOLICITANTE_ID?: string;
+  SOLICITANTE_NOME?: string;
+  SOLICITANTE_EMAIL?: string;
+  SOLICITANTE_EMPRESA_COD?: string;
+  SOLICITANTE_EMPRESA_NOME?: string;
+  OBS_PARA_SOLICITACAO?: string;
+  ID_SOLICITACAO_CARTAO?: number;
+  TIPO_SOLICITACAO_CARTAO?: string;
+  PORTADOR_SOLIC_CARTAO?: string;
+  Created?: Date;
+  Modified?: Date;
 }

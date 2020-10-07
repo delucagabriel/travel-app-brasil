@@ -87,7 +87,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function MiniDrawer({children}) {
   const classes = useStyles();
-  const { loading, employeeInfos } = useContext(Context);
+  const { loading, employeeInfos, updateContext } = useContext(Context);
   const history = useHistory();
   const theme = useTheme();
   const [open, setOpen] = useState(true);
@@ -123,14 +123,14 @@ export default function MiniDrawer({children}) {
           >
             <Menu />
           </IconButton>
-          <Button color="inherit" onClick={()=> history.push("/")}>
+          <Button color="inherit" onClick={()=> {updateContext(); history.push("/");}}>
           <Typography color="inherit" variant="subtitle1" noWrap>
             Travel Support Brasil
           </Typography>
           </Button>
           <div className={classes.grow} />
           { employeeInfos && employeeInfos.isAdmin &&
-            <Button color="inherit" onClick={()=> history.push("/atendimento")}>
+            <Button color="inherit" onClick={()=> {updateContext(); history.push("/atendimento");}}>
               <HowToReg color="inherit" fontSize='large'/>
             </Button>
           }
