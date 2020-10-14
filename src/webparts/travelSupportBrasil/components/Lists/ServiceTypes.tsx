@@ -14,6 +14,20 @@ import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
 import NewReleasesIcon from '@material-ui/icons/NewReleases';
 import CardTravelIcon from '@material-ui/icons/CardTravel';
 import AirplayIcon from '@material-ui/icons/Airplay';
+import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
+import SwapVertIcon from '@material-ui/icons/SwapVert';
+import ErrorIcon from '@material-ui/icons/Error';
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import SyncProblemIcon from '@material-ui/icons/SyncProblem';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import CancelScheduleSendIcon from '@material-ui/icons/CancelScheduleSend';
+import MoneyOffIcon from '@material-ui/icons/MoneyOff';
+import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
+import PaymentIcon from '@material-ui/icons/Payment';
+import FindInPageIcon from '@material-ui/icons/FindInPage';
+import SendIcon from '@material-ui/icons/Send';
+import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
+import AddLocationIcon from '@material-ui/icons/AddLocation';
 
 const CreateServices = ()=> {
   const cartaoCorporativo =
@@ -26,12 +40,12 @@ const CreateServices = ()=> {
       path: "/novoCartao"
     },
     {
-      text: "Cancelar cartão",
+      text: "Cancelamento do cartão corporativo",
       icon: <Cancel />,
       path: "/cancelarCartao"
     },
     {
-      text: "Alterar limite",
+      text: "Alteração do limite do cartão corporativo",
       icon:<Swap />,
       path: "/alterarLimite"
     },
@@ -71,19 +85,79 @@ const CreateServices = ()=> {
     name: 'Prestação de contas',
     process: [
       {
-        text: "Novo cartão",
-        icon: <AddBoxIcon />,
-        path: "/novoCartao"
+        text: "Delegação da aprovação",
+        icon: <SwapVertIcon />,
+        path: "/DelegacaoDaAprovacao"
       },
       {
-        text: "Cancelar cartão",
-        icon: <Cancel />,
-        path: "/cancelarCartao"
+        text: "Delegação da prestação de contas",
+        icon: <SwapHorizIcon />,
+        path: "/DelegacaoDaPrestacao"
       },
       {
-        text: "Alterar limite",
-        icon:<Swap />,
-        path: "/alterarLimite"
+        text: "Problemas na prestação (Empregado Ativo)",
+        icon:<ErrorIcon />,
+        path: "/ProblemasNaPrestacaoEmpregadoAtivo"
+      },
+      {
+        text: "Problemas na prestação (Empregado Desligado)",
+        icon:<ErrorOutlineIcon />,
+        path: "/ProblemasNaPrestacaoEmpregadoDesligado"
+      },
+      {
+        text: "Problemas na prestação (Empregado Transferido/Expatriado)",
+        icon:<SyncProblemIcon />,
+        path: "/ProblemasNaPrestacaoEmpregadoTransferido"
+      },
+      {
+        text: "Despesa não reconhecida",
+        icon:<HelpOutlineIcon />,
+        path: "/DespesaNaoReconhecida"
+      },
+      {
+        text: "Falha na contabilização",
+        icon:<CancelScheduleSendIcon />,
+        path: "/FalhaNaContabilizacao"
+      },
+      {
+        text: "Despesa não disponível",
+        icon:<MoneyOffIcon />,
+        path: "/DespesaNaoDisponivel"
+      },
+      {
+        text: "Reembolso (Empregado ativo)",
+        icon:<PaymentIcon />,
+        path: "/ReembolsoEmpregadoAtivo"
+      },
+      {
+        text: "Reembolso (Empregado desligado)",
+        icon:<AttachMoneyIcon />,
+        path: "/ReembolsoEmpregadoDesligado"
+      },
+      {
+        text: "Consulta a desconto de viagens",
+        icon:<FindInPageIcon />,
+        path: "/ConsultaADescontoDeViagens"
+      },
+      {
+        text: "Envio de valor para desconto manual",
+        icon:<SendIcon />,
+        path: "/EnvioDeValorParaDesconto"
+      },
+      {
+        text: "Desbloqueio de cartão e sistema",
+        icon:<CardTravelIcon />,
+        path: "/DesbloqueioDeCartaoESistema"
+      },
+      {
+        text: "Aprovação da prestação de contas",
+        icon:<PlaylistAddCheckIcon />,
+        path: "/AprovacaoDaPrestacao"
+      },
+      {
+        text: "Cadastrar cidade no Concur",
+        icon:<AddLocationIcon />,
+        path: "/CadastrarCidadeNoConcur"
       },
     ]
   };
@@ -113,9 +187,9 @@ const CreateServices = ()=> {
     name: 'Solicitação de viagem',
     process: [
       {
-        text: "Dificuldade de acesso ao sistema",
+        text: "Problemas na solicitação",
         icon: <AirplayIcon />,
-        path: "/DificuldadeDeAcessoAoSistema"
+        path: "/ProblemasNaSolicitacao"
       },
       {
         text: "Delegar aprovação da viagem",
@@ -123,42 +197,22 @@ const CreateServices = ()=> {
         path: "/DelegacaoDaAprovacaoDaViagem"
       },
       {
-        text: "Locação de veículo",
-        icon:<DriveEtaIcon />,
-        path: "/LocacaoDeVeiculo"
-      },
-      {
-        text: "Emissão de visto",
-        icon:<GavelIcon />,
-        path: "/EmissaoDeVisto"
-      },
-      {
-        text: "Seguro viagem",
-        icon:<SecurityIcon />,
-        path: "/SeguroViagem"
-      },
-      {
-        text: "Dúvida na solicitação",
-        icon:<ContactSupportIcon />,
-        path: "/DuvidaNaSolicitacao"
-      },
-      {
         text: "Aprovador inexistente",
         icon:<AssignmentIndIcon />,
         path: "/AprovadorInexistente"
       },
       {
-        text: "Cartão virtual de hospedagem",
+        text: "Tratamento de exceções - Cartão virtual de hospedagem",
         icon:<CardTravelIcon />,
         path: "/emissaoBTB"
       },
       {
-        text: "Regularização de hospedagem",
+        text: "Tratamento de exceções - Regularização de hospedagem",
         icon:<NewReleasesIcon />,
         path: "/RegularizacaoBTB"
       },
       {
-        text: "Cia Aérea não preferencial",
+        text: "Tratamento de exceções - Cia Aérea não preferencial",
         icon:<AirplanemodeInactiveIcon />,
         path: "/CiaAereaNaoPreferencial"
       },

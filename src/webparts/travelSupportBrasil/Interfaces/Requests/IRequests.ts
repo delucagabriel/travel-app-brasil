@@ -31,6 +31,7 @@ export interface IRequests_AllFields {
   BENEFICIARIO_ID?: string;
   BENEFICIARIO_NOME?: string;
   BENEFICIARIO_EMAIL?: string;
+  BENEFICIARIO_LEVEL?: string;
   BENEFICIARIO_EMPRESA_COD?: string;
   BENEFICIARIO_EMPRESA_NOME?: string;
   CPF?: string;
@@ -43,6 +44,7 @@ export interface IRequests_AllFields {
   DONO_DA_DESPESA_ID?: string;
   DONO_DA_DESPESA_NOME?: string;
   DONO_DA_DESPESA_EMAIL?: string;
+  DONO_DA_DESPESA_LEVEL?: string;
   DONO_DA_DESPESA_EMPRESA_COD?: string;
   DONO_DA_DESPESA_EMPRESA_NOME?: string;
   RESP_MEDICAO_ID?: string;
@@ -52,7 +54,7 @@ export interface IRequests_AllFields {
   RESP_MEDICAO_EMPRESA_NOME?: string;
   EMPREGADO_TERCEIRO?: boolean;
   CNPJ_DE_FATURAMENTO?: string;
-  NOVO_LIMITE?: string;
+  NOVO_LIMITE?: number;
   TIPO_DE_LIMITE?: String;
   TIPO_LIMITE_VALOR?: string;
   QUANTIDADE_DE_CARTOES?: number;
@@ -95,6 +97,8 @@ export interface IRequests_AllFields {
   ID_SOLICITACAO_CARTAO?: number;
   TIPO_SOLICITACAO_CARTAO?: string;
   PORTADOR_SOLIC_CARTAO?: string;
+  VISA_INFINITE?: string;
+  TFD?: boolean;
   Created?: Date;
   Modified?: Date;
 }

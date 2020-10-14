@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@material-ui/core';
 
-export default function HocDialog({children}) {
-  const [open, setOpen] = React.useState(true);
+export default function HocDialog({children, openDialog = true}) {
+  const [open, setOpen] = React.useState(openDialog);
 
   const handleClose = () => {
     setOpen(false);

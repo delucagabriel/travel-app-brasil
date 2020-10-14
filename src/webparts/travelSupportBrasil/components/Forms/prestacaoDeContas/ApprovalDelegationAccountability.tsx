@@ -27,24 +27,26 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
 
   DONO_DA_DESPESA_ID: yup.string().required(),
   DONO_DA_DESPESA_NOME: yup.string().required(),
-  DONO_DA_DESPESA_EMAIL: yup.string().required(),
+  DONO_DA_DESPESA_EMAIL: yup.string().email().required(),
+  DONO_DA_DESPESA_LEVEL: yup.string().required(),
   DONO_DA_DESPESA_EMPRESA_COD: yup.string(),
   DONO_DA_DESPESA_EMPRESA_NOME: yup.string().required(),
 
   BENEFICIARIO_ID: yup.string().required(),
   BENEFICIARIO_NOME: yup.string().required(),
   BENEFICIARIO_EMAIL: yup.string().email().required(),
+  BENEFICIARIO_LEVEL: yup.string().required(),
   BENEFICIARIO_EMPRESA_COD: yup.string(),
   BENEFICIARIO_EMPRESA_NOME: yup.string(),
 
-  TIPO_DE_DELEGACAO: yup.string().default('Aprovação de viagem'),
+  TIPO_DE_DELEGACAO: yup.string().default('Delegação da aprovação'),
   PERIODO_FIM: yup.date().min(new Date()),
   MOTIVO: yup.string()
   .min(20)
   .required()
 });
 
-export default function ApprovalDelegation() {
+export default function ApprovalDelegationAccountability() {
   const { register, handleSubmit, control, errors, reset, setValue } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
@@ -82,9 +84,7 @@ export default function ApprovalDelegation() {
     <Paper>
       <HocDialog>
         <p>
-          A delegação deve ser realizada pelo aprovador, no Sistema de Viagens, antes da sua ausência. <br/>
-          Em caso de dúvidas sobre como realizar a delegação, consulte o passo a passo disponível na intranet, em Institucional e serviços > Viagens > Solicitação de viagem >  Aprovação das solicitações de viagens. <br/>
-          Caso o gestor tenha se ausentado antes de realizar a delegação, preencha este formulário.
+          ...
         </p>
       </HocDialog>
       <div style={{padding:"20px"}}>
@@ -95,11 +95,11 @@ export default function ApprovalDelegation() {
             <Controller
               as={
                 <Select disabled fullWidth>
-                  <MenuItem value="Solicitação de viagem"> Solicitação de viagem </MenuItem>
+                  <MenuItem value="Prestação de contas"> Prestação de contas </MenuItem>
                 </Select>
               }
               name="MACROPROCESSO"
-              defaultValue="Solicitação de viagem"
+              defaultValue="Prestação de contas"
               control={control}
               error={errors.MACROPROCESSO?true:false}
               helperText={errors.MACROPROCESSO && errors.MACROPROCESSO.message}
@@ -110,12 +110,12 @@ export default function ApprovalDelegation() {
             <Controller
               as={
                 <Select disabled fullWidth>
-                  <MenuItem value="Delegação da aprovação da viagem">Delegação da aprovação da viagem</MenuItem>
+                  <MenuItem value="Delegação da aprovação">Delegação da aprovação</MenuItem>
                 </Select>
               }
               id="Process"
               name="PROCESSO"
-              defaultValue="Delegação da aprovação da viagem"
+              defaultValue="Delegação da aprovação"
               control={control}
               error={errors.PROCESSO?true:false}
               helperText={errors.PROCESSO && errors.PROCESSO.message}
@@ -130,7 +130,7 @@ export default function ApprovalDelegation() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
             <TextField disabled fullWidth type="text" name="DONO_DA_DESPESA_NOME" label="Nome do delegante" variant="outlined"
               inputRef={register}
               InputLabelProps={{ shrink: true }}
@@ -139,7 +139,7 @@ export default function ApprovalDelegation() {
               value={delegante ? delegante.FULL_NAME : ""}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
             <TextField disabled fullWidth type="email" name="DONO_DA_DESPESA_EMAIL" label="E-mail do delegante"
               variant="outlined"
               inputRef={register}
@@ -147,6 +147,16 @@ export default function ApprovalDelegation() {
               error={errors.DONO_DA_DESPESA_EMAIL?true:false}
               helperText={errors.DONO_DA_DESPESA_EMAIL && errors.DONO_DA_DESPESA_EMAIL.message}
               value={delegante ? delegante.WORK_EMAIL_ADDRESS : ""}
+            />
+          </Grid>
+          <Grid item xs={12} sm={2} md={2} lg={2} xl={2} >
+            <TextField disabled fullWidth type="text" name="DONO_DA_DESPESA_LEVEL" label="Nível do delegante"
+              variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.DONO_DA_DESPESA_LEVEL?true:false}
+              helperText={errors.DONO_DA_DESPESA_LEVEL && errors.DONO_DA_DESPESA_LEVEL.message}
+              value={delegante ? delegante.APPROVAL_LEVEL_CODE : ""}
             />
           </Grid>
 
@@ -159,7 +169,7 @@ export default function ApprovalDelegation() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
             <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do delegado" variant="outlined"
               inputRef={register}
               InputLabelProps={{ shrink: true }}
@@ -168,7 +178,7 @@ export default function ApprovalDelegation() {
               value={delegado ? delegado.FULL_NAME : ""}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
             <TextField disabled fullWidth type="email" name="BENEFICIARIO_EMAIL" label="E-mail do delegado"
               variant="outlined"
               inputRef={register}
@@ -176,6 +186,16 @@ export default function ApprovalDelegation() {
               error={errors.BENEFICIARIO_EMAIL?true:false}
               helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
               value={delegado ? delegado.WORK_EMAIL_ADDRESS : ""}
+            />
+          </Grid>
+          <Grid item xs={12} sm={2} md={2} lg={2} xl={2} >
+            <TextField disabled fullWidth type="text" name="BENEFICIARIO_LEVEL" label="Nível do delegado"
+              variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_LEVEL?true:false}
+              helperText={errors.BENEFICIARIO_LEVEL && errors.BENEFICIARIO_LEVEL.message}
+              value={delegado ? delegado.APPROVAL_LEVEL_CODE : ""}
             />
           </Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >

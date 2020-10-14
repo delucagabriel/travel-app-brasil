@@ -33,6 +33,9 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   BENEFICIARIO_EMPRESA_NOME: yup.string().required(),
   CPF: yup.string().test('validCPF','CPF inválido',(cpf)=>TestaCPF(cpf)).required(),
 
+  VALOR: yup.number()
+  .positive()
+  .required(),
   ESTABELECIMENTO: yup.string().min(10).required(),
   DATA_DE_UTILIZACAO: yup.date().required(),
   MOTIVO: yup.string()
@@ -160,8 +163,8 @@ export default function CorporateCardProblems() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField fullWidth
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <TextField
               variant="outlined"
               type="date"
               name="DATA_DE_UTILIZACAO" label="Data de utilização"
@@ -171,10 +174,17 @@ export default function CorporateCardProblems() {
               helperText={errors.DATA_DE_UTILIZACAO && errors.DATA_DE_UTILIZACAO.message}
             />
           </Grid>
-          <Grid item xs={12} sm={7} md={7} lg={7} xl={7} >
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
             <TextField fullWidth variant="outlined" type="text" name="ESTABELECIMENTO" label="Estabelecimento" inputRef={register}
               error={errors.ESTABELECIMENTO?true:false}
               helperText={errors.ESTABELECIMENTO && errors.ESTABELECIMENTO.message}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+            <TextField fullWidth variant="outlined" type="number" name="VALOR" label="Valor da transação" inputRef={register}
+              error={errors.VALOR?true:false}
+              helperText={errors.VALOR && errors.VALOR.message}
             />
           </Grid>
 

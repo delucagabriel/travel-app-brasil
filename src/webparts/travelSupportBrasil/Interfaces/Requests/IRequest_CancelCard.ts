@@ -7,6 +7,7 @@ export interface IRequest_CancelCard extends IRequests{
   BENEFICIARIO_EMPRESA_COD: string;
   BENEFICIARIO_EMPRESA_NOME: string;
 
+  CPF: string;
   ULTIMOS_DIGITOS_DO_CARTAO: string;
   MOTIVO: string;
 }

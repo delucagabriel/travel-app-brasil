@@ -12,6 +12,8 @@ import { IEmployee } from '../../../Interfaces/IEmployee';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { IRequest_LimitChange } from '../../../Interfaces/Requests/IRequest_LimitChange';
 import HocDialog from '../../HOC/HocDialog';
+import { TestaCPF } from '../../../Utils/validaCPF';
+
 
 const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
@@ -45,11 +47,12 @@ const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
   BENEFICIARIO_EMPRESA_COD: yup.string().required(),
   BENEFICIARIO_EMPRESA_NOME: yup.string().required(),
   CENTRO_DE_CUSTOS: yup.string(),
-
+  CPF: yup.string().test('validCPF','CPF inválido', (cpf)=>TestaCPF(cpf)).required(),
   TIPO_DE_LIMITE: yup.string().required(),
-  TIPO_LIMITE_VALOR: yup.string().required(),
+  TIPO_LIMITE_VALOR: yup.string(),
+  NOVO_LIMITE: yup.number(),
   VALIDADE_NOVO_LIMITE: yup.string()
-  .when('TIPO_DE_LIMITE', (tipo, schm)=> tipo === 'Saque'? schm.oneOf(['90 dias']):schm.oneOf(['90 dias', 'Indeterminado']))
+  .when('TIPO_DE_LIMITE', (tipo, schm)=> tipo === 'Saque'? schm.default('90 dias'):schm.oneOf(['90 dias', 'Indeterminado']))
   .required(),
   WF_APROVACAO: yup.boolean().default(true),
   ULTIMOS_DIGITOS_DO_CARTAO: yup.string()
@@ -69,6 +72,7 @@ export default function LimitChange() {
     message: "",
     severity:'info'
   });
+  const [tipoAlteracao, setTipoAlteracao] = useState('Crédito');
   const { updateContext } = useContext(Context);
 
   console.log(errors, schema);
@@ -167,62 +171,95 @@ export default function LimitChange() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={7} md={7} lg={7} xl={7}>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
           <FormControl component="fieldset">
             <FormLabel component="legend">Tipo de limite</FormLabel>
-            <RadioGroup aria-label="TIPO_DE_LIMITE" name="TIPO_DE_LIMITE" row>
+            <RadioGroup
+              row
+              aria-label="TIPO_DE_LIMITE"
+              name="TIPO_DE_LIMITE"
+              onChange={e=>setTipoAlteracao(e.target.value)}
+            >
               <FormControlLabel value="Crédito" control={<Radio inputRef={register}/>} label="Crédito" />
               <FormControlLabel value="Saque" control={<Radio inputRef={register}/>} label="Saque" />
             </RadioGroup>
           </FormControl>
           </Grid>
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField fullWidth variant="outlined" type="text" required name="ULTIMOS_DIGITOS_DO_CARTAO" label="Últimos 4 dígitos do cartão"
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+            <TextField fullWidth type="text" name="CPF"
+              label="Empregado: CPF" variant="outlined"
+              inputRef={register}
+              error={errors.CPF?true:false}
+              helperText={errors.CPF && errors.CPF.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField fullWidth variant="outlined" type="text" required
+              name="ULTIMOS_DIGITOS_DO_CARTAO"
+              label="Últimos 4 dígitos do cartão"
+              InputLabelProps={{ shrink: true }}
               inputRef={register}
               error={errors.ULTIMOS_DIGITOS_DO_CARTAO?true:false}
               helperText={errors.ULTIMOS_DIGITOS_DO_CARTAO && errors.ULTIMOS_DIGITOS_DO_CARTAO.message}
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-            <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Novo limite</FormLabel>
-            <Controller
-              as={
-                <Select fullWidth inputRef={register}>
-                  <MenuItem value="Tipo I">Tipo I - R$ 1.000,00</MenuItem>
-                  <MenuItem value="Tipo II">Tipo II - R$ 2.5000,00</MenuItem>
-                  <MenuItem value="Tipo III">Tipo III - R$ 5.000,00</MenuItem>
-                  <MenuItem value="Tipo IV">Tipo IV - R$ 10.000,00</MenuItem>
-                  <MenuItem value="Tipo V">Tipo V - R$ 20.000,00</MenuItem>
-                  <MenuItem value="Tipo VI">Tipo VI - R$ 30.000,00</MenuItem>
-                  <MenuItem value="Tipo VII">Tipo VII - R$ 60.000,00</MenuItem>
-                </Select>
-              }
-              id="TIPO_LIMITE_VALOR"
-              name="TIPO_LIMITE_VALOR"
-              defaultValue="Tipo I"
-              control={control}
-              error={errors.TIPO_LIMITE_VALOR?true:false}
-              helperText={errors.TIPO_LIMITE_VALOR && errors.TIPO_LIMITE_VALOR.message}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-            <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Validade</FormLabel>
-            <Controller
-              as={
-                <Select fullWidth inputRef={register}>
-                  <MenuItem value='90 dias'>90 dias</MenuItem>
-                  <MenuItem value='Indeterminado'>Indeterminado</MenuItem>
-                </Select>
-              }
-              id="EndDate"
-              name="VALIDADE_NOVO_LIMITE"
-              defaultValue="90 dias"
-              control={control}
-              error={errors.VALIDADE_NOVO_LIMITE?true:false}
-              helperText={errors.VALIDADE_NOVO_LIMITE && errors.VALIDADE_NOVO_LIMITE.message}
-            />
-          </Grid>
+          { tipoAlteracao === 'Crédito'
+            ?
+              <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
+                <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Novo limite</FormLabel>
+                <Controller
+                  as={
+                    <Select fullWidth inputRef={register}>
+                      <MenuItem value="Tipo I">Tipo I - R$ 1.000,00</MenuItem>
+                      <MenuItem value="Tipo II">Tipo II - R$ 2.500,00</MenuItem>
+                      <MenuItem value="Tipo III">Tipo III - R$ 5.000,00</MenuItem>
+                      <MenuItem value="Tipo IV">Tipo IV - R$ 10.000,00</MenuItem>
+                      <MenuItem value="Tipo V">Tipo V - R$ 20.000,00</MenuItem>
+                      <MenuItem value="Tipo VI">Tipo VI - R$ 30.000,00</MenuItem>
+                      <MenuItem value="Tipo VII">Tipo VII - R$ 60.000,00</MenuItem>
+                    </Select>
+                  }
+                  required
+                  id="TIPO_LIMITE_VALOR"
+                  name="TIPO_LIMITE_VALOR"
+                  defaultValue="Tipo I"
+                  control={control}
+                  error={errors.TIPO_LIMITE_VALOR?true:false}
+                  helperText={errors.TIPO_LIMITE_VALOR && errors.TIPO_LIMITE_VALOR.message}
+                />
+              </Grid>
+            :
+              <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+                <TextField fullWidth variant="outlined" type="number" required
+                  name="NOVO_LIMITE"
+                  label="Novo limite"
+                  InputLabelProps={{ shrink: true }}
+                  inputRef={register}
+                  error={errors.NOVO_LIMITE?true:false}
+                  helperText={errors.NOVO_LIMITE && errors.NOVO_LIMITE.message}
+                />
+              </Grid>
+          }
+            <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
+          { tipoAlteracao === 'Crédito' && <>
+              <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Período do novo limite</FormLabel>
+              <Controller
+                as={
+                  <Select fullWidth inputRef={register}>
+                    <MenuItem value='90 dias'>90 dias</MenuItem>
+                    <MenuItem value='Indeterminado'>Indeterminado</MenuItem>
+                  </Select>
+                }
+                id="EndDate"
+                name="VALIDADE_NOVO_LIMITE"
+                defaultValue="90 dias"
+                control={control}
+                error={errors.VALIDADE_NOVO_LIMITE?true:false}
+                helperText={errors.VALIDADE_NOVO_LIMITE && errors.VALIDADE_NOVO_LIMITE.message}
+              /></>
+            }
+            </Grid>
           <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
             <TextField fullWidth type="search" name="APROVADOR_ID" variant="outlined" label="Aprovador: Matrícula"
               error={errors.APROVADOR_ID?true:false}

@@ -11,7 +11,7 @@ import { IEmployee } from '../../../Interfaces/IEmployee';
 import { IRequest_CancelCard } from '../../../Interfaces/Requests/IRequest_CancelCard';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
-
+import { TestaCPF } from '../../../Utils/validaCPF';
 
 
 const schema: yup.ObjectSchema<IRequest_CancelCard> = yup.object().shape({
@@ -26,6 +26,8 @@ const schema: yup.ObjectSchema<IRequest_CancelCard> = yup.object().shape({
   BENEFICIARIO_EMAIL: yup.string().required(),
   BENEFICIARIO_EMPRESA_COD: yup.string().required(),
   BENEFICIARIO_EMPRESA_NOME: yup.string().required(),
+  CPF: yup.string().test('validCPF','CPF inválido', (cpf)=>TestaCPF(cpf)).required(),
+
 
   ULTIMOS_DIGITOS_DO_CARTAO: yup.string()
     .length(4)
@@ -108,19 +110,13 @@ export default function CancelCard() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField fullWidth type="text" required name="BENEFICIARIO_ID" variant="outlined"
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <TextField type="text" required name="BENEFICIARIO_ID" variant="outlined"
               label="Matrícula do empregado" onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
+              InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
-            />
-          </Grid>
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField fullWidth variant="outlined" type="text" required name="ULTIMOS_DIGITOS_DO_CARTAO" label="Últimos 4 dígitos"
-              inputRef={register}
-              error={errors.ULTIMOS_DIGITOS_DO_CARTAO?true:false}
-              helperText={errors.ULTIMOS_DIGITOS_DO_CARTAO && errors.ULTIMOS_DIGITOS_DO_CARTAO.message}
             />
           </Grid>
 
@@ -149,8 +145,32 @@ export default function CancelCard() {
             />
           </Grid>
 
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+            <TextField fullWidth type="text" name="CPF"
+              label="Empregado: CPF" variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.CPF?true:false}
+              helperText={errors.CPF && errors.CPF.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+            <TextField fullWidth variant="outlined" type="text" required name="ULTIMOS_DIGITOS_DO_CARTAO" label="Últimos 4 dígitos"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.ULTIMOS_DIGITOS_DO_CARTAO?true:false}
+              helperText={errors.ULTIMOS_DIGITOS_DO_CARTAO && errors.ULTIMOS_DIGITOS_DO_CARTAO.message}
+            />
+          </Grid>
+
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
-            <TextField fullWidth variant="outlined" type="text" name="MOTIVO" label="Motivo" inputRef={register}
+            <TextField fullWidth multiline
+              rows={3}
+              variant="outlined"
+              type="text"
+              name="MOTIVO"
+              label="Motivo"
+              inputRef={register}
               error={errors.MOTIVO?true:false}
               helperText={errors.MOTIVO && errors.MOTIVO.message}
             />

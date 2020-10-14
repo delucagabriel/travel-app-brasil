@@ -11,6 +11,7 @@ import { IEmployee } from '../../../Interfaces/IEmployee';
 import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
+import HocDialog from '../../HOC/HocDialog';
 
 
 
@@ -76,6 +77,11 @@ export default function NonExistentApprover() {
 
   return (
     <Paper>
+      <HocDialog>
+        <p>
+          Conforme NFN-0018, as viagens nacionais devem ser aprovadas pelo superior imediato (cargo mínimo de supervior) e as viagens internacionais pelo DE-1 (cargo mínimo de gerente executivo). Se existe algum problema na sua estrutura hierárquica, abra um chamado com o RH.
+        </p>
+      </HocDialog>
       <div style={{padding:"20px"}}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={3} justify="space-between">

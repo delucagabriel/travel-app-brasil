@@ -12,6 +12,7 @@ import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
 import { IRequest_NewCard } from '../../../Interfaces/Requests/IRequest_NewCard';
+import HocDialog from '../../HOC/HocDialog';
 
 const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
@@ -78,24 +79,6 @@ export default function VirtualHostingCard() {
     severity:'info'
   });
   const { updateContext } = useContext(Context);
-  const [motivoViagem, setMotivoViagem] = useState(null);
-  const [checked, setChecked] = useState({
-    ["Emerg. ambien/legal/oper/medica"]: false,
-    ["Falecimento"]: false,
-    ["Trat. Médico fora de domicílio"]: false,
-    ["Viagem de benefício"]:false
-  });
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked({ ...checked, [event.target.name]: event.target.checked });
-  };
-
-  useEffect(()=>setMotivoViagem([
-    checked["Emerg. ambien/legal/oper/medica"]? "Emerg. ambien/legal/oper/medica":null,
-    checked["Falecimento"]? "Falecimento":null,
-    checked["Trat. Médico fora de domicílio"]? "Trat. Médico fora de domicílio":null,
-    checked["Viagem de benefício"]? "Viagem de benefício":null,
-  ].filter(v => v).join(' | ')), [checked]);
 
   const handleGetEmpregado = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
     .then(emp => setEmpregado(emp));
@@ -124,6 +107,11 @@ export default function VirtualHostingCard() {
 
   return (
     <Paper>
+      <HocDialog>
+        <p>
+          A aprovação desta exceção está condicionada à criação do chamado de emissão do cartão corporativo.
+        </p>
+      </HocDialog>
       <div style={{padding:"20px"}}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={3} justify="space-between">
@@ -289,55 +277,36 @@ export default function VirtualHostingCard() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}
-          alignItems='center' justify='center'>
-            <FormLabel component="legend">Motivo da viagem</FormLabel>
-            <FormGroup row>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={checked["Emerg. ambien/legal/oper/medica"]}
-                    name="Emerg. ambien/legal/oper/medica"
-                    onChange={handleChange}
-                    color="secondary"
-                  />
-                }
-                label="Emerg. ambien/legal/oper/medica"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={checked["Falecimento"]}
-                    name="Falecimento"
-                    onChange={handleChange}
-                    color="secondary"
-                  />
-                }
-                label="Falecimento"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={checked["Trat. Médico fora de domicílio"]}
-                    name="Trat. Médico fora de domicílio"
-                    onChange={handleChange}
-                    color="secondary"
-                  />
-                }
-                label="Trat. Médico fora de domicílio"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={checked["Viagem de benefício"]}
-                    name="Viagem de benefício"
-                    onChange={handleChange}
-                    color="secondary"
-                  />
-                }
-                label="Viagem de benefício"
-              />
-            </FormGroup>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <FormControl component="fieldset" error={errors.MOTIVO_DA_VIAGEM?true:false}>
+              <FormLabel component="legend">Motivo da viagem</FormLabel>
+              <RadioGroup
+                aria-label="MOTIVO_DA_VIAGEM"
+                name="MOTIVO_DA_VIAGEM"
+                row
+              >
+                <FormControlLabel
+                  value="Emerg. ambien/legal/oper/medica"
+                  label="Emerg. ambien/legal/oper/medica"
+                  control={<Radio inputRef={register}/>}
+                />
+                <FormControlLabel
+                  value="Falecimento"
+                  control={<Radio inputRef={register}/>}
+                  label="Falecimento"
+                />
+                <FormControlLabel
+                  value="Trat. Médico fora de domicílio"
+                  control={<Radio inputRef={register}/>}
+                  label="Trat. Médico fora de domicílio"
+                />
+                <FormControlLabel
+                  value="Viagem de benefício"
+                  control={<Radio inputRef={register}/>}
+                  label="Viagem de benefício"
+                />
+              </RadioGroup>
+            </FormControl>
           </Grid>
 
           <Grid item xs={12} sm={7} md={7} lg={7} xl={7} >
@@ -434,9 +403,6 @@ export default function VirtualHostingCard() {
           />
           <Input inputRef={register} readOnly type="hidden" name="APROVADOR_EMPRESA_NOME"
             value={aprovador && aprovador.COMPANY_DESC }
-          />
-          <Input inputRef={register} readOnly type="hidden" name="MOTIVO_DA_VIAGEM"
-            value={ motivoViagem }
           />
         </Grid >
       </form>

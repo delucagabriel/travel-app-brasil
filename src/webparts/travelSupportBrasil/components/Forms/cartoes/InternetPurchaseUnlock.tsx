@@ -12,6 +12,7 @@ import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
 import HocDialog from '../../HOC/HocDialog';
+import { TestaCPF } from '../../../Utils/validaCPF';
 
 
 
@@ -30,6 +31,7 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   BENEFICIARIO_EMAIL: yup.string().required(),
   BENEFICIARIO_EMPRESA_COD: yup.string().required(),
   BENEFICIARIO_EMPRESA_NOME: yup.string().required(),
+  CPF: yup.string().test('validCPF','CPF inválido', (cpf)=>TestaCPF(cpf)).required(),
 
   VALOR: yup.number()
   .positive()
@@ -37,6 +39,11 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   COD_DO_RAMO_DE_ATIVIDADE: yup.string()
   .min(2)
   .required(),
+  ESTABELECIMENTO: yup.string().min(10).required(),
+  DATA_DE_UTILIZACAO: yup.date().required(),
+  MOTIVO: yup.string()
+  .min(50)
+  .required()
 
 
 });
@@ -113,17 +120,28 @@ export default function InternetPurchaseUnlock() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
             <TextField fullWidth type="text" name="BENEFICIARIO_ID" variant="outlined"
               label="Matrícula do empregado" onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
+              InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
+            <TextField fullWidth type="text" name="CPF"
+              label="Empregado: CPF" variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.CPF?true:false}
+              helperText={errors.CPF && errors.CPF.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
             <TextField fullWidth variant="outlined" type="text" name="ULTIMOS_DIGITOS_DO_CARTAO" label="Últimos 4 dígitos do cartão"
               inputRef={register}
+              InputLabelProps={{ shrink: true }}
               error={errors.ULTIMOS_DIGITOS_DO_CARTAO?true:false}
               helperText={errors.ULTIMOS_DIGITOS_DO_CARTAO && errors.ULTIMOS_DIGITOS_DO_CARTAO.message}
             />
@@ -164,6 +182,33 @@ export default function InternetPurchaseUnlock() {
             <TextField fullWidth variant="outlined" type="text" name="COD_DO_RAMO_DE_ATIVIDADE" label="Cód. ramo de atividade" inputRef={register}
               error={errors.COD_DO_RAMO_DE_ATIVIDADE?true:false}
               helperText={errors.COD_DO_RAMO_DE_ATIVIDADE && errors.COD_DO_RAMO_DE_ATIVIDADE.message}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
+            <TextField fullWidth
+              variant="outlined"
+              type="date"
+              name="DATA_DE_UTILIZACAO" label="Data de utilização"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.DATA_DE_UTILIZACAO?true:false}
+              helperText={errors.DATA_DE_UTILIZACAO && errors.DATA_DE_UTILIZACAO.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={7} md={7} lg={7} xl={7} >
+            <TextField fullWidth variant="outlined" type="text" name="ESTABELECIMENTO" label="Estabelecimento" inputRef={register}
+              error={errors.ESTABELECIMENTO?true:false}
+              helperText={errors.ESTABELECIMENTO && errors.ESTABELECIMENTO.message}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <TextField fullWidth variant="outlined" type="text"
+            multiline rows={5}
+            name="MOTIVO" label="Descrição detalhada do problema" inputRef={register}
+              error={errors.MOTIVO?true:false}
+              helperText={errors.MOTIVO && errors.MOTIVO.message}
             />
           </Grid>
 

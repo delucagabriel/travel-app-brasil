@@ -63,7 +63,14 @@ const useStyles = makeStyles((theme: Theme) =>
       overflowX: 'hidden',
       width: theme.spacing(8) + 1,
       [theme.breakpoints.up('sm')]: {
-        width: theme.spacing(9) + 1,
+        width: theme.spacing(11) + 1,
+      },
+    },
+    drawerCloseListItens: {
+      whiteSpace: 'nowrap',
+      [theme.breakpoints.up('sm')]: {
+        paddingLeft: theme.spacing(4),
+        whiteSpace: 'normal',
       },
     },
     toolbar: {
@@ -77,7 +84,7 @@ const useStyles = makeStyles((theme: Theme) =>
     content: {
       flexGrow: 1,
       padding: theme.spacing(3),
-      overflowX: 'auto'
+      overflowX: 'auto',
     },
     grow: {
       flexGrow: 1,
@@ -168,13 +175,15 @@ export default function MiniDrawer({children}) {
                 <AccordionSummary>
                   <Typography variant="caption" align="center">{ service.name }</Typography>
                 </AccordionSummary>
-                <List style={{whiteSpace:"nowrap"}}>
+                <List className={classes.drawerCloseListItens}>
                   { service.process.map(item=>{
                     const { icon, text, path } = item;
                     return(
                       <ListItem button key={text} onClick={()=>history.push(path)}>
                       <ListItemIcon>{icon}</ListItemIcon>
-                      <ListItemText primary={<Typography variant="caption">{text}</Typography>} />
+                      <ListItemText
+                        primary={<Typography variant="caption">{text}</Typography>}
+                      />
                       </ListItem>
                     );
                   }) }

@@ -17,16 +17,13 @@ import { InsertOrUpdateEmployees } from './InsertOrUpdateEmployees';
 import { Context } from './Context';
 import InternetPurchaseUnlock from './Forms/cartoes/InternetPurchaseUnlock';
 import CorporateCardProblems from './Forms/cartoes/CorporateCardProblems';
-import TravelSystemAccessDificulty from './Forms/solicitacaoDeViagem/TravelSystemAccessDificulty';
 import ApprovalDelegation from './Forms/solicitacaoDeViagem/ApprovalDelegation';
-import CarRental from './Forms/solicitacaoDeViagem/CarRental';
-import VisaIssue from './Forms/solicitacaoDeViagem/VisaIssue';
-import TravelInsurance from './Forms/solicitacaoDeViagem/TravelInsurance';
-import QuestionsInRequest from './Forms/solicitacaoDeViagem/QuestionsInRequest';
 import NonExistentApprover from './Forms/solicitacaoDeViagem/NonExistentApprover';
 import VirtualHostingCard from './Forms/solicitacaoDeViagem/VirtualHostingCard';
 import HostingRegularization from './Forms/solicitacaoDeViagem/HostingRegularization';
 import NonPreferredAirline from './Forms/solicitacaoDeViagem/NonPreferredAirline';
+import ApprovalDelegationAccountability from './Forms/prestacaoDeContas/ApprovalDelegationAccountability';
+import TravelRequestIssue from './Forms/solicitacaoDeViagem/TravelRequestIssue';
 
 const theme = createMuiTheme({
   palette: {
@@ -73,16 +70,17 @@ export const Routes = ()=>{
             <Route path="/ProblemasComCartaoCorporativo" exact={true} component={CorporateCardProblems} />
 
             {/*  Solicitaçao de viagem  */}
-            <Route path="/DificuldadeDeAcessoAoSistema" exact={true} component={TravelSystemAccessDificulty} />
+            <Route path="/ProblemasNaSolicitacao" exact={true} component={TravelRequestIssue} />
             <Route path="/DelegacaoDaAprovacaoDaViagem" exact={true} component={ApprovalDelegation} />
-            <Route path="/LocacaoDeVeiculo" exact={true} component={CarRental} />
-            <Route path="/EmissaoDeVisto" exact={true} component={VisaIssue} />
-            <Route path="/SeguroViagem" exact={true} component={TravelInsurance} />
-            <Route path="/DuvidaNaSolicitacao" exact={true} component={QuestionsInRequest} />
             <Route path="/AprovadorInexistente" exact={true} component={NonExistentApprover} />
             <Route path="/emissaoBTB" exact={true} component={VirtualHostingCard} />
             <Route path="/RegularizacaoBTB" exact={true} component={HostingRegularization} />
             <Route path="/CiaAereaNaoPreferencial" exact={true} component={NonPreferredAirline} />
+
+            {/*  Prestação de contas  */}
+            <Route path="/DelegacaoDaAprovacao" exact={true} component={ApprovalDelegationAccountability} />
+
+
 
           {/* { Private routes } */}
             {/*  Listas  */}

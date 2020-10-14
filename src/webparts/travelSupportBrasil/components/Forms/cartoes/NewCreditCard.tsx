@@ -34,6 +34,7 @@ const schema: yup.ObjectSchema<IRequest_NewCard> = yup.object().shape({
   BENEFICIARIO_EMPRESA_NOME: yup.string().required(),
   BENEFICIARIO_EMAIL: yup.string().email().notRequired(),
   BENEFICIARIO_EMPRESA_COD: yup.string().required(),
+  BENEFICIARIO_LEVEL: yup.string().required(),
   TELEFONE: yup.string(),
   CPF: yup.string().test('validCPF','CPF inválido',(cpf)=>TestaCPF(cpf)).required(),
   CENTRO_DE_CUSTOS: yup.string().required(),
@@ -56,6 +57,7 @@ const schema: yup.ObjectSchema<IRequest_NewCard> = yup.object().shape({
   .required(),
 
   TIPO_LIMITE_VALOR: yup.string().required(),
+  VISA_INFINITE: yup.string().default("Visa Corporativo")
 });
 
 interface IAddress {
@@ -159,6 +161,7 @@ console.log(errors);
                   label="Empregado: Matrícula"
                   onBlur={ e=> handleGetEmployee(e.target.value) }
                   inputRef={register}
+                  InputLabelProps={{ shrink: true }}
                   error={errors.BENEFICIARIO_ID?true:false}
                   helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
                 />
@@ -167,6 +170,7 @@ console.log(errors);
                 <TextField fullWidth type="text" name="CPF"
                   label="Empregado: CPF" variant="outlined"
                   inputRef={register}
+                  InputLabelProps={{ shrink: true }}
                   error={errors.CPF?true:false}
                   helperText={errors.CPF && errors.CPF.message}
                 />
@@ -175,6 +179,7 @@ console.log(errors);
                 <TextField fullWidth type="tel" name="TELEFONE"
                   label="Empregado: Telefone" variant="outlined"
                   inputRef={register}
+                  InputLabelProps={{ shrink: true }}
                   error={errors.TELEFONE?true:false}
                   helperText={errors.TELEFONE && errors.TELEFONE.message}
                 />
@@ -201,13 +206,13 @@ console.log(errors);
               />
             </Grid>
 
-              <Grid item xs={12} sm={9} md={9} lg={9} xl={9}>
+              <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
                 <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Limite</FormLabel>
                 <Controller
                   as={
-                    <Select fullWidth inputRef={register}>
+                    <Select inputRef={register}>
                       <MenuItem value="Tipo I">Tipo I - R$ 1.000,00</MenuItem>
-                      <MenuItem value="Tipo II">Tipo II - R$ 2.5000,00</MenuItem>
+                      <MenuItem value="Tipo II">Tipo II - R$ 2.500,00</MenuItem>
                       <MenuItem value="Tipo III">Tipo III - R$ 5.000,00</MenuItem>
                       <MenuItem value="Tipo IV">Tipo IV - R$ 10.000,00</MenuItem>
                       <MenuItem value="Tipo V">Tipo V - R$ 20.000,00</MenuItem>
@@ -223,7 +228,25 @@ console.log(errors);
                   helperText={errors.TIPO_LIMITE_VALOR && errors.TIPO_LIMITE_VALOR.message}
                 />
               </Grid>
-
+              { employee && (employee.APPROVAL_LEVEL_CODE === 'D-1' || employee.APPROVAL_LEVEL_CODE === 'DE') &&
+                <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                  <FormLabel id="VISA_INFINITE" component="legend">Bandeira do cartão</FormLabel>
+                  <Controller
+                    as={
+                      <Select inputRef={register}>
+                        <MenuItem value="Visa Infinite">Visa Infinite</MenuItem>
+                        <MenuItem value="Visa Corporativo">Visa Corporativo</MenuItem>
+                      </Select>
+                    }
+                    id="VISA_INFINITE"
+                    name="VISA_INFINITE"
+                    defaultValue="Visa Infinite"
+                    control={control}
+                    error={errors.VISA_INFINITE?true:false}
+                    helperText={errors.VISA_INFINITE && errors.VISA_INFINITE.message}
+                  />
+                </Grid>
+              }
               <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
                 <TextField fullWidth type="text" name="END_CEP"
                   label="CEP" variant="outlined"
@@ -307,6 +330,7 @@ console.log(errors);
 
         <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_COD" name="BENEFICIARIO_EMPRESA_COD" value={employee && employee.COMPANY_CODE } />
         <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_NOME" name="BENEFICIARIO_EMPRESA_NOME" value={employee && employee.COMPANY_DESC } />
+        <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_LEVEL" name="BENEFICIARIO_LEVEL" value={employee && employee.APPROVAL_LEVEL_CODE } />
         <Input inputRef={register} readOnly type="hidden" id="CENTRO_DE_CUSTOS" name="CENTRO_DE_CUSTOS" value={employee && employee.COST_CENTER_CODE } />
 
         <Input inputRef={register} readOnly type="hidden" id="APROVADOR_EMAIL" name="APROVADOR_EMAIL" value={approver && approver.WORK_EMAIL_ADDRESS } />

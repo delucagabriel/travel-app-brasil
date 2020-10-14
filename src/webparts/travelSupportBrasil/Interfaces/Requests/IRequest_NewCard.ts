@@ -12,6 +12,7 @@ export interface IRequest_NewCard extends IRequests{
   BENEFICIARIO_EMAIL: string;
   BENEFICIARIO_EMPRESA_COD: string;
   BENEFICIARIO_EMPRESA_NOME: string;
+  BENEFICIARIO_LEVEL: string;
   CPF: string;
   TELEFONE: string;
   CENTRO_DE_CUSTOS: string;
@@ -20,4 +21,5 @@ export interface IRequest_NewCard extends IRequests{
   END_LOGRADOURO: string;
   END_NUMERO: number;
   END_COMPLEMENTO: string;
+  VISA_INFINITE: string;
 }

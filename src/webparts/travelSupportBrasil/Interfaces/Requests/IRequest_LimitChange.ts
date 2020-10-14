@@ -14,7 +14,8 @@ export interface IRequest_LimitChange extends IRequests{
   BENEFICIARIO_EMPRESA_NOME: string;
   TIPO_DE_LIMITE: string;
   TIPO_LIMITE_VALOR: string;
+  NOVO_LIMITE: number;
   VALIDADE_NOVO_LIMITE: string;
   ULTIMOS_DIGITOS_DO_CARTAO: string;
-
+  CPF: string;
 }
