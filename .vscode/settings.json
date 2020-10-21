@@ -9,5 +9,35 @@
     "**/lib-amd": true,
     "src/**/*.scss.ts": true
   },
-  "typescript.tsdk": ".\\node_modules\\typescript\\lib"
+  "typescript.tsdk": ".\\node_modules\\typescript\\lib",
+  "cSpell.words": [
+    "Importante"
+  ],
+  "cSpell.language": "en,pt,en-US,pt-PT",
+  "cSpell.enableFiletypes": [
+    "!asciidoc",
+    "!c",
+    "!cpp",
+    "!csharp",
+    "!go",
+    "!handlebars",
+    "!haskell",
+    "!jade",
+    "!java",
+    "!javascript",
+    "!javascriptreact",
+    "!json",
+    "!jsonc",
+    "!latex",
+    "!less",
+    "!php",
+    "!pug",
+    "!python",
+    "!restructuredtext",
+    "!rust",
+    "!scala",
+    "!typescript",
+    "!yaml",
+    "!yml"
+  ]
 }

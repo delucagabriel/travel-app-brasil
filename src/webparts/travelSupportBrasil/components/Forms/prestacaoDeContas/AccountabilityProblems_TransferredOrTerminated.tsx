@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { TextField, Select, MenuItem, FormLabel, Grid, Button, Input, Paper, Typography, Snackbar, FormControl, RadioGroup, FormControlLabel, Radio } from '@material-ui/core';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { Alert } from '@material-ui/lab';
 import * as yup from "yup";
@@ -18,40 +18,32 @@ import HocDialog from '../../HOC/HocDialog';
 const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
-  SLA: yup.number().default(48),
+  SLA: yup.number().default(24),
   AREA_RESOLVEDORA: yup.string().default("Viagens Corporativas"),
   ALCADA_APROVACAO: yup.string().default(""),
   WF_APROVACAO: yup.boolean().default(false),
   DATA_DE_APROVACAO: yup.date().default(new Date()),
   STATUS_APROVACAO: yup.string().default('Aprovado'),
 
-  DONO_DA_DESPESA_ID: yup.string().required(),
-  DONO_DA_DESPESA_NOME: yup.string().required(),
-  DONO_DA_DESPESA_EMAIL: yup.string().email().required(),
-  DONO_DA_DESPESA_LEVEL: yup.string().required(),
-  DONO_DA_DESPESA_EMPRESA_COD: yup.string(),
-  DONO_DA_DESPESA_EMPRESA_NOME: yup.string().required(),
-
   BENEFICIARIO_ID: yup.string().required(),
   BENEFICIARIO_NOME: yup.string().required(),
   BENEFICIARIO_EMAIL: yup.string().email().required(),
-  BENEFICIARIO_LEVEL: yup.string().required(),
   BENEFICIARIO_EMPRESA_COD: yup.string(),
   BENEFICIARIO_EMPRESA_NOME: yup.string(),
 
-  TIPO_DE_DELEGACAO: yup.string().default('Delegação da aprovação'),
-  PERIODO_FIM: yup.date().min(new Date()),
+  TIPO_PRESTACAO_DE_CONTAS: yup.string().required(),
+  RELATORIO_CONCUR: yup.string().required(),
   MOTIVO: yup.string()
-  .min(20)
+  .min(50)
   .required()
 });
 
-export default function ApprovalDelegationAccountability() {
+
+export default function AccountabilityProblemsTransferredOrTerminated() {
   const { register, handleSubmit, control, errors, reset, setValue } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
-  const [delegante, setDelegante] = useState<IEmployee>();
-  const [delegado, setDelegado] = useState<IEmployee>();
+  const [employee, setEmployee] = useState<IEmployee>();
   const [snackMessage, setSnackMessage] = useState<ISnack>({
     open: false,
     message: "",
@@ -59,18 +51,21 @@ export default function ApprovalDelegationAccountability() {
   });
   const { updateContext } = useContext(Context);
 
-  console.log(errors);
-
-  const handleGetDelegado = value =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => setDelegado(emp));
-
-  const handleGetDelegante = value =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => setDelegante(emp));
+  const handleGetEmployee = value =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
+    .then(emp => {
+      setEmployee(emp);
+      setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+        shouldDirty: true
+      });
+      setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+        shouldDirty: true
+      });
+    });
 
   const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
       .then(res => {
-        setSnackMessage({open:true, message: `Solicitação gravada com suceso! ID:${res.data.ID}`, severity:"success"});
+        setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID:${res.data.ID}`, severity:"success"});
         updateContext();
       })
       .catch(error => {
@@ -83,9 +78,20 @@ export default function ApprovalDelegationAccountability() {
   return (
     <Paper>
       <HocDialog>
-        <p>
-          ...
-        </p>
+        <Typography variant='h6'>
+          Prestação de contas de empregado desligado
+        </Typography>
+        <Typography variant='body2'>
+          Quando um empregado é desligado e deixa despesas pendentes, uma delegação é automaticamente atribuída ao gestor para a regularização das mesmas.Caso o gestor deseje delegar a prestação de contas para um outro empregado da sua equipe, abra um chamado de delegação. Para problema na prestação de contas, preencher o checklist a seguir.
+        </Typography>
+        <br/>
+
+        <Typography variant='h6'>
+          Prestação de contas de empregado transferido/expatriado
+        </Typography>
+        <Typography variant='body2'>
+          Quando um empregado é transferido ou expatriado, suas despesas pendentes de prestação de contas são atribuídas ao seu último gestor imediato. Desta forma, o gestor deve entrar no seu próprio perfil para realizar a prestação de contas. Não é necessária delegação. Para problema na prestação de contas, preencher o checklist a seguir.
+        </Typography>
       </HocDialog>
       <div style={{padding:"20px"}}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -109,106 +115,71 @@ export default function ApprovalDelegationAccountability() {
             <FormLabel id="PROCESSO" component="legend">Processo</FormLabel>
             <Controller
               as={
-                <Select disabled fullWidth>
-                  <MenuItem value="Delegação da aprovação">Delegação da aprovação</MenuItem>
+                <Select disabled fullWidth >
+                  <MenuItem value="Prestação de contas (Empregado Desligado/Transferido/Expatriado)">{"Prestação de contas (Empregado Desligado/Transferido/Expatriado)"}</MenuItem>
                 </Select>
               }
               id="Process"
               name="PROCESSO"
-              defaultValue="Delegação da aprovação"
+              defaultValue="Prestação de contas (Empregado Desligado/Transferido/Expatriado)"
               control={control}
               error={errors.PROCESSO?true:false}
               helperText={errors.PROCESSO && errors.PROCESSO.message}
             />
           </Grid>
-          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
-            <TextField type="text" name="DONO_DA_DESPESA_ID" variant="outlined"
-              label="Matrícula do delegante" onBlur={ e=> handleGetDelegante(e.target.value) }
-              inputRef={register}
-              error={errors.DONO_DA_DESPESA_ID?true:false}
-              helperText={errors.DONO_DA_DESPESA_ID && errors.DONO_DA_DESPESA_ID.message}
-            />
-          </Grid>
 
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField disabled fullWidth type="text" name="DONO_DA_DESPESA_NOME" label="Nome do delegante" variant="outlined"
-              inputRef={register}
-              InputLabelProps={{ shrink: true }}
-              error={errors.DONO_DA_DESPESA_NOME?true:false}
-              helperText={errors.DONO_DA_DESPESA_NOME && errors.DONO_DA_DESPESA_NOME.message}
-              value={delegante ? delegante.FULL_NAME : ""}
-            />
-          </Grid>
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField disabled fullWidth type="email" name="DONO_DA_DESPESA_EMAIL" label="E-mail do delegante"
-              variant="outlined"
-              inputRef={register}
-              InputLabelProps={{ shrink: true }}
-              error={errors.DONO_DA_DESPESA_EMAIL?true:false}
-              helperText={errors.DONO_DA_DESPESA_EMAIL && errors.DONO_DA_DESPESA_EMAIL.message}
-              value={delegante ? delegante.WORK_EMAIL_ADDRESS : ""}
-            />
-          </Grid>
-          <Grid item xs={12} sm={2} md={2} lg={2} xl={2} >
-            <TextField disabled fullWidth type="text" name="DONO_DA_DESPESA_LEVEL" label="Nível do delegante"
-              variant="outlined"
-              inputRef={register}
-              InputLabelProps={{ shrink: true }}
-              error={errors.DONO_DA_DESPESA_LEVEL?true:false}
-              helperText={errors.DONO_DA_DESPESA_LEVEL && errors.DONO_DA_DESPESA_LEVEL.message}
-              value={delegante ? delegante.APPROVAL_LEVEL_CODE : ""}
-            />
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+            <FormControl component="fieldset" error={errors.TIPO_PRESTACAO_DE_CONTAS?true:false}>
+            <FormLabel component="legend">Tipo de prestaão de contas </FormLabel>
+            <RadioGroup aria-label="TIPO_PRESTACAO_DE_CONTAS" name="TIPO_PRESTACAO_DE_CONTAS"
+            row>
+              <FormControlLabel value="Empregado desligado" control={<Radio inputRef={register}/>} label="Empregado desligado" />
+              <FormControlLabel value="Empregado transferido/expatriado" control={<Radio inputRef={register}/>} label="Empregado transferido/expatriado" />
+            </RadioGroup>
+            </FormControl>
           </Grid>
 
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
             <TextField type="text" name="BENEFICIARIO_ID" variant="outlined"
-              label="Matrícula do delegado" onBlur={ e=> handleGetDelegado(e.target.value) }
+              label="Matrícula" onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
             />
           </Grid>
 
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do delegado" variant="outlined"
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+            <TextField fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do empregado" variant="outlined"
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_NOME?true:false}
               helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
-              value={delegado ? delegado.FULL_NAME : ""}
             />
           </Grid>
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField disabled fullWidth type="email" name="BENEFICIARIO_EMAIL" label="E-mail do delegado"
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+            <TextField fullWidth type="email" name="BENEFICIARIO_EMAIL" label="E-mail do empregado"
               variant="outlined"
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_EMAIL?true:false}
               helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
-              value={delegado ? delegado.WORK_EMAIL_ADDRESS : ""}
-            />
-          </Grid>
-          <Grid item xs={12} sm={2} md={2} lg={2} xl={2} >
-            <TextField disabled fullWidth type="text" name="BENEFICIARIO_LEVEL" label="Nível do delegado"
-              variant="outlined"
-              inputRef={register}
-              InputLabelProps={{ shrink: true }}
-              error={errors.BENEFICIARIO_LEVEL?true:false}
-              helperText={errors.BENEFICIARIO_LEVEL && errors.BENEFICIARIO_LEVEL.message}
-              value={delegado ? delegado.APPROVAL_LEVEL_CODE : ""}
+
             />
           </Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
-            <TextField id="EndDate" type="date" name="PERIODO_FIM" label="Vencimento da delegação"
-            variant="outlined" InputLabelProps={{ shrink: true }} inputRef={register}
-            error={errors.PERIODO_FIM?true:false}
-            helperText={errors.PERIODO_FIM && errors.PERIODO_FIM.message}
-            >Vencimento</TextField>
+            <TextField type="text" name="RELATORIO_CONCUR" label="Código ou nome do relatório no Concur"
+              variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.RELATORIO_CONCUR?true:false}
+              helperText={errors.RELATORIO_CONCUR && errors.RELATORIO_CONCUR.message}
+
+            />
           </Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
             <TextField fullWidth variant="outlined" type="text"
             multiline rows={5}
-            name="MOTIVO" label="justificativa da solicitação de delegação" inputRef={register}
+            name="MOTIVO" label="Descrição detalhada do problema" inputRef={register}
               error={errors.MOTIVO?true:false}
               helperText={errors.MOTIVO && errors.MOTIVO.message}
             />
@@ -220,19 +191,10 @@ export default function ApprovalDelegationAccountability() {
           </Grid>
 
           <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_COD" name="BENEFICIARIO_EMPRESA_COD"
-            value={delegado && delegado.COMPANY_CODE }
+            value={employee && employee.COMPANY_CODE }
           />
           <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_NOME" name="BENEFICIARIO_EMPRESA_NOME"
-            value={delegado && delegado.COMPANY_DESC } />
-
-          <Input inputRef={register} readOnly type="hidden" id="DONO_DA_DESPESA_EMPRESA_COD" name="DONO_DA_DESPESA_EMPRESA_COD"
-            value={delegante && delegante.COMPANY_CODE }
-          />
-          <Input inputRef={register} readOnly
-            type="hidden"
-            id="DONO_DA_DESPESA_EMPRESA_NOME" name="DONO_DA_DESPESA_EMPRESA_NOME"
-            value={delegante && delegante.COMPANY_DESC }
-          />
+            value={employee && employee.COMPANY_DESC } />
         </Grid >
       </form>
 

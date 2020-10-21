@@ -25,10 +25,9 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   DATA_DE_APROVACAO: yup.date().default(new Date()),
   STATUS_APROVACAO: yup.string().default('Aprovado'),
 
-  EMPREGADO_TERCEIRO: yup.boolean().required(),
   BENEFICIARIO_ID: yup.string().required(),
   BENEFICIARIO_NOME: yup.string().required(),
-  BENEFICIARIO_EMAIL: yup.string().email().matches(/@vale|@itv|@ctss|@newsteel/).required(),
+  BENEFICIARIO_EMAIL: yup.string().email().required(),
   BENEFICIARIO_EMPRESA_COD: yup.string(),
   BENEFICIARIO_EMPRESA_NOME: yup.string(),
 
@@ -65,7 +64,7 @@ export default function NonExistentApprover() {
   const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
       .then(res => {
-        setSnackMessage({open:true, message: `Solicitação gravada com suceso! ID:${res.data.ID}`, severity:"success"});
+        setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID:${res.data.ID}`, severity:"success"});
         updateContext();
       })
       .catch(error => {

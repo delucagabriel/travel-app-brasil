@@ -6,28 +6,21 @@ import Cancel from '@material-ui/icons/CancelPresentation';
 import Swap from '@material-ui/icons/SwapVerticalCircle';
 import AirplanemodeInactiveIcon from '@material-ui/icons/AirplanemodeInactive';
 import TransferWithinAStationIcon from '@material-ui/icons/TransferWithinAStation';
-import DriveEtaIcon from '@material-ui/icons/DriveEta';
-import GavelIcon from '@material-ui/icons/Gavel';
-import SecurityIcon from '@material-ui/icons/Security';
-import ContactSupportIcon from '@material-ui/icons/ContactSupport';
 import AssignmentIndIcon from '@material-ui/icons/AssignmentInd';
-import NewReleasesIcon from '@material-ui/icons/NewReleases';
 import CardTravelIcon from '@material-ui/icons/CardTravel';
 import AirplayIcon from '@material-ui/icons/Airplay';
 import SwapHorizIcon from '@material-ui/icons/SwapHoriz';
-import SwapVertIcon from '@material-ui/icons/SwapVert';
 import ErrorIcon from '@material-ui/icons/Error';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import SyncProblemIcon from '@material-ui/icons/SyncProblem';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import CancelScheduleSendIcon from '@material-ui/icons/CancelScheduleSend';
 import MoneyOffIcon from '@material-ui/icons/MoneyOff';
-import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 import PaymentIcon from '@material-ui/icons/Payment';
 import FindInPageIcon from '@material-ui/icons/FindInPage';
 import SendIcon from '@material-ui/icons/Send';
 import PlaylistAddCheckIcon from '@material-ui/icons/PlaylistAddCheck';
 import AddLocationIcon from '@material-ui/icons/AddLocation';
+import LocalAtmIcon from '@material-ui/icons/LocalAtm';
 
 const CreateServices = ()=> {
   const cartaoCorporativo =
@@ -85,29 +78,29 @@ const CreateServices = ()=> {
     name: 'Prestação de contas',
     process: [
       {
-        text: "Delegação da aprovação",
-        icon: <SwapVertIcon />,
-        path: "/DelegacaoDaAprovacao"
-      },
-      {
-        text: "Delegação da prestação de contas",
+        text: "Delegação da prestação / aprovação",
         icon: <SwapHorizIcon />,
         path: "/DelegacaoDaPrestacao"
       },
       {
-        text: "Problemas na prestação (Empregado Ativo)",
+        text: "Prestação de contas de empregado ativo",
         icon:<ErrorIcon />,
-        path: "/ProblemasNaPrestacaoEmpregadoAtivo"
+        path: "/PrestacaoDeContasEmpregadoAtivo"
       },
       {
-        text: "Problemas na prestação (Empregado Desligado)",
+        text: "Prestação de contas de empregado desligado / transferido / expatriado",
         icon:<ErrorOutlineIcon />,
-        path: "/ProblemasNaPrestacaoEmpregadoDesligado"
+        path: "/PrestacaoEmpregadoDesligadoExpatriado"
       },
       {
-        text: "Problemas na prestação (Empregado Transferido/Expatriado)",
-        icon:<SyncProblemIcon />,
-        path: "/ProblemasNaPrestacaoEmpregadoTransferido"
+        text: "Pagamento de reembolso (Empregado Ativo)",
+        icon:<PaymentIcon />,
+        path: "/PagamentoDeReembolsoEmpregadoAtivo"
+      },
+      {
+        text: "Pagamento de reembolso (Empregado desligado)",
+        icon:<LocalAtmIcon />,
+        path: "/PagamentoDeReembolsoEmpregadoDesligado"
       },
       {
         text: "Despesa não reconhecida",
@@ -123,16 +116,6 @@ const CreateServices = ()=> {
         text: "Despesa não disponível",
         icon:<MoneyOffIcon />,
         path: "/DespesaNaoDisponivel"
-      },
-      {
-        text: "Reembolso (Empregado ativo)",
-        icon:<PaymentIcon />,
-        path: "/ReembolsoEmpregadoAtivo"
-      },
-      {
-        text: "Reembolso (Empregado desligado)",
-        icon:<AttachMoneyIcon />,
-        path: "/ReembolsoEmpregadoDesligado"
       },
       {
         text: "Consulta a desconto de viagens",
@@ -202,17 +185,12 @@ const CreateServices = ()=> {
         path: "/AprovadorInexistente"
       },
       {
-        text: "Tratamento de exceções - Cartão virtual de hospedagem",
+        text: "Tratamento de exceções",
         icon:<CardTravelIcon />,
         path: "/emissaoBTB"
       },
       {
-        text: "Tratamento de exceções - Regularização de hospedagem",
-        icon:<NewReleasesIcon />,
-        path: "/RegularizacaoBTB"
-      },
-      {
-        text: "Tratamento de exceções - Cia Aérea não preferencial",
+        text: "Cia Aérea não preferencial",
         icon:<AirplanemodeInactiveIcon />,
         path: "/CiaAereaNaoPreferencial"
       },

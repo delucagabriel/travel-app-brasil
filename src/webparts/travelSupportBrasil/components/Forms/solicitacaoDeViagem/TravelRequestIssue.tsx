@@ -25,7 +25,6 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   DATA_DE_APROVACAO: yup.date().default(new Date()),
   STATUS_APROVACAO: yup.string().default('Aprovado'),
 
-  EMPREGADO_TERCEIRO: yup.boolean().required(),
   BENEFICIARIO_ID: yup.string().required(),
   BENEFICIARIO_NOME: yup.string().required(),
   BENEFICIARIO_EMAIL: yup.string().email().required(),
@@ -64,7 +63,7 @@ export default function TravelRequestIssue() {
   const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
       .then(res => {
-        setSnackMessage({open:true, message: `Solicitação gravada com suceso! ID:${res.data.ID}`, severity:"success"});
+        setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID:${res.data.ID}`, severity:"success"});
         updateContext();
       })
       .catch(error => {
@@ -162,24 +161,13 @@ export default function TravelRequestIssue() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-            <TextField fullWidth type="text" name="BENEFICIARIO_ID" variant="outlined"
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <TextField type="text" name="BENEFICIARIO_ID" variant="outlined"
               label="Matrícula" onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
             />
-          </Grid>
-
-          <Grid item xs={12} sm={8} md={8} lg={8} xl={8}>
-            <FormControl component="fieldset" error={errors.EMPREGADO_TERCEIRO?true:false}>
-            <FormLabel component="legend">Terceiro/Vale</FormLabel>
-            <RadioGroup aria-label="EMPREGADO_TERCEIRO" name="EMPREGADO_TERCEIRO"
-            row>
-              <FormControlLabel value="true" control={<Radio inputRef={register}/>} label="Terceiro" />
-              <FormControlLabel value="false" control={<Radio inputRef={register}/>} label="Vale/Coligadas" />
-            </RadioGroup>
-            </FormControl>
           </Grid>
 
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >

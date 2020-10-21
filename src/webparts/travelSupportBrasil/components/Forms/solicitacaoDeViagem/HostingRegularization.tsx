@@ -90,7 +90,7 @@ export default function HostingRegularization() {
   const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
       .then(res => {
-        setSnackMessage({open:true, message: `Solicitação gravada com suceso! ID:${res.data.ID}`, severity:"success"});
+        setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID:${res.data.ID}`, severity:"success"});
         updateContext();
       })
       .catch(error => {

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextField, Select, MenuItem, FormLabel, Grid, Button, Input, Paper, Typography, Snackbar, FormControl, RadioGroup, FormControlLabel, Radio } from '@material-ui/core';
+import { TextField, Select, MenuItem, FormLabel, Grid, Button, Input, Paper, Snackbar } from '@material-ui/core';
 import { useState, useContext } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { Alert } from '@material-ui/lab';
@@ -30,15 +30,27 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   DONO_DA_DESPESA_EMAIL: yup.string().required(),
   DONO_DA_DESPESA_EMPRESA_COD: yup.string(),
   DONO_DA_DESPESA_EMPRESA_NOME: yup.string().required(),
+  DONO_DA_DESPESA_LEVEL: yup.string().required(),
 
   BENEFICIARIO_ID: yup.string().required(),
   BENEFICIARIO_NOME: yup.string().required(),
   BENEFICIARIO_EMAIL: yup.string().email().required(),
-  BENEFICIARIO_EMPRESA_COD: yup.string(),
-  BENEFICIARIO_EMPRESA_NOME: yup.string(),
+  BENEFICIARIO_EMPRESA_COD: yup.string().required(),
+  BENEFICIARIO_EMPRESA_NOME: yup.string().required(),
+  BENEFICIARIO_LEVEL: yup.string()
+  .when('DONO_DA_DESPESA_LEVEL', (DONO_DA_DESPESA_LEVEL, sch) => {
+    const msg = 'Delegação só pode ser feita para níveis acima ou 1 nível abaixo (mínimo: SUP)';
+    if(DONO_DA_DESPESA_LEVEL === 'SUP') return sch.oneOf(['SUP', 'D-4', 'D-3', 'D-2', 'D-1', 'DE'], msg);
+    if(DONO_DA_DESPESA_LEVEL === 'D-4') return sch.oneOf(['SUP', 'D-4', 'D-3', 'D-2', 'D-1', 'DE'], msg);
+    if(DONO_DA_DESPESA_LEVEL === 'D-3') return sch.oneOf(['D-4', 'D-3', 'D-2', 'D-1', 'DE'], msg);
+    if(DONO_DA_DESPESA_LEVEL === 'D-2') return sch.oneOf(['D-3', 'D-2', 'D-1', 'DE'], msg);
+    if(DONO_DA_DESPESA_LEVEL === 'D-1') return sch.oneOf(['D-2', 'D-1', 'DE'], msg);
+    if(DONO_DA_DESPESA_LEVEL === 'DE') return sch.oneOf(['DE', 'D-1'], msg);
+  })
+  .required(),
 
   TIPO_DE_DELEGACAO: yup.string().default('Aprovação de viagem'),
-  PERIODO_FIM: yup.date().min(new Date()),
+  PERIODO_FIM: yup.date().min(new Date(), 'Data precisa ser posterior ao dia de hoje'),
   MOTIVO: yup.string()
   .min(20)
   .required()
@@ -68,7 +80,7 @@ export default function ApprovalDelegation() {
   const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
       .then(res => {
-        setSnackMessage({open:true, message: `Solicitação gravada com suceso! ID:${res.data.ID}`, severity:"success"});
+        setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID:${res.data.ID}`, severity:"success"});
         updateContext();
       })
       .catch(error => {
@@ -154,8 +166,8 @@ export default function ApprovalDelegation() {
             <TextField type="text" name="BENEFICIARIO_ID" variant="outlined"
               label="Matrícula do delegado" onBlur={ e=> handleGetDelegado(e.target.value) }
               inputRef={register}
-              error={errors.BENEFICIARIO_ID?true:false}
-              helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
+              error={(errors.BENEFICIARIO_ID || errors.BENEFICIARIO_LEVEL)?true:false}
+              helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message || errors.BENEFICIARIO_LEVEL && errors.BENEFICIARIO_LEVEL.message}
             />
           </Grid>
 
@@ -200,19 +212,38 @@ export default function ApprovalDelegation() {
           </Grid>
 
           <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_COD" name="BENEFICIARIO_EMPRESA_COD"
+          hidden
             value={delegado && delegado.COMPANY_CODE }
           />
-          <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_NOME" name="BENEFICIARIO_EMPRESA_NOME"
+          <Input inputRef={register} readOnly
+            type="hidden"
+            id="BENEFICIARIO_EMPRESA_NOME"
+            name="BENEFICIARIO_EMPRESA_NOME"
+            hidden
             value={delegado && delegado.COMPANY_DESC } />
-
+          <Input inputRef={register} readOnly
+            hidden
+            type="hidden"
+            id="BENEFICIARIO_LEVEL" name="BENEFICIARIO_LEVEL"
+            value={delegado && delegado.APPROVAL_LEVEL_CODE }
+          />
           <Input inputRef={register} readOnly type="hidden" id="DONO_DA_DESPESA_EMPRESA_COD" name="DONO_DA_DESPESA_EMPRESA_COD"
             value={delegante && delegante.COMPANY_CODE }
+            hidden
           />
           <Input inputRef={register} readOnly
+            hidden
             type="hidden"
             id="DONO_DA_DESPESA_EMPRESA_NOME" name="DONO_DA_DESPESA_EMPRESA_NOME"
             value={delegante && delegante.COMPANY_DESC }
           />
+          <Input inputRef={register} readOnly
+            hidden
+            type="hidden"
+            id="DONO_DA_DESPESA_LEVEL" name="DONO_DA_DESPESA_LEVEL"
+            value={delegante && delegante.APPROVAL_LEVEL_CODE }
+          />
+
         </Grid >
       </form>
 

@@ -20,10 +20,19 @@ import CorporateCardProblems from './Forms/cartoes/CorporateCardProblems';
 import ApprovalDelegation from './Forms/solicitacaoDeViagem/ApprovalDelegation';
 import NonExistentApprover from './Forms/solicitacaoDeViagem/NonExistentApprover';
 import VirtualHostingCard from './Forms/solicitacaoDeViagem/VirtualHostingCard';
-import HostingRegularization from './Forms/solicitacaoDeViagem/HostingRegularization';
 import NonPreferredAirline from './Forms/solicitacaoDeViagem/NonPreferredAirline';
-import ApprovalDelegationAccountability from './Forms/prestacaoDeContas/ApprovalDelegationAccountability';
 import TravelRequestIssue from './Forms/solicitacaoDeViagem/TravelRequestIssue';
+import EmployeeRefund from './Forms/prestacaoDeContas/EmployeeRefund';
+import DelegationOfAccountability from './Forms/prestacaoDeContas/DelegationOfAccountability';
+import AccountabilityProblemsActiveEmployee from './Forms/prestacaoDeContas/AccountabilityProblems_ActiveEmployee';
+import AccountabilityProblemsTransferredOrTerminated from './Forms/prestacaoDeContas/AccountabilityProblems_TransferredOrTerminated';
+import ActiveEmployeeReimbursement from './Forms/prestacaoDeContas/ActiveEmployeeReimbursement';
+import UnrecognizedExpense from './Forms/prestacaoDeContas/UnrecognizedExpense';
+import ApprovalOfAccountability from './Forms/prestacaoDeContas/ApprovalOfAccountability';
+import CardAndSystemUnlock from './Forms/prestacaoDeContas/CardAndSystemUnlock';
+import TravelDiscountConsultation from './Forms/prestacaoDeContas/TravelDiscountConsultation';
+import SendingValueForDiscount from './Forms/prestacaoDeContas/SendingValueForDiscount';
+import AccountingFailure from './Forms/prestacaoDeContas/AccountingFailure';
 
 const theme = createMuiTheme({
   palette: {
@@ -74,11 +83,21 @@ export const Routes = ()=>{
             <Route path="/DelegacaoDaAprovacaoDaViagem" exact={true} component={ApprovalDelegation} />
             <Route path="/AprovadorInexistente" exact={true} component={NonExistentApprover} />
             <Route path="/emissaoBTB" exact={true} component={VirtualHostingCard} />
-            <Route path="/RegularizacaoBTB" exact={true} component={HostingRegularization} />
             <Route path="/CiaAereaNaoPreferencial" exact={true} component={NonPreferredAirline} />
 
             {/*  Prestação de contas  */}
-            <Route path="/DelegacaoDaAprovacao" exact={true} component={ApprovalDelegationAccountability} />
+            <Route path="/DelegacaoDaPrestacao" exact={true} component={DelegationOfAccountability} />
+            <Route path="/PagamentoDeReembolsoEmpregadoAtivo" exact={true} component={ActiveEmployeeReimbursement} />
+            <Route path="/PagamentoDeReembolsoEmpregadoDesligado" exact={true} component={EmployeeRefund} />
+            <Route path='/PrestacaoDeContasEmpregadoAtivo' exact={true} component={AccountabilityProblemsActiveEmployee} />
+            <Route path='/PrestacaoEmpregadoDesligadoExpatriado' exact={true} component={AccountabilityProblemsTransferredOrTerminated} />
+            <Route path='/DespesaNaoReconhecida' exact={true} component={UnrecognizedExpense} />
+            <Route path='/AprovacaoDaPrestacao' exact={true} component={ApprovalOfAccountability} />
+            <Route path='/DesbloqueioDeCartaoESistema' exact={true} component={CardAndSystemUnlock} />
+            <Route path='/ConsultaADescontoDeViagens' exact={true} component={TravelDiscountConsultation} />
+            <Route path='/EnvioDeValorParaDesconto' exact={true} component={SendingValueForDiscount} />
+            <Route path='/FalhaNaContabilizacao' exact={true} component={AccountingFailure} />
+            <Route path='/DespesaNaoDisponivel' exact={true} component={CardAndSystemUnlock} />
 
 
 

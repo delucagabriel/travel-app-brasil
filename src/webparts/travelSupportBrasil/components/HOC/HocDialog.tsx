@@ -11,6 +11,7 @@ export default function HocDialog({children, openDialog = true}) {
   return (
     <div>
       <Dialog
+        maxWidth='xl'
         open={open}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"

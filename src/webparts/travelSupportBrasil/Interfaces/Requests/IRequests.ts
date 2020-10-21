@@ -99,6 +99,11 @@ export interface IRequests_AllFields {
   PORTADOR_SOLIC_CARTAO?: string;
   VISA_INFINITE?: string;
   TFD?: boolean;
+  TIPO_DE_VIAJANTE?: string;
+  BENEFICIARIO_DOC_IDENTIF?: string;
+  BENEFICIARIO_NASCIMENTO?: Date;
+  BENEFICIARIO_NACIONALIDADE?: string;
+  TIPO_PRESTACAO_DE_CONTAS?: string;
   Created?: Date;
   Modified?: Date;
 }
