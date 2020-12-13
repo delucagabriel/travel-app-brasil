@@ -10,8 +10,6 @@ export default function MyPendingRequests() {
   const { myRequests } = useContext(Context);
   const [requestDetails, setRequestDetails] = useState({...myRequests[0], open:false});
 
-
-
   return (
     <Grid container>
       <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -31,9 +29,6 @@ export default function MyPendingRequests() {
                   <TableCell variant="head" align="center">Status: Atendimento</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Empregado</TableCell>
-                </Hidden>
-                <Hidden smDown>
                   <TableCell variant="head" align="center">Criação</TableCell>
                 </Hidden>
                 <Hidden smDown>
@@ -42,9 +37,9 @@ export default function MyPendingRequests() {
               </TableRow>
             </TableHead>
             <TableBody>
-              { console.log(myRequests) }
               {myRequests
               .filter(request => request.STATUS.toLowerCase() !== "sucesso" && request.STATUS.toLowerCase() !=="rejeitado" )
+              .reverse()
               .map((row) => (
                 <TableRow key={row.Id}
                   onClick={() =>setRequestDetails({...row, open:true})}
@@ -59,9 +54,6 @@ export default function MyPendingRequests() {
                   </Hidden>
                   <Hidden smDown>
                     <TableCell variant="body" align="center">{row.STATUS_ATENDIMENTO}</TableCell>
-                  </Hidden>
-                  <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.BENEFICIARIO_NOME}</TableCell>
                   </Hidden>
                   <Hidden smDown>
                     <TableCell variant="body" align="center">{row.Created}</TableCell>

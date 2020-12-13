@@ -27,7 +27,8 @@
       "dom",
       "es2015.collection",
       "es7"
-    ]
+    ],
+    // "downlevelIteration": true
   },
   "include": [
     "src/**/*.ts",

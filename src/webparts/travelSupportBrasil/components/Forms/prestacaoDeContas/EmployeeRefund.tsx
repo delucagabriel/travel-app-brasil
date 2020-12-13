@@ -15,27 +15,27 @@ import HocDialog from '../../HOC/HocDialog';
 import { IList } from '@pnp/sp/lists';
 import { sp } from '@pnp/sp';
 import { IAttachmentFileInfo } from '@pnp/sp/attachments';
+import { yup_pt_br } from '../../../Utils/yup_pt_br';
+import { setLocale } from 'yup';
 
+setLocale(yup_pt_br);
 
 
 const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
-  SLA: yup.number().default(24),
+  SLA: yup.number().default(48),
   AREA_RESOLVEDORA: yup.string().default("Viagens Corporativas"),
   ALCADA_APROVACAO: yup.string().default(""),
   WF_APROVACAO: yup.boolean().default(false),
   DATA_DE_APROVACAO: yup.date().default(new Date()),
   STATUS_APROVACAO: yup.string().default('Aprovado'),
 
-  BENEFICIARIO_ID: yup.string().required(),
+  BENEFICIARIO_ID: yup.string(),
   BENEFICIARIO_NOME: yup.string().required(),
-  BENEFICIARIO_EMAIL: yup.string().email().required(),
-  BENEFICIARIO_EMPRESA_COD: yup.string(),
-  BENEFICIARIO_EMPRESA_NOME: yup.string(),
   VALOR: yup.number()
     .positive()
-    .required()
+    .required('Preenchimento obrigatório')
 });
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -46,9 +46,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
   }),
 );
-
-
-
 
 export default function EmployeeRefund() {
   const classes = useStyles();
@@ -65,18 +62,6 @@ export default function EmployeeRefund() {
   });
   const { updateContext } = useContext(Context);
   const [fileInfos, setFileInfos] = useState<IAttachmentFileInfo[]>([]);
-
-
-  const handleGetEmployee = (value:string) =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => {
-      setEmployee(emp);
-      setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
-        shouldDirty: true
-      });
-      setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
-        shouldDirty: true
-      });
-    });
 
 function blob(e) {
   //Get the File Upload control id
@@ -95,10 +80,7 @@ function blob(e) {
       }))(file);
     reader.readAsArrayBuffer(file);
   }//End of for loop
-
-  console.log(filesToAdd);
   setFileInfos(filesToAdd);
-  console.log(fileInfos);
 }
 
 function uploadListAttachments(id) {
@@ -141,11 +123,11 @@ function uploadListAttachments(id) {
           Para pagamento de reembolso de empregados desligados, é necessário seguir o fluxo abaixo:
         </Typography>
         <Typography variant='body2'>
-          1- O empregado desligado entrega ao o ex-gestor os recibos para comprovação dos gastos;<br/>
+          1- O empregado desligado entrega ao último gestor os recibos para comprovação dos gastos;<br/>
           2- Os gestores (pai e avô) validam os recibos e os valores para que o empregado seja reembolsado ou descontado;<br/>
-          3- O gestor preenche esse formulário informando o valor apurado e aprovado para a validação da área de viagens;<br/>
-          4- Após resposta do chamado, o ex-gestor encaminha para a BP que atende a sua área o valor que o ex-expregado deverá ser reembolsado;<br/>
-          6- A BP encaminha para o Núcleo RH GE o e-mail do gestor contendo o valor para realização do cálculo da rescisão complementar.
+          3- O gestor preenche o formulário a seguir informando o valor apurado e aprovado para a validação da área de viagens;<br/>
+          4- Após resposta do chamado, o gestor encaminha para a BP/RH, que atende a sua área,  o valor que deverá ser reembolsado;<br/>
+          6- A BP/RH encaminha para o Núcleo RH/GE o e-mail do gestor contendo o valor para realização do cálculo da rescisão complementar.
         </Typography>
       </HocDialog>
       <div style={{padding:"20px"}}>
@@ -183,36 +165,46 @@ function uploadListAttachments(id) {
             />
           </Grid>
 
-          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-            <TextField fullWidth type="text" name="BENEFICIARIO_ID" variant="outlined"
-              label="Matrícula" onBlur={e=>handleGetEmployee(e.target.value)}
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField
+              fullWidth
+              variant="outlined"
+              type="search"
+              name="BENEFICIARIO_ID"
+              label="Empregado: Matrícula"
               inputRef={register}
+              InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
             />
           </Grid>
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+            <TextField
+              fullWidth
+              type="text"
+              name="BENEFICIARIO_EMAIL"
+              label="Empregado: e-mail"
+              variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_EMAIL?true:false}
+              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+            />
+          </Grid>
 
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do empregado" variant="outlined"
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <TextField fullWidth type="text" name="BENEFICIARIO_NOME"
+              label="Empregado: Nome" variant="outlined"
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_NOME?true:false}
               helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
             />
           </Grid>
-          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-            <TextField fullWidth type="email" name="BENEFICIARIO_EMAIL" label="E-mail do empregado"
-              variant="outlined"
-              inputRef={register}
-              InputLabelProps={{ shrink: true }}
-              error={errors.BENEFICIARIO_EMAIL?true:false}
-              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
 
-            />
-          </Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
             <TextField type="number" name="VALOR" label="Valor do reembolso"
-              variant="outlined"
+              variant="outlined" inputProps={{ min: 1 }}
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.VALOR?true:false}
@@ -228,12 +220,6 @@ function uploadListAttachments(id) {
             <Button type="submit"
             variant="contained" color="primary" style={{float:'right'}}> Enviar </Button>
           </Grid>
-
-          <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_COD" name="BENEFICIARIO_EMPRESA_COD"
-            value={employee && employee.COMPANY_CODE }
-          />
-          <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_NOME" name="BENEFICIARIO_EMPRESA_NOME"
-            value={employee && employee.COMPANY_DESC } />
         </Grid >
       </form>
 

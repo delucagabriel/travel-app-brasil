@@ -4,6 +4,7 @@ import { createStyles, makeStyles, useTheme, Theme } from '@material-ui/core/sty
 import { Drawer, AppBar, CssBaseline, Toolbar, IconButton, Typography,
   List, ListItem, ListItemIcon, ListItemText, Accordion, AccordionSummary, CircularProgress, Button, Divider  } from '@material-ui/core';
 import { Menu, ChevronLeft, ChevronRight, HowToReg } from '@material-ui/icons';
+import SpellcheckIcon from '@material-ui/icons/Spellcheck';
 import { useHistory } from 'react-router-dom';
 import { Context } from '../Context';
 import { useContext, useState } from 'react';
@@ -99,8 +100,6 @@ export default function MiniDrawer({children}) {
   const theme = useTheme();
   const [open, setOpen] = useState(true);
 
-
-
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -136,6 +135,13 @@ export default function MiniDrawer({children}) {
           </Typography>
           </Button>
           <div className={classes.grow} />
+          {
+            employeeInfos && employeeInfos.APPROVAL_LEVEL_CODE.toLowerCase() !== 'staff' &&
+            <Button color="inherit" onClick={()=> {updateContext(); history.push("/aprovacoes");}}>
+              <SpellcheckIcon color="inherit" fontSize='large'/>
+            </Button>
+
+          }
           { employeeInfos && employeeInfos.isAdmin &&
             <Button color="inherit" onClick={()=> {updateContext(); history.push("/atendimento");}}>
               <HowToReg color="inherit" fontSize='large'/>
@@ -176,10 +182,10 @@ export default function MiniDrawer({children}) {
                   <Typography variant="caption" align="center">{ service.name }</Typography>
                 </AccordionSummary>
                 <List className={classes.drawerCloseListItens}>
-                  { service.process.map(item=>{
+                  { service.process.map((item, index)=>{
                     const { icon, text, path } = item;
                     return(
-                      <ListItem button key={text} onClick={()=>history.push(path)}>
+                      <ListItem button key={index} onClick={()=>history.push(path)}>
                       <ListItemIcon>{icon}</ListItemIcon>
                       <ListItemText
                         primary={<Typography variant="caption">{text}</Typography>}

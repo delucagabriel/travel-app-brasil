@@ -7,6 +7,10 @@ import { yupResolver } from '@hookform/resolvers';
 import { Context } from '../Context';
 import { updateRequest } from '../../services/RequestServices';
 import { IRequest_ServiceApproval } from '../../Interfaces/Requests/IRequest_ServiceApproval';
+import { yup_pt_br } from '../../Utils/yup_pt_br';
+import { setLocale } from 'yup';
+
+setLocale(yup_pt_br);
 
 const schema = yup.object().shape({
   Id:yup.number()
@@ -57,7 +61,7 @@ export default function ServiceApproval({request, callbackParent}) {
           </Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <TextField fullWidth type="text" required name="ATENDIMENTO_COMENTARIOS" variant="outlined"
-              label="Service notes"
+              label="Observações"
               inputRef={register}
               error={errors.ATENDIMENTO_COMENTARIOS?true:false}
               helperText={errors.ATENDIMENTO_COMENTARIOS && errors.ATENDIMENTO_COMENTARIOS.message}
@@ -65,7 +69,7 @@ export default function ServiceApproval({request, callbackParent}) {
             />
           </Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-          <Button type="submit" variant="contained" color="primary" style={{float:'right'}}> Submit </Button>
+          <Button type="submit" variant="contained" color="primary" style={{float:'right'}}> Enviar </Button>
           </Grid>
         </Grid>
         <Input inputRef={register} readOnly type="hidden" id="Id" name="Id" value={request && request.Id } />

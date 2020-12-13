@@ -12,13 +12,17 @@ import { IRequest_CancelCard } from '../../../Interfaces/Requests/IRequest_Cance
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
 import { TestaCPF } from '../../../Utils/validaCPF';
+import { yup_pt_br } from '../../../Utils/yup_pt_br';
+import { setLocale } from 'yup';
 
+setLocale(yup_pt_br);
 
 const schema: yup.ObjectSchema<IRequest_CancelCard> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
-  SLA: yup.number().default(48),
+  SLA: yup.number().default(24),
   AREA_RESOLVEDORA: yup.string().default("Bradesco"),
+  WF_APROVACAO: yup.boolean().default(false),
   ALCADA_APROVACAO: yup.string().default(""),
 
   BENEFICIARIO_ID: yup.string().required(),
@@ -30,20 +34,16 @@ const schema: yup.ObjectSchema<IRequest_CancelCard> = yup.object().shape({
 
 
   ULTIMOS_DIGITOS_DO_CARTAO: yup.string()
-    .length(4)
-    .matches(/\d/, "Only numbers")
-    .required(),
+    .max(4),
   MOTIVO: yup.string()
-    .min(10)
     .required(),
-  WF_APROVACAO: yup.boolean().default(false),
   DATA_DE_APROVACAO: yup.date().default(new Date()),
   STATUS_APROVACAO: yup.string().default('Aprovado')
 
 });
 
 export default function CancelCard() {
-  const { register, handleSubmit, control, errors, reset } = useForm<IRequest_CancelCard>({
+  const { register, handleSubmit, control, errors, setValue } = useForm<IRequest_CancelCard>({
     resolver: yupResolver(schema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
@@ -54,8 +54,45 @@ export default function CancelCard() {
   });
   const { updateContext } = useContext(Context);
 
-  const handleGetEmployee = value =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => setEmployee(emp));
+  const handleGetEmployee = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
+
+  const handleGetEmployeeByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
 
 
   const onSubmit = (data:IRequest_CancelCard, e) => {
@@ -97,12 +134,12 @@ export default function CancelCard() {
             <Controller
               as={
                 <Select disabled fullWidth>
-                  <MenuItem value="Cancelar cartão">Cancelar cartão</MenuItem>
+                  <MenuItem value="Cancelamento do cartão corporativo">Cancelamento do cartão corporativo</MenuItem>
                 </Select>
               }
               id="Process"
               name="PROCESSO"
-              defaultValue="Cancelar cartão"
+              defaultValue="Cancelamento do cartão corporativo"
               rules={{ required: "Campo obrigatório" }}
               control={control}
               error={errors.PROCESSO?true:false}
@@ -110,19 +147,29 @@ export default function CancelCard() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
             <TextField type="text" required name="BENEFICIARIO_ID" variant="outlined"
-              label="Matrícula do empregado" onBlur={ e=> handleGetEmployee(e.target.value) }
+              label="Matrícula do empregado"
+              onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
             />
           </Grid>
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+            <TextField fullWidth type="text" name="BENEFICIARIO_EMAIL" label="E-mail do empregado"
+              variant="outlined"
+              onBlur={ e=> handleGetEmployeeByEmail(e.target.value) }
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_EMAIL?true:false}
+              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+            />
+          </Grid>
 
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
             <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do empregado" variant="outlined"
-              value={employee? employee.FULL_NAME: ""}
               inputRef={register}
               InputProps={{
                 readOnly: true,
@@ -130,18 +177,6 @@ export default function CancelCard() {
               InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_NOME?true:false}
               helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField disabled fullWidth type="text" name="BENEFICIARIO_EMAIL" label="E-mail do empregado"
-              variant="outlined"  value={employee ? employee.WORK_EMAIL_ADDRESS : "" }
-              inputRef={register}
-              InputProps={{
-                readOnly: true,
-              }}
-              InputLabelProps={{ shrink: true }}
-              error={errors.BENEFICIARIO_EMAIL?true:false}
-              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
             />
           </Grid>
 
@@ -155,7 +190,7 @@ export default function CancelCard() {
             />
           </Grid>
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField fullWidth variant="outlined" type="text" required name="ULTIMOS_DIGITOS_DO_CARTAO" label="Últimos 4 dígitos"
+            <TextField fullWidth variant="outlined" type="text" name="ULTIMOS_DIGITOS_DO_CARTAO" label="Últimos 4 dígitos"
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.ULTIMOS_DIGITOS_DO_CARTAO?true:false}

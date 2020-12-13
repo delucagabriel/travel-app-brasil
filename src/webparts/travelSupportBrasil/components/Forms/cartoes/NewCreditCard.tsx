@@ -15,15 +15,32 @@ import { ISnack } from '../../../Interfaces/ISnack';
 import { IRequest_NewCard } from '../../../Interfaces/Requests/IRequest_NewCard';
 import { TestaCPF } from '../../../Utils/validaCPF';
 import HocDialog from '../../HOC/HocDialog';
+import { yup_pt_br } from '../../../Utils/yup_pt_br';
+import { setLocale } from 'yup';
+import { corporateCardConfig } from '../../../formConfigurations/corporateCards';
+
+setLocale(yup_pt_br);
 
 const schema: yup.ObjectSchema<IRequest_NewCard> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
   ALCADA_APROVACAO: yup.string()
   .when('TIPO_LIMITE_VALOR', (TIPO_LIMITE_VALOR, sch) => {
-    if(['Tipo I', 'Tipo II', 'Tipo III', 'Tipo IV'].indexOf(TIPO_LIMITE_VALOR) >=0 ) return sch.default('D-3');
-    if(['Tipo V', 'Tipo VI'].indexOf(TIPO_LIMITE_VALOR)>=0) return sch.default('D-2');
-    if(TIPO_LIMITE_VALOR === 'Tipo VII') return sch.default('D-1');
+    if(
+      [
+        corporateCardConfig.tipo_cartao_valor.Tipo_I,
+        corporateCardConfig.tipo_cartao_valor.Tipo_II,
+        corporateCardConfig.tipo_cartao_valor.Tipo_III,
+        corporateCardConfig.tipo_cartao_valor.Tipo_IV
+      ].indexOf(TIPO_LIMITE_VALOR) >=0 ) return sch.default('D-3');
+
+    if(
+      [
+        corporateCardConfig.tipo_cartao_valor.Tipo_V,
+        corporateCardConfig.tipo_cartao_valor.Tipo_VI
+      ].indexOf(TIPO_LIMITE_VALOR)>=0) return sch.default('D-2');
+
+      if(TIPO_LIMITE_VALOR === corporateCardConfig.tipo_cartao_valor.Tipo_VII) return sch.default('D-1');
   }),
   SLA: yup.number().default(72),
   AREA_RESOLVEDORA: yup.string().default("Bradesco"),
@@ -41,7 +58,7 @@ const schema: yup.ObjectSchema<IRequest_NewCard> = yup.object().shape({
   END_CEP: yup.string().required(),
   END_LOGRADOURO: yup.string().required(),
   END_NUMERO: yup.number().required(),
-  END_COMPLEMENTO: yup.string().required(),
+  END_COMPLEMENTO: yup.string(),
 
   APROVADOR_ID: yup.string().required(),
   APROVADOR_NOME: yup.string().required(),
@@ -50,9 +67,9 @@ const schema: yup.ObjectSchema<IRequest_NewCard> = yup.object().shape({
   APROVADOR_EMPRESA_NOME: yup.string().required(),
   APROVADOR_LEVEL: yup.string()
   .when('ALCADA_APROVACAO', (ALCADA_APROVACAO, sch) => {
-    if(ALCADA_APROVACAO === 'D-3') return sch.oneOf(['D-3', 'D-2', 'D-1', 'DE']);
-    if(ALCADA_APROVACAO === 'D-2') return sch.oneOf(['D-2', 'D-1', 'DE']);
-    if(ALCADA_APROVACAO === 'D-1') return sch.oneOf(['D-1', 'DE']);
+    if(ALCADA_APROVACAO === 'D-3') return sch.oneOf(['D-3', 'D-2', 'D-1', 'DE'], "Nível de aprovação mínimo é D-3");
+    if(ALCADA_APROVACAO === 'D-2') return sch.oneOf(['D-2', 'D-1', 'DE'], "Nível de aprovação mínimo é DE-2");
+    if(ALCADA_APROVACAO === 'D-1') return sch.oneOf(['D-1', 'DE'], "Nível de aprovação mínimo é DE-1");
     })
   .required(),
 
@@ -68,8 +85,10 @@ interface IAddress {
     neighborhood: string;
 }
 
+
+
 export default function NewCreditCard(){
-  const { register, handleSubmit, control, errors, reset, getValues } = useForm<IRequest_NewCard>({
+  const { register, handleSubmit, control, errors, reset, getValues, watch, setValue } = useForm<IRequest_NewCard>({
     resolver: yupResolver(schema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
@@ -82,24 +101,100 @@ export default function NewCreditCard(){
   });
   const { updateContext } = useContext(Context);
 
+  const watchVisaInfinite = watch("VISA_INFINITE");
+
   const handleGetAddress = value => {
     cep(value).then(res => setAddress(res));
   };
 
   const handleGetEmployee = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-  .then(emp => setEmployee(emp));
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
+
+  const handleGetEmployeeByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
 
   const handleGetApprover = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-  .then(emp => setApprover(emp));
+  .then(emp => {
+    setApprover(emp);
+    setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+  });
+
+  const handleGetApproverByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
+  .then(emp => {
+    setApprover(emp);
+    setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+  });
 
   const onSubmit = (data:IRequest_NewCard, e) => {
     newRequest(data)
       .then(res => {
-        setSnackMessage({open:true, message: `Request successfully recorded under ID:${res.data.ID}`, severity:"success"});
+        setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID::${res.data.ID}`, severity:"success"});
         updateContext();
       })
       .catch(()=> {
-        setSnackMessage({open:true, message: "Request failed", severity:"error"});
+        setSnackMessage({open:true, message: "Falha ao tentar gravar a solicitação", severity:"error"});
       });
     e.target.reset();
   };
@@ -109,13 +204,13 @@ console.log(errors);
         <HocDialog>
           <p>
             Alçadas de aprovação de acordo com a NFN-0018:<br/>
-            Tipo I - R$ 1.000 - Aprovação DE-3<br/>
-            Tipo II - R$ 2.500 - Aprovação DE-3<br/>
-            Tipo III - R$ 5.000 - Aprovação DE-3<br/>
-            Tipo IV - R$ 10.000 - Aprovação DE-3<br/>
-            Tipo V - R$ 20.000 - Aprovação DE-2<br/>
-            Tipo VI - R$ 30.0000 - Aprovação DE-2<br/>
-            Tipo VII - R$ 60.000 - Aprovação DE-1
+            {corporateCardConfig.tipo_cartao_valor.Tipo_I} - Aprovação DE-3<br/>
+            {corporateCardConfig.tipo_cartao_valor.Tipo_II} - Aprovação DE-3<br/>
+            {corporateCardConfig.tipo_cartao_valor.Tipo_II} - Aprovação DE-3<br/>
+            {corporateCardConfig.tipo_cartao_valor.Tipo_IV} - Aprovação DE-3<br/>
+            {corporateCardConfig.tipo_cartao_valor.Tipo_V} - Aprovação DE-2<br/>
+            {corporateCardConfig.tipo_cartao_valor.Tipo_VI} - Aprovação DE-2<br/>
+            {corporateCardConfig.tipo_cartao_valor.Tipo_VII} - Aprovação DE-1
           </p>
         </HocDialog>
         <div style={{padding:"20px"}}>
@@ -140,17 +235,15 @@ console.log(errors);
                 <Controller
                   as={
                     <Select disabled fullWidth>
-                      <MenuItem value="Novo cartão">Novo cartão</MenuItem>
+                      <MenuItem value="Emissão de cartão corporativo">Emissão de cartão corporativo</MenuItem>
                     </Select>
                   }
                   id="Process"
                   name="PROCESSO"
-                  defaultValue="Novo cartão"
-                  rules={{ required: "this is required" }}
+                  defaultValue="Emissão de cartão corporativo"
                   control={control}
                 />
               </Grid>
-
 
               <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
                 <TextField
@@ -166,7 +259,22 @@ console.log(errors);
                   helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
                 />
               </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+              <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="BENEFICIARIO_EMAIL"
+                  label="Empregado: e-mail"
+                  variant="outlined"
+                  inputRef={register}
+                  onBlur={ e=> handleGetEmployeeByEmail(e.target.value) }
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.BENEFICIARIO_EMAIL?true:false}
+                  helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
                 <TextField fullWidth type="text" name="CPF"
                   label="Empregado: CPF" variant="outlined"
                   inputRef={register}
@@ -175,7 +283,7 @@ console.log(errors);
                   helperText={errors.CPF && errors.CPF.message}
                 />
               </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+              <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
                 <TextField fullWidth type="tel" name="TELEFONE"
                   label="Empregado: Telefone" variant="outlined"
                   inputRef={register}
@@ -187,42 +295,52 @@ console.log(errors);
 
 
               <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-              <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME"
-                label="Empregado: Nome" variant="outlined"
-                value={employee? employee.FULL_NAME : ""}
-                inputRef={register}
-                InputLabelProps={{ shrink: true }}
-                error={errors.BENEFICIARIO_NOME?true:false}
-                helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
-              />
-            </Grid>
-              <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-              <TextField disabled fullWidth type="text" name="BENEFICIARIO_EMAIL" label="Empregado: e-mail" variant="outlined"
-                value={employee ? employee.WORK_EMAIL_ADDRESS : "" }
-                inputRef={register}
-                InputLabelProps={{ shrink: true }}
-                error={errors.BENEFICIARIO_EMAIL?true:false}
-                helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
-              />
-            </Grid>
+                <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME"
+                  label="Empregado: Nome" variant="outlined"
+                  inputRef={register}
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.BENEFICIARIO_NOME?true:false}
+                  helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
+                />
+              </Grid>
 
               <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
                 <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Limite</FormLabel>
                 <Controller
                   as={
+                    watchVisaInfinite === 'Visa Infinite'
+                    ?
                     <Select inputRef={register}>
-                      <MenuItem value="Tipo I">Tipo I - R$ 1.000,00</MenuItem>
-                      <MenuItem value="Tipo II">Tipo II - R$ 2.500,00</MenuItem>
-                      <MenuItem value="Tipo III">Tipo III - R$ 5.000,00</MenuItem>
-                      <MenuItem value="Tipo IV">Tipo IV - R$ 10.000,00</MenuItem>
-                      <MenuItem value="Tipo V">Tipo V - R$ 20.000,00</MenuItem>
-                      <MenuItem value="Tipo VI">Tipo VI - R$ 30.000,00</MenuItem>
-                      <MenuItem value="Tipo VII">Tipo VII - R$ 60.000,00</MenuItem>
+                      <MenuItem value="Infinite I - R$ 100.000,00">Infinite I - R$ 100.000,00</MenuItem>
+                      <MenuItem value="Infinite II - R$ 200.000,00">Infinite II - R$ 200.000,00</MenuItem>
+                    </Select>
+                    :
+                    <Select inputRef={register}>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_I}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_I}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_II}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_II}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_III}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_III}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_IV}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_IV}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_V}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_V}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_VI}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_VI}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_VII}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_VII}
+                      </MenuItem>
                     </Select>
                   }
                   id="TIPO_LIMITE_VALOR"
                   name="TIPO_LIMITE_VALOR"
-                  defaultValue="Tipo I"
                   control={control}
                   error={errors.TIPO_LIMITE_VALOR?true:false}
                   helperText={errors.TIPO_LIMITE_VALOR && errors.TIPO_LIMITE_VALOR.message}
@@ -240,7 +358,7 @@ console.log(errors);
                     }
                     id="VISA_INFINITE"
                     name="VISA_INFINITE"
-                    defaultValue="Visa Infinite"
+                    defaultValue="Visa Corporativo"
                     control={control}
                     error={errors.VISA_INFINITE?true:false}
                     helperText={errors.VISA_INFINITE && errors.VISA_INFINITE.message}
@@ -268,7 +386,7 @@ console.log(errors);
               </Grid>
               <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
                 <TextField fullWidth type="number" name="END_NUMERO"
-                  label="Número" variant="outlined"
+                  label="Número" variant="outlined" inputProps={{ min: 1 }}
                   inputRef={register}
                   error={errors.END_NUMERO?true:false}
                   helperText={errors.END_NUMERO && errors.END_NUMERO.message}
@@ -285,14 +403,34 @@ console.log(errors);
 
 
               <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-                <TextField fullWidth type="search" name="APROVADOR_ID" variant="outlined" label="Aprovador: Matrícula"
+                <TextField
+                  fullWidth
+                  type="search"
+                  name="APROVADOR_ID"
+                  variant="outlined"
+                  label="Aprovador: Matrícula"
+                  InputLabelProps={{ shrink: true }}
                   error={errors.APROVADOR_ID?true:false}
                   helperText={errors.APROVADOR_ID && errors.APROVADOR_ID.message}
                   inputRef={register}
                   onBlur={e=>handleGetApprover(e.target.value)}
                 />
               </Grid>
-              <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
+              <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+                <TextField
+                  fullWidth
+                  type="search"
+                  name="APROVADOR_EMAIL"
+                  variant="outlined"
+                  label="Aprovador: E-mail"
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.APROVADOR_EMAIL?true:false}
+                  helperText={errors.APROVADOR_EMAIL && errors.APROVADOR_EMAIL.message}
+                  inputRef={register}
+                  onBlur={e=>handleGetApproverByEmail(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
                 <TextField
                   disabled
                   fullWidth
@@ -307,7 +445,7 @@ console.log(errors);
                   helperText={errors.APROVADOR_NOME && errors.APROVADOR_NOME.message}
                 />
               </Grid>
-              <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
+              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
                 <TextField
                   variant="outlined"
                   disabled
@@ -333,7 +471,6 @@ console.log(errors);
         <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_LEVEL" name="BENEFICIARIO_LEVEL" value={employee && employee.APPROVAL_LEVEL_CODE } />
         <Input inputRef={register} readOnly type="hidden" id="CENTRO_DE_CUSTOS" name="CENTRO_DE_CUSTOS" value={employee && employee.COST_CENTER_CODE } />
 
-        <Input inputRef={register} readOnly type="hidden" id="APROVADOR_EMAIL" name="APROVADOR_EMAIL" value={approver && approver.WORK_EMAIL_ADDRESS } />
         <Input inputRef={register} readOnly type="hidden" id="APROVADOR_EMPRESA_COD" name="APROVADOR_EMPRESA_COD" value={approver && approver.COMPANY_CODE } />
         <Input inputRef={register} readOnly type="hidden" id="APROVADOR_EMPRESA_NOME" name="APROVADOR_EMPRESA_NOME" value={approver && approver.COMPANY_DESC } />
           </form>

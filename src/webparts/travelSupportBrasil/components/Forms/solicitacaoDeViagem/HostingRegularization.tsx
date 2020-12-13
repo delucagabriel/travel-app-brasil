@@ -1,17 +1,23 @@
 import * as React from 'react';
-import { TextField, Select, MenuItem, FormLabel, Grid, Button, Input, Paper, Snackbar, FormControl, RadioGroup, FormControlLabel, Radio, FormGroup, Checkbox } from '@material-ui/core';
-import { useState, useContext, useEffect } from 'react';
+import { TextField, Select, MenuItem, FormLabel, Grid, Button, Input, Paper, Snackbar, FormControl, RadioGroup, FormControlLabel, Radio, makeStyles, Theme, createStyles, InputLabel, Backdrop, Typography, CircularProgress } from '@material-ui/core';
+import { useState, useContext } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { Alert } from '@material-ui/lab';
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers';
 import { getEmployee } from '../../../services/EmployeesService';
-import { newRequest } from '../../../services/RequestServices';
+import { newRequest, getRequestById } from '../../../services/RequestServices';
 import { IEmployee } from '../../../Interfaces/IEmployee';
 import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
 import HocDialog from '../../HOC/HocDialog';
+import { yup_pt_br } from '../../../Utils/yup_pt_br';
+import { setLocale } from 'yup';
+import { IAttachmentFileInfo } from '@pnp/sp/attachments';
+import { sp } from '@pnp/sp';
+
+setLocale(yup_pt_br);
 
 const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
@@ -42,69 +48,242 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   SOLICITANTE_EMPRESA_COD: yup.string(),
   SOLICITANTE_EMPRESA_NOME: yup.string().required(),
 
-  BENEFICIARIO_ID: yup.string().required(),
+  TIPO_DE_VIAJANTE: yup.string()
+    .oneOf(['Empregado', 'Convidado'])
+    .required(),
+
+  BENEFICIARIO_ID: yup.string(),
   BENEFICIARIO_NOME: yup.string().required(),
   BENEFICIARIO_EMAIL: yup.string().email().required(),
   BENEFICIARIO_EMPRESA_COD: yup.string(),
   BENEFICIARIO_EMPRESA_NOME: yup.string(),
+  BENEFICIARIO_DOC_IDENTIF: yup.string(),
+  BENEFICIARIO_NASCIMENTO: yup.date(),
+  BENEFICIARIO_NACIONALIDADE: yup.string(),
+  TELEFONE: yup.string(),
 
-  TFD: yup.bool()
-    .equals([true], 'Somente são aceitas regularizações de empregados em tratamento médico fora de domicílio (TFD)')
-    .required(),
   CENTRO_DE_CUSTOS: yup.string().required(),
   ACOMPANHANTES: yup.string(),
-  PERIODO_INICIO: yup.date().required(),
-  PERIODO_FIM: yup.date().required(),
+  PERIODO_INICIO: yup.date()
+    .when('PROCESSO',(PROCESSO, sch)=> PROCESSO === 'Regularização de hospedagem'
+    ? sch.min(new Date(1900,1,1))
+    : sch.min(new Date())
+    ),
+  PERIODO_FIM: yup.date()
+    .when('PERIODO_INICIO', (PERIODO_INICIO, sch)=> sch.min(PERIODO_INICIO, 'Data precisa ser posterior ao check in')),
   MOTIVO: yup.string()
-  .min(20)
-  .required(),
-  MOTIVO_DA_VIAGEM: yup.string().min(10).required(),
+    .required('Justificativa é necessária'),
+  MOTIVO_DA_VIAGEM: yup.string()
+    .when('PROCESSO',(PROCESSO, sch)=> PROCESSO === 'Regularização de hospedagem'
+    ? sch.equals(['Trat. Médico fora de domicílio'], 'Somente são aceitas regularizações de empregados em tratamento médico fora de domicílio (TFD)')
+    : sch.min(1))
+    .required(),
   OBS_PARA_SOLICITACAO: yup.string(),
   ESTABELECIMENTO: yup.string().required('Nome do hotel é obrigatório'),
   END_LOGRADOURO: yup.string().required('Cidade é obrigatória'),
 });
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
+    },
+  }),
+);
+
 export default function HostingRegularization() {
-  const { register, handleSubmit, control, errors, reset, setValue } = useForm<IRequests_AllFields>({
+  const { register, handleSubmit, control, errors, reset, setValue, watch } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
-  const [aprovador, setAprovador] = useState<IEmployee>();
-  const [solicitante, setSolicitante] = useState<IEmployee>();
-  const [empregado, setEmpregado] = useState<IEmployee>();
+  const [employee, setEmployee] = useState<IEmployee>();
+  const [approver, setApprover] = useState<IEmployee>();
+  const [requester, setRequester] = useState<IEmployee>();
   const [snackMessage, setSnackMessage] = useState<ISnack>({
     open: false,
     message: "",
     severity:'info'
   });
   const { updateContext } = useContext(Context);
+  const classes = useStyles();
+  const [openBackdrop, setOpenBackdrop] = useState(false);
+  const [fileInfos, setFileInfos] = useState<IAttachmentFileInfo[]>([]);
 
-  const handleGetEmpregado = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => setEmpregado(emp));
+  const watchTipoDeViajante = watch("TIPO_DE_VIAJANTE");
 
-  const handleGetAprovador = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => setAprovador(emp));
+  const handleGetEmployee = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+      shouldDirty: true
+    });
+  });
 
-  const handleGetSolicitante = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => setSolicitante(emp));
+  const handleGetEmployeeByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+      shouldDirty: true
+    });
+  });
+
+  const handleGetRequester = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
+  .then(emp => {
+    setRequester(emp);
+    setValue("SOLICITANTE_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("SOLICITANTE_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("SOLICITANTE_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("SOLICITANTE_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
+
+  const handleGetRequesterByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
+  .then(emp => {
+    setRequester(emp);
+    setValue("SOLICITANTE_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("SOLICITANTE_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("SOLICITANTE_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("SOLICITANTE_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
+
+  const handleGetApprover = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
+  .then(emp => {
+    setApprover(emp);
+    setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+  });
+
+  const handleGetApproverByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
+  .then(emp => {
+    setApprover(emp);
+    setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+  });
 
   const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
+      .then(result => {
+        setOpenBackdrop(true);
+        return result;
+      })
+      .then(result =>
+        uploadListAttachments(result.data.ID)
+          .then(()=> result)
+          .catch(error => {
+            alert(error);
+            return result;
+          })
+      )
       .then(res => {
+        setOpenBackdrop(false);
         setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID:${res.data.ID}`, severity:"success"});
         updateContext();
       })
       .catch(error => {
+        setOpenBackdrop(false);
         setSnackMessage({open:true, message: "Falha ao tentar gravar a solicitação", severity:"error"});
         console.log(error);
       });
     e.target.reset();
   };
 
+  function blob(e) {
+    //Get the File Upload control id
+    var fileCount = e.target.files.length;
+    console.log(fileCount);
+    let filesToAdd = [];
+    for (let i = 0; i < fileCount; i++) {
+      let fileName = e.target.files[i].name;
+      console.log(fileName);
+      let file = e.target.files[i];
+      let reader = new FileReader();
+      reader.onload = (fileToConvert => (readerEvent) =>
+        filesToAdd.push({
+          "name": fileToConvert.name,
+          "content": readerEvent.target.result
+        }))(file);
+      reader.readAsArrayBuffer(file);
+    }//End of for loop
+    setFileInfos(filesToAdd);
+  }
+
+  function uploadListAttachments(id) {
+    var item = sp.web.lists.getByTitle("SOLICITACOES").items.getById(id);
+    return item.attachmentFiles.addMultiple(fileInfos);
+  }
+
+console.log(errors);
+
   return (
     <Paper>
       <HocDialog>
         <p>
-          De acordo com o PGS-002964,  as solicitações de hospedagem devem ser realizadas com antecedência mínima de 3 dias. Somente são aceitas regularizações de empregados em tratamento médico fora de domicílio (TFD).
+          Somente são aceitas regularizações de hospedagem para empregados em tratamento médico fora de domicílio.
         </p>
       </HocDialog>
       <div style={{padding:"20px"}}>
@@ -141,21 +320,22 @@ export default function HostingRegularization() {
               helperText={errors.PROCESSO && errors.PROCESSO.message}
             />
           </Grid>
-
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-            <FormControl component="fieldset" error={errors.TFD?true:false}>
-            <FormLabel component="legend">Empregado em TFD?</FormLabel>
-            <RadioGroup aria-label="TFD" name="TFD" row>
-              <FormControlLabel value="true" control={<Radio inputRef={register}/>} label="Sim" />
-              <FormControlLabel value="false" control={<Radio inputRef={register}/>} label="Não" />
+            <FormControl component="fieldset" error={errors.TIPO_DE_VIAJANTE?true:false}>
+            <FormLabel component="legend">Tipo de viajante</FormLabel>
+            <RadioGroup aria-label="TIPO_DE_VIAJANTE" name="TIPO_DE_VIAJANTE"
+            row>
+              <FormControlLabel value="Empregado" control={<Radio inputRef={register}/>} label="Empregado" />
+              <FormControlLabel value="Convidado" control={<Radio inputRef={register}/>} label="Convidado" />
             </RadioGroup>
-            {errors.TFD && <FormLabel component="legend">{errors.TFD.message}</FormLabel>}
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
             <TextField type="text" name="SOLICITANTE_ID" variant="outlined"
-              label="Matrícula do solicitante" onBlur={ e=> handleGetSolicitante(e.target.value) }
+              fullWidth
+              label="Solicitante: Matrícula"
+              onBlur={ e=> handleGetRequester(e.target.value) }
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.SOLICITANTE_ID?true:false}
@@ -163,60 +343,124 @@ export default function HostingRegularization() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField disabled fullWidth type="text" name="SOLICITANTE_NOME" label="Nome do solicitante" variant="outlined"
-              inputRef={register}
-              InputLabelProps={{ shrink: true }}
-              error={errors.SOLICITANTE_NOME?true:false}
-              helperText={errors.SOLICITANTE_NOME && errors.SOLICITANTE_NOME.message}
-              value={solicitante ? solicitante.FULL_NAME : ""}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-            <TextField disabled fullWidth type="email" name="SOLICITANTE_EMAIL" label="E-mail do solicitante"
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+            <TextField fullWidth type="email" name="SOLICITANTE_EMAIL" label="Solicitante: E-mail"
               variant="outlined"
+              onBlur={ e=> handleGetRequesterByEmail(e.target.value) }
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.SOLICITANTE_EMAIL?true:false}
               helperText={errors.SOLICITANTE_EMAIL && errors.SOLICITANTE_EMAIL.message}
-              value={solicitante ? solicitante.WORK_EMAIL_ADDRESS : ""}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-            <TextField type="text" name="BENEFICIARIO_ID" variant="outlined"
-              label="Matrícula do empregado" onBlur={ e=> handleGetEmpregado(e.target.value) }
-              InputLabelProps={{ shrink: true }}
-              inputRef={register}
-              error={errors.BENEFICIARIO_ID?true:false}
-              helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do empregado" variant="outlined"
-              inputRef={register}
-              InputLabelProps={{ shrink: true }}
-              error={errors.BENEFICIARIO_NOME?true:false}
-              helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
-              value={empregado ? empregado.FULL_NAME : ""}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-            <TextField disabled fullWidth type="email" name="BENEFICIARIO_EMAIL" label="E-mail do empregado"
-              variant="outlined"
-              inputRef={register}
-              InputLabelProps={{ shrink: true }}
-              error={errors.BENEFICIARIO_EMAIL?true:false}
-              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
-              value={empregado ? empregado.WORK_EMAIL_ADDRESS : ""}
             />
           </Grid>
 
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <TextField disabled fullWidth type="text" name="SOLICITANTE_NOME" label="Solicitante: Nome" variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.SOLICITANTE_NOME?true:false}
+              helperText={errors.SOLICITANTE_NOME && errors.SOLICITANTE_NOME.message}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField
+              fullWidth
+              variant="outlined"
+              type="search"
+              name="BENEFICIARIO_ID"
+              label="Viajante: Matrícula"
+              onBlur={ e => watchTipoDeViajante !== 'Convidado' && handleGetEmployee(e.target.value) }
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_ID?true:false}
+              helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+            <TextField
+              fullWidth
+              type="text"
+              name="BENEFICIARIO_EMAIL"
+              label="Viajante: e-mail"
+              variant="outlined"
+              inputRef={register}
+              onBlur={ e => watchTipoDeViajante !== 'Convidado' && handleGetEmployeeByEmail(e.target.value) }
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_EMAIL?true:false}
+              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <TextField
+              disabled={ watchTipoDeViajante !== 'Convidado'?true:false }
+              fullWidth
+              type="text" name="BENEFICIARIO_NOME"
+              label="Viajante: Nome" variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_NOME?true:false}
+              helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
+            />
+          </Grid>
+          { watchTipoDeViajante === 'Convidado' &&
+            <>
+              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+                <TextField fullWidth type="tel" name="TELEFONE" label="Viajante: Telefone"
+                  variant="outlined"
+                  inputRef={register}
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.TELEFONE?true:false}
+                  helperText={errors.TELEFONE && errors.TELEFONE.message}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+                <TextField fullWidth type="text" name="BENEFICIARIO_EMPRESA_NOME" label="Viajante: Empresa pagante"
+                  variant="outlined"
+                  inputRef={register}
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.BENEFICIARIO_EMAIL?true:false}
+                  helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+                <TextField fullWidth type="text" name="BENEFICIARIO_DOC_IDENTIF"
+                  label="Viajante: Documento de identificação"
+                  variant="outlined"
+                  inputRef={register}
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.BENEFICIARIO_EMAIL?true:false}
+                  helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+                <TextField fullWidth type="date" name="BENEFICIARIO_NASCIMENTO"
+                  label="Viajante: Data de nascimento"
+                  variant="outlined"
+                  inputRef={register}
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.BENEFICIARIO_NASCIMENTO?true:false}
+                  helperText={errors.BENEFICIARIO_NASCIMENTO && errors.BENEFICIARIO_NASCIMENTO.message}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+                <TextField fullWidth type="text" name="BENEFICIARIO_NACIONALIDADE"
+                  label="Viajante: Nacionalidade"
+                  variant="outlined"
+                  inputRef={register}
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.BENEFICIARIO_NACIONALIDADE?true:false}
+                  helperText={errors.BENEFICIARIO_NACIONALIDADE && errors.BENEFICIARIO_NACIONALIDADE.message}
+                />
+              </Grid>
+            </>
+          }
+
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
             <TextField fullWidth variant="outlined" type="text"
             multiline rows={2}
-            name="ACOMPANHANTES" label="Nome(s) do(s) acomponhante(s)" inputRef={register}
+            name="ACOMPANHANTES" label="Nome(s) do(s) acompanhante(s)" inputRef={register}
               error={errors.ACOMPANHANTES?true:false}
               helperText={errors.ACOMPANHANTES && errors.ACOMPANHANTES.message}
             />
@@ -231,14 +475,14 @@ export default function HostingRegularization() {
             />
           </Grid>
           <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-            <TextField fullWidth id="BeginDate" type="date" name="PERIODO_INICIO" label="Check In"
+            <TextField required fullWidth id="BeginDate" type="date" name="PERIODO_INICIO" label="Check In"
             variant="outlined" InputLabelProps={{ shrink: true }} inputRef={register}
             error={errors.PERIODO_INICIO?true:false}
             helperText={errors.PERIODO_INICIO && errors.PERIODO_INICIO.message}
             />
           </Grid>
           <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-            <TextField fullWidth id="EndDate" type="date" name="PERIODO_FIM" label="Check Out"
+            <TextField required fullWidth id="EndDate" type="date" name="PERIODO_FIM" label="Check Out"
             variant="outlined" InputLabelProps={{ shrink: true }} inputRef={register}
             error={errors.PERIODO_FIM?true:false}
             helperText={errors.PERIODO_FIM && errors.PERIODO_FIM.message}
@@ -248,7 +492,7 @@ export default function HostingRegularization() {
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
             <TextField fullWidth variant="outlined" type="text"
             multiline rows={4}
-            name="MOTIVO" label="Justificativa para regularização da hospedagem" inputRef={register}
+            name="MOTIVO" label="Justificativa" inputRef={register}
               error={errors.MOTIVO?true:false}
               helperText={errors.MOTIVO && errors.MOTIVO.message}
             />
@@ -269,20 +513,26 @@ export default function HostingRegularization() {
                 />
                 <FormControlLabel
                   value="Falecimento"
-                  control={<Radio inputRef={register}/>}
                   label="Falecimento"
+                  control={<Radio inputRef={register}/>}
                 />
                 <FormControlLabel
                   value="Trat. Médico fora de domicílio"
-                  control={<Radio inputRef={register}/>}
                   label="Trat. Médico fora de domicílio"
+                  control={<Radio inputRef={register}/>}
                 />
                 <FormControlLabel
                   value="Viagem de benefício"
-                  control={<Radio inputRef={register}/>}
                   label="Viagem de benefício"
+                  control={<Radio inputRef={register}/>}
+                />
+                <FormControlLabel
+                  value="Viagem nacional"
+                  label="Viagem nacional"
+                  control={<Radio inputRef={register}/>}
                 />
               </RadioGroup>
+            { errors.MOTIVO_DA_VIAGEM && <FormLabel error component="p">{errors.MOTIVO_DA_VIAGEM.message}</FormLabel>}
             </FormControl>
           </Grid>
 
@@ -304,45 +554,64 @@ export default function HostingRegularization() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-            <TextField fullWidth type="search" name="APROVADOR_ID" variant="outlined" label="Aprovador: Matrícula"
-              InputLabelProps={{ shrink: true }}
-              error={errors.APROVADOR_ID?true:false}
-              helperText={errors.APROVADOR_ID && errors.APROVADOR_ID.message}
-              inputRef={register}
-              onBlur={e=>handleGetAprovador(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField
-              disabled
-              fullWidth
-              type="text"
-              name="APROVADOR_NOME"
-              label="Aprovador: Nome"
-              variant="outlined"
-              InputLabelProps={{ shrink: true }}
-              value={aprovador ? aprovador.FULL_NAME : "" }
-              inputRef={register}
-              error={errors.APROVADOR_NOME?true:false}
-              helperText={errors.APROVADOR_NOME && errors.APROVADOR_NOME.message}
-            />
-          </Grid>
-          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-            <TextField
-              variant="outlined"
-              disabled
-              fullWidth
-              type="text"
-              name="APROVADOR_LEVEL"
-              label="Aprovador: Nível"
-              value={aprovador && aprovador.APPROVAL_LEVEL_CODE}
-              InputLabelProps={{ shrink: true }}
-              inputRef={register}
-              error={errors.APROVADOR_LEVEL?true:false}
-              helperText={errors.APROVADOR_LEVEL && errors.APROVADOR_LEVEL.message}
-            />
-          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+                <TextField
+                  fullWidth
+                  type="search"
+                  name="APROVADOR_ID"
+                  variant="outlined"
+                  label="Aprovador: Matrícula"
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.APROVADOR_ID?true:false}
+                  helperText={errors.APROVADOR_ID && errors.APROVADOR_ID.message}
+                  inputRef={register}
+                  onBlur={e=>handleGetApprover(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+                <TextField
+                  fullWidth
+                  type="search"
+                  name="APROVADOR_EMAIL"
+                  variant="outlined"
+                  label="Aprovador: E-mail"
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.APROVADOR_EMAIL?true:false}
+                  helperText={errors.APROVADOR_EMAIL && errors.APROVADOR_EMAIL.message}
+                  inputRef={register}
+                  onBlur={e=>handleGetApproverByEmail(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+                <TextField
+                  disabled
+                  fullWidth
+                  type="text"
+                  name="APROVADOR_NOME"
+                  label="Aprovador: Nome"
+                  variant="outlined"
+                  InputLabelProps={{ shrink: true }}
+                  value={approver ? approver.FULL_NAME : "" }
+                  inputRef={register}
+                  error={errors.APROVADOR_NOME?true:false}
+                  helperText={errors.APROVADOR_NOME && errors.APROVADOR_NOME.message}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+                <TextField
+                  variant="outlined"
+                  disabled
+                  fullWidth
+                  type="text"
+                  name="APROVADOR_LEVEL"
+                  label="Aprovador: Nível"
+                  value={approver && approver.APPROVAL_LEVEL_CODE}
+                  InputLabelProps={{ shrink: true }}
+                  inputRef={register}
+                  error={errors.APROVADOR_LEVEL?true:false}
+                  helperText={errors.APROVADOR_LEVEL && errors.APROVADOR_LEVEL.message}
+                />
+              </Grid>
 
 
 
@@ -355,31 +624,35 @@ export default function HostingRegularization() {
             />
           </Grid>
 
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <InputLabel>
+              Anexos
+            </InputLabel>
+            <br/>
+            <input type="file" multiple onChange={e => blob(e)}/>
+          </Grid>
+
           <Grid xs={12} sm={12} md={12} lg={12} xl={12} item justify="flex-end" alignItems="flex-end">
             <Button type="submit"
             variant="contained" color="primary" style={{float:'right'}}> Enviar </Button>
           </Grid>
 
           <Input inputRef={register} readOnly type="hidden" name="BENEFICIARIO_EMPRESA_COD"
-            value={empregado && empregado.COMPANY_CODE }
+            value={employee && employee.COMPANY_CODE }
           />
-          <Input inputRef={register} readOnly type="hidden" name="BENEFICIARIO_EMPRESA_NOME"
-            value={empregado && empregado.COMPANY_DESC } />
 
           <Input inputRef={register} readOnly type="hidden" name="SOLICITANTE_EMPRESA_COD"
-            value={solicitante && solicitante.COMPANY_CODE }
+            value={requester && requester.COMPANY_CODE }
           />
           <Input inputRef={register} readOnly type="hidden" name="SOLICITANTE_EMPRESA_NOME"
-            value={solicitante && solicitante.COMPANY_DESC }
+            value={requester && requester.COMPANY_DESC }
           />
           <Input inputRef={register} readOnly type="hidden" name="APROVADOR_EMPRESA_COD"
-            value={aprovador && aprovador.COMPANY_CODE }
+            value={approver && approver.COMPANY_CODE }
           />
-          <Input inputRef={register} readOnly type="hidden" name="APROVADOR_EMAIL"
-            value={aprovador && aprovador.WORK_EMAIL_ADDRESS }
-          />
+
           <Input inputRef={register} readOnly type="hidden" name="APROVADOR_EMPRESA_NOME"
-            value={aprovador && aprovador.COMPANY_DESC }
+            value={approver && approver.COMPANY_DESC }
           />
         </Grid >
       </form>
@@ -394,6 +667,12 @@ export default function HostingRegularization() {
           {snackMessage.message}
         </Alert>
       </Snackbar>
+      </div>
+      <div>
+        <Backdrop className={classes.backdrop} open={openBackdrop}>
+          <Typography variant='h4'> Aguarde, estamos salvando as informações... </Typography>
+          <CircularProgress color="inherit" />
+        </Backdrop>
       </div>
     </Paper>
   );

@@ -13,7 +13,10 @@ import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
 import HocDialog from '../../HOC/HocDialog';
 import { TestaCPF } from '../../../Utils/validaCPF';
+import { yup_pt_br } from '../../../Utils/yup_pt_br';
+import { setLocale } from 'yup';
 
+setLocale(yup_pt_br);
 
 
 const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
@@ -36,20 +39,17 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   VALOR: yup.number()
   .positive()
   .required(),
-  COD_DO_RAMO_DE_ATIVIDADE: yup.string()
-  .min(2)
-  .required(),
-  ESTABELECIMENTO: yup.string().min(10).required(),
+  COD_DO_RAMO_DE_ATIVIDADE: yup.string(),
+  ESTABELECIMENTO: yup.string().required(),
   DATA_DE_UTILIZACAO: yup.date().required(),
   MOTIVO: yup.string()
-  .min(50)
   .required()
 
 
 });
 
 export default function InternetPurchaseUnlock() {
-  const { register, handleSubmit, control, errors, reset } = useForm<IRequests_AllFields>({
+  const { register, handleSubmit, control, errors, setValue } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
@@ -60,8 +60,51 @@ export default function InternetPurchaseUnlock() {
   });
   const { updateContext } = useContext(Context);
 
-  const handleGetEmployee = value =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => setEmployee(emp));
+  const handleGetEmployee = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
+
+  const handleGetEmployeeByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
 
 
   const onSubmit = (data:IRequests_AllFields, e) => {
@@ -81,7 +124,9 @@ export default function InternetPurchaseUnlock() {
     <Paper>
       <HocDialog>
         <p>
-          Após a conclusão do chamado, o ramo de atividade ficará liberado para compra durante 8 dias corridos ou será bloqueado imediatamente após a transação. Caso você não saiba o código do ramo de atividade, é necessário que seja realizada uma tentativa de despesa no site do fornecedor para que o Banco identifique o ramo pela transação negada.
+          Caso você não saiba o código do ramo de atividade, é necessário que seja realizada uma tentativa de despesa no site do fornecedor para que o Banco identifique o ramo da transação negada.
+          <br/>
+          Após a conclusão do chamado, o ramo de atividade ficará liberado para compra durante 8 dias corridos ou será bloqueado imediatamente após a transação.
         </p>
       </HocDialog>
       <div style={{padding:"20px"}}>
@@ -108,12 +153,12 @@ export default function InternetPurchaseUnlock() {
             <Controller
               as={
                 <Select disabled fullWidth>
-                  <MenuItem value="Liberar compra pela internet">Desbloq. compra online</MenuItem>
+                  <MenuItem value="Liberação de compra pela internet">Liberação de compra pela internet</MenuItem>
                 </Select>
               }
               id="Process"
               name="PROCESSO"
-              defaultValue="Liberar compra pela internet"
+              defaultValue="Liberação de compra pela internet"
               control={control}
               error={errors.PROCESSO?true:false}
               helperText={errors.PROCESSO && errors.PROCESSO.message}
@@ -121,15 +166,48 @@ export default function InternetPurchaseUnlock() {
           </Grid>
 
           <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-            <TextField fullWidth type="text" name="BENEFICIARIO_ID" variant="outlined"
-              label="Matrícula do empregado" onBlur={ e=> handleGetEmployee(e.target.value) }
+            <TextField
+              fullWidth
+              variant="outlined"
+              type="search"
+              name="BENEFICIARIO_ID"
+              label="Empregado: Matrícula"
+              onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
             />
           </Grid>
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+            <TextField
+              fullWidth
+              type="text"
+              name="BENEFICIARIO_EMAIL"
+              label="Empregado: e-mail"
+              variant="outlined"
+              inputRef={register}
+              onBlur={ e=> handleGetEmployeeByEmail(e.target.value) }
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_EMAIL?true:false}
+              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+            <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do empregado" variant="outlined"
+              value={employee? employee.FULL_NAME: ""}
+              inputRef={register}
+              InputProps={{
+                readOnly: true,
+              }}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_NOME?true:false}
+              helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
             <TextField fullWidth type="text" name="CPF"
               label="Empregado: CPF" variant="outlined"
               inputRef={register}
@@ -148,33 +226,8 @@ export default function InternetPurchaseUnlock() {
           </Grid>
 
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do empregado" variant="outlined"
-              value={employee? employee.FULL_NAME: ""}
-              inputRef={register}
-              InputProps={{
-                readOnly: true,
-              }}
-              InputLabelProps={{ shrink: true }}
-              error={errors.BENEFICIARIO_NOME?true:false}
-              helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField disabled fullWidth type="text" name="BENEFICIARIO_EMAIL" label="E-mail do empregado"
-              variant="outlined"  value={employee ? employee.WORK_EMAIL_ADDRESS : "" }
-              inputRef={register}
-              InputProps={{
-                readOnly: true,
-              }}
-              InputLabelProps={{ shrink: true }}
-              error={errors.BENEFICIARIO_EMAIL?true:false}
-              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
             <TextField fullWidth variant="outlined" type="number" name="VALOR" label="Valor da transação" inputRef={register}
-              error={errors.VALOR?true:false}
+              error={errors.VALOR?true:false} inputProps={{ min: 1 }}
               helperText={errors.VALOR && errors.VALOR.message}
             />
           </Grid>

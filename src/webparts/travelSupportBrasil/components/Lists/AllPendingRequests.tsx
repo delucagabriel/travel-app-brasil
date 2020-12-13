@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useContext, useState, useEffect } from 'react';
 import { Context } from '../Context';
-import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Dialog, Hidden, Button, Snackbar, Select, MenuItem, FormLabel } from '@material-ui/core';
+import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Dialog, Hidden, Button, Snackbar, Select, MenuItem, FormLabel, TextField } from '@material-ui/core';
 import ServiceApproval from '../Forms/ServiceApproval';
 import { Alert } from '@material-ui/lab';
 import CloseIcon from '@material-ui/icons/Close';
@@ -14,7 +14,8 @@ export default function AllPendingRequests() {
   const [requestDetails, setRequestDetails] = useState({...allRequests[0], open:false});
   const [filter, setFilter] = useState({
     macroprocesso: '',
-    processo: ''
+    processo: '',
+    id:''
   });
   const [solicitacoesFiltradas, setSolicitacoesFiltradas] = useState<IRequests_AllFields[]>(
     allRequests.filter( (req:IRequests_AllFields) => req.STATUS_APROVACAO === "Aprovado" && ( req.STATUS !== "Sucesso" && req.STATUS !== "Rejeitado"))
@@ -24,13 +25,19 @@ export default function AllPendingRequests() {
     message: "",
     severity:'info'
   });
+  const handleFilterId= event => setFilter({
+    ...filter,
+    id: event.target.value as string
+  });
 
   useEffect(()=>setSolicitacoesFiltradas(allRequests.filter( (req:IRequests_AllFields) => req.STATUS_APROVACAO === "Aprovado" && ( req.STATUS !== "Sucesso" && req.STATUS !== "Rejeitado"))), [allRequests]);
 
   useEffect(()=>setSolicitacoesFiltradas(allRequests
     .filter( (req:IRequests_AllFields) => req.STATUS_APROVACAO === "Aprovado" && ( req.STATUS !== "Sucesso" && req.STATUS !== "Rejeitado"))
     .filter(request => request.MACROPROCESSO.includes(filter.macroprocesso))
-    .filter(request => request.PROCESSO.includes(filter.processo))), [filter]);
+    .filter(request => request.PROCESSO.includes(filter.processo))
+    .filter(request => String(request.Id).includes(filter.id))
+  ), [filter]);
 
   const onChildChanged = callback => {
     setSnackMessage(callback.snack);
@@ -69,6 +76,9 @@ export default function AllPendingRequests() {
         </Select>
       </Grid>
       <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+        <TextField label="Nº Chamado" type="text" variant="outlined" onChange={handleFilterId}/>
+      </Grid>
+      <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
         <TableContainer component={Paper}>
           <Table size="small" aria-label="a dense table">
             <TableHead>
@@ -78,9 +88,6 @@ export default function AllPendingRequests() {
                 <TableCell variant="head" align="center">Macroprocesso</TableCell>
                 <Hidden smDown>
                   <TableCell variant="head" align="center">Processo</TableCell>
-                </Hidden>
-                <Hidden smDown>
-                  <TableCell variant="head" align="center">Beneficiário</TableCell>
                 </Hidden>
                 <Hidden smDown>
                   <TableCell variant="head" align="center">Criado em</TableCell>
@@ -93,6 +100,7 @@ export default function AllPendingRequests() {
             <TableBody>
               {
                 solicitacoesFiltradas
+                .reverse()
                   .map((row) => (
                     <TableRow key={row.Id}
                       onClick={() =>setRequestDetails({...row, open:true})}
@@ -102,9 +110,6 @@ export default function AllPendingRequests() {
                       <TableCell variant="body" align="center">{row.MACROPROCESSO}</TableCell>
                       <Hidden smDown>
                         <TableCell variant="body" align="center">{row.PROCESSO}</TableCell>
-                      </Hidden>
-                      <Hidden smDown>
-                        <TableCell variant="body" align="center">{row.BENEFICIARIO_NOME}</TableCell>
                       </Hidden>
                       <Hidden smDown>
                         <TableCell variant="body" align="center">{row.Created}</TableCell>
@@ -128,7 +133,7 @@ export default function AllPendingRequests() {
           </Button>
             <HocRenderDetails type={requestDetails.MACROPROCESSO} details={requestDetails}>
               <ServiceApproval request={requestDetails} callbackParent={cb => onChildChanged(cb)}/>
-            </HocRenderDetails> :
+            </HocRenderDetails>
         </Dialog>
       </Grid>
 

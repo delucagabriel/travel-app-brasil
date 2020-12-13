@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { TextField, Select, MenuItem, FormLabel, Grid, Button, Input, Paper, Typography, Snackbar, FormControl, RadioGroup, FormControlLabel, Radio, FormGroup, Checkbox } from '@material-ui/core';
-import { useState, useContext, useEffect } from 'react';
+import { TextField, Select, MenuItem, FormLabel, Grid, Button, Input, Paper, Snackbar, FormControl, RadioGroup, FormControlLabel, Radio, makeStyles, Theme, createStyles, InputLabel, Backdrop, Typography, CircularProgress } from '@material-ui/core';
+import { useState, useContext } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { Alert } from '@material-ui/lab';
 import * as yup from "yup";
@@ -13,6 +13,12 @@ import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
 import { IRequest_NewCard } from '../../../Interfaces/Requests/IRequest_NewCard';
 import HocDialog from '../../HOC/HocDialog';
+import { yup_pt_br } from '../../../Utils/yup_pt_br';
+import { setLocale } from 'yup';
+import { IAttachmentFileInfo } from '@pnp/sp/attachments';
+import { sp } from '@pnp/sp';
+
+setLocale(yup_pt_br);
 
 const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
@@ -44,7 +50,7 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   SOLICITANTE_EMPRESA_NOME: yup.string().required(),
 
   TIPO_DE_VIAJANTE: yup.string()
-    .oneOf(['Empregado', 'Terceiro', 'Convidado'])
+    .default('Empregado')
     .required(),
 
   BENEFICIARIO_ID: yup.string().required(),
@@ -58,36 +64,37 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   TELEFONE: yup.string(),
 
   ID_SOLICITACAO_CARTAO: yup.number().required(),
-  TIPO_SOLICITACAO_CARTAO: yup.string().equals(['Novo cartão']),
+  TIPO_SOLICITACAO_CARTAO: yup.string().equals(['Emissão de cartão corporativo']),
   PORTADOR_SOLIC_CARTAO: yup.string(),
   CENTRO_DE_CUSTOS: yup.string().required(),
   ACOMPANHANTES: yup.string(),
-  PERIODO_INICIO: yup.date()
-  .required()
-  .when('PROCESSO', (PROCESSO, schm)=> PROCESSO === 'Regularização de hospedagem'
-  ? schm
-  : schm.min(new Date())
-  ),
+  PERIODO_INICIO: yup.date().min(new Date()),
   PERIODO_FIM: yup.date()
-  .required()
-  .when('PERIODO_INICIO', (PERIODO_INICIO, schm)=> schm.min(PERIODO_INICIO, 'Data precisa ser posterior ao check in')),
+    .when('PERIODO_INICIO', (PERIODO_INICIO, sch)=> sch.min(PERIODO_INICIO, 'Data precisa ser posterior ao check in')),
   MOTIVO: yup.string()
-  .min(20)
-  .required('Justificativa é necessária'),
-  MOTIVO_DA_VIAGEM: yup.string().min(10)
-  .when('PROCESSO',(PROCESSO, schm)=> PROCESSO === 'Regularização de hospedagem' && schm.equals(['Trat. Médico fora de domicílio'], 'Somente são aceitas regularizações de empregados em tratamento médico fora de domicílio (TFD)'))
-  .required(),
+    .required('Justificativa é necessária'),
+  MOTIVO_DA_VIAGEM: yup.string()
+    .required(),
   OBS_PARA_SOLICITACAO: yup.string(),
   ESTABELECIMENTO: yup.string().required('Nome do hotel é obrigatório'),
   END_LOGRADOURO: yup.string().required('Cidade é obrigatória'),
 });
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
+    },
+  }),
+);
 
 export default function VirtualHostingCard() {
   const { register, handleSubmit, control, errors, reset, setValue, watch } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
   const [requisicaoCartao, setRequisicaoCartao] = useState<IRequest_NewCard>();
-  const [aprovador, setAprovador] = useState<IEmployee>();
+  const [approver, setApprover] = useState<IEmployee>();
   const [solicitante, setSolicitante] = useState<IEmployee>();
   const [empregado, setEmpregado] = useState<IEmployee>();
   const [snackMessage, setSnackMessage] = useState<ISnack>({
@@ -96,8 +103,9 @@ export default function VirtualHostingCard() {
     severity:'info'
   });
   const { updateContext } = useContext(Context);
-  const watchTipoDeViajante = watch("TIPO_DE_VIAJANTE");
-  const watchProcesso = watch("PROCESSO");
+  const classes = useStyles();
+  const [openBackdrop, setOpenBackdrop] = useState(false);
+  const [fileInfos, setFileInfos] = useState<IAttachmentFileInfo[]>([]);
 
   const handleGetEmpregado = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
     .then(emp => {
@@ -111,10 +119,47 @@ export default function VirtualHostingCard() {
       setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
         shouldDirty: true
       });
+      setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+        shouldDirty: true
+      });
+      setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+        shouldDirty: true
+      });
     });
 
-  const handleGetAprovador = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => setAprovador(emp));
+    const handleGetApprover = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
+    .then(emp => {
+      setApprover(emp);
+      setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+        shouldDirty: true
+      });
+      setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+        shouldDirty: true
+      });
+      setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+        shouldDirty: true
+      });
+      setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+        shouldDirty: true
+      });
+    });
+
+    const handleGetApproverByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
+    .then(emp => {
+      setApprover(emp);
+      setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+        shouldDirty: true
+      });
+      setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+        shouldDirty: true
+      });
+      setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+        shouldDirty: true
+      });
+      setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+        shouldDirty: true
+      });
+    });
 
   const handleGetSolicitante = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
     .then(emp => setSolicitante(emp));
@@ -122,24 +167,65 @@ export default function VirtualHostingCard() {
   const handleGetRequest = id => getRequestById(id)
     .then(req => setRequisicaoCartao(req));
 
-  const onSubmit = (data:IRequests_AllFields, e) => {
-    newRequest(data)
-      .then(res => {
-        setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID:${res.data.ID}`, severity:"success"});
-        updateContext();
-      })
-      .catch(error => {
-        setSnackMessage({open:true, message: "Falha ao tentar gravar a solicitação", severity:"error"});
-        console.log(error);
-      });
-    e.target.reset();
-  };
+    const onSubmit = (data:IRequests_AllFields, e) => {
+      newRequest(data)
+        .then(result => {
+          setOpenBackdrop(true);
+          return result;
+        })
+        .then(result =>
+          uploadListAttachments(result.data.ID)
+            .then(()=> result)
+            .catch(error => {
+              alert(error);
+              return result;
+            })
+        )
+        .then(res => {
+          setOpenBackdrop(false);
+          setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID:${res.data.ID}`, severity:"success"});
+          updateContext();
+        })
+        .catch(error => {
+          setOpenBackdrop(false);
+          setSnackMessage({open:true, message: "Falha ao tentar gravar a solicitação", severity:"error"});
+          console.log(error);
+        });
+      e.target.reset();
+    };
+
+    function blob(e) {
+      //Get the File Upload control id
+      var fileCount = e.target.files.length;
+      console.log(fileCount);
+      let filesToAdd = [];
+      for (let i = 0; i < fileCount; i++) {
+        let fileName = e.target.files[i].name;
+        console.log(fileName);
+        let file = e.target.files[i];
+        let reader = new FileReader();
+        reader.onload = (fileToConvert => (readerEvent) =>
+          filesToAdd.push({
+            "name": fileToConvert.name,
+            "content": readerEvent.target.result
+          }))(file);
+        reader.readAsArrayBuffer(file);
+      }//End of for loop
+      setFileInfos(filesToAdd);
+    }
+
+    function uploadListAttachments(id) {
+      var item = sp.web.lists.getByTitle("SOLICITACOES").items.getById(id);
+      return item.attachmentFiles.addMultiple(fileInfos);
+    }
+
+    console.log(errors);
 
   return (
     <Paper>
       <HocDialog>
         <p>
-          A aprovação desta exceção está condicionada à criação do chamado de emissão do cartão corporativo.
+          Para a emissão de cartão virtual de hospedagem para empregado ativo, a aprovação está condicionada à criação do chamado de emissão de cartão corporativo.
         </p>
       </HocDialog>
       <div style={{padding:"20px"}}>
@@ -164,63 +250,47 @@ export default function VirtualHostingCard() {
             <FormLabel id="PROCESSO" component="legend">Processo</FormLabel>
             <Controller
               as={
-                <Select fullWidth>
+                <Select disabled fullWidth>
                   <MenuItem value="Cartão virtual para empregados">Cartão virtual para empregados</MenuItem>
-                  <MenuItem value="Regularização de hospedagem">Regularização de hospedagem</MenuItem>
                 </Select>
               }
               id="Process"
               name="PROCESSO"
-              defaultValue=""
+              defaultValue="Cartão virtual para empregados"
               control={control}
               error={errors.PROCESSO?true:false}
               helperText={errors.PROCESSO && errors.PROCESSO.message}
             />
           </Grid>
-          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-            <FormControl component="fieldset" error={errors.TIPO_DE_VIAJANTE?true:false}>
-            <FormLabel component="legend">Tipo de viajante</FormLabel>
-            <RadioGroup aria-label="TIPO_DE_VIAJANTE" name="TIPO_DE_VIAJANTE"
-            row>
-              <FormControlLabel value="Empregado" control={<Radio inputRef={register}/>} label="Empregado" />
-              <FormControlLabel value="Terceiro" control={<Radio inputRef={register}/>} label="Terceiro" />
-              <FormControlLabel value="Convidado" control={<Radio inputRef={register}/>} label="Convidado" />
-            </RadioGroup>
-            </FormControl>
-          </Grid>
 
-          { (watchProcesso === 'Cartão virtual para empregados' && watchTipoDeViajante === 'Empregado') &&
-            <>
-              <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-                <TextField type="text" name="ID_SOLICITACAO_CARTAO" variant="outlined"
-                  label="ID: Solicitação de novo cartão" onBlur={ e=> handleGetRequest(e.target.value) }
-                  inputRef={register}
-                  InputLabelProps={{ shrink: true }}
-                  error={errors.ID_SOLICITACAO_CARTAO?true:false}
-                  helperText={errors.ID_SOLICITACAO_CARTAO && errors.ID_SOLICITACAO_CARTAO.message}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-                <TextField disabled fullWidth type="text" name="TIPO_SOLICITACAO_CARTAO" label="Solicitação: Tipo" variant="outlined"
-                  inputRef={register}
-                  InputLabelProps={{ shrink: true }}
-                  error={errors.TIPO_SOLICITACAO_CARTAO?true:false}
-                  helperText={errors.TIPO_SOLICITACAO_CARTAO && errors.TIPO_SOLICITACAO_CARTAO.message}
-                  value={requisicaoCartao ? requisicaoCartao.PROCESSO : ""}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-                <TextField disabled fullWidth type="text" name="PORTADOR_SOLIC_CARTAO" label="Portador"
-                  variant="outlined"
-                  inputRef={register}
-                  InputLabelProps={{ shrink: true }}
-                  error={errors.PORTADOR_SOLIC_CARTAO?true:false}
-                  helperText={errors.PORTADOR_SOLIC_CARTAO && errors.PORTADOR_SOLIC_CARTAO.message}
-                  value={requisicaoCartao ? requisicaoCartao.BENEFICIARIO_NOME : ""}
-                />
-              </Grid>
-            </>
-          }
+          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
+            <TextField type="text" name="ID_SOLICITACAO_CARTAO" variant="outlined"
+              label="ID: Solicitação de emissão do cartão" onBlur={ e=> handleGetRequest(e.target.value) }
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.ID_SOLICITACAO_CARTAO?true:false}
+              helperText={errors.ID_SOLICITACAO_CARTAO && errors.ID_SOLICITACAO_CARTAO.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
+            <TextField disabled fullWidth type="text" name="TIPO_SOLICITACAO_CARTAO" label="Solicitação: Tipo" variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.TIPO_SOLICITACAO_CARTAO?true:false}
+              helperText={errors.TIPO_SOLICITACAO_CARTAO && errors.TIPO_SOLICITACAO_CARTAO.message}
+              value={requisicaoCartao ? requisicaoCartao.PROCESSO : ""}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+            <TextField disabled fullWidth type="text" name="PORTADOR_SOLIC_CARTAO" label="Portador"
+              variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.PORTADOR_SOLIC_CARTAO?true:false}
+              helperText={errors.PORTADOR_SOLIC_CARTAO && errors.PORTADOR_SOLIC_CARTAO.message}
+              value={requisicaoCartao ? requisicaoCartao.BENEFICIARIO_NOME : ""}
+            />
+          </Grid>
 
           <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
             <TextField type="text" name="SOLICITANTE_ID" variant="outlined"
@@ -282,59 +352,37 @@ export default function VirtualHostingCard() {
               helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
             />
           </Grid>
-          { watchTipoDeViajante === 'Convidado' &&
-            <>
-              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-                <TextField fullWidth type="tel" name="TELEFONE" label="Viajante: Telefone"
-                  variant="outlined"
-                  inputRef={register}
-                  InputLabelProps={{ shrink: true }}
-                  error={errors.TELEFONE?true:false}
-                  helperText={errors.TELEFONE && errors.TELEFONE.message}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-                <TextField fullWidth type="text" name="BENEFICIARIO_EMPRESA_NOME" label="Viajante: Nome da empresa"
-                  variant="outlined"
-                  inputRef={register}
-                  InputLabelProps={{ shrink: true }}
-                  error={errors.BENEFICIARIO_EMAIL?true:false}
-                  helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
-                />
-              </Grid>
 
-              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-                <TextField fullWidth type="text" name="BENEFICIARIO_DOC_IDENTIF"
-                  label="Viajante: Documento de identificação"
-                  variant="outlined"
-                  inputRef={register}
-                  InputLabelProps={{ shrink: true }}
-                  error={errors.BENEFICIARIO_EMAIL?true:false}
-                  helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-                <TextField fullWidth type="date" name="BENEFICIARIO_NASCIMENTO"
-                  label="Viajante: Data de nascimento"
-                  variant="outlined"
-                  inputRef={register}
-                  InputLabelProps={{ shrink: true }}
-                  error={errors.BENEFICIARIO_NASCIMENTO?true:false}
-                  helperText={errors.BENEFICIARIO_NASCIMENTO && errors.BENEFICIARIO_NASCIMENTO.message}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-                <TextField fullWidth type="text" name="BENEFICIARIO_NACIONALIDADE"
-                  label="Viajante: Nacionalidade"
-                  variant="outlined"
-                  inputRef={register}
-                  InputLabelProps={{ shrink: true }}
-                  error={errors.BENEFICIARIO_NACIONALIDADE?true:false}
-                  helperText={errors.BENEFICIARIO_NACIONALIDADE && errors.BENEFICIARIO_NACIONALIDADE.message}
-                />
-              </Grid>
-            </>
-          }
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField fullWidth type="tel" name="TELEFONE" label="Viajante: Telefone"
+              variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.TELEFONE?true:false}
+              helperText={errors.TELEFONE && errors.TELEFONE.message}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField fullWidth type="text" name="BENEFICIARIO_DOC_IDENTIF"
+              label="Viajante: Documento de identificação"
+              variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_EMAIL?true:false}
+              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField fullWidth type="date" name="BENEFICIARIO_NASCIMENTO"
+              label="Viajante: Data de nascimento"
+              variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_NASCIMENTO?true:false}
+              helperText={errors.BENEFICIARIO_NASCIMENTO && errors.BENEFICIARIO_NASCIMENTO.message}
+            />
+          </Grid>
 
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
             <TextField fullWidth variant="outlined" type="text"
@@ -342,6 +390,25 @@ export default function VirtualHostingCard() {
             name="ACOMPANHANTES" label="Nome(s) do(s) acompanhante(s)" inputRef={register}
               error={errors.ACOMPANHANTES?true:false}
               helperText={errors.ACOMPANHANTES && errors.ACOMPANHANTES.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField fullWidth type="text" name="BENEFICIARIO_NACIONALIDADE"
+              label="Viajante: Nacionalidade"
+              variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_NACIONALIDADE?true:false}
+              helperText={errors.BENEFICIARIO_NACIONALIDADE && errors.BENEFICIARIO_NACIONALIDADE.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField fullWidth type="text" name="BENEFICIARIO_EMPRESA_NOME" label="Viajante: Nome da empresa"
+              variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_EMAIL?true:false}
+              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
             />
           </Grid>
 
@@ -433,16 +500,30 @@ export default function VirtualHostingCard() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
             <TextField fullWidth type="search" name="APROVADOR_ID" variant="outlined" label="Aprovador: Matrícula"
-              InputLabelProps={{ shrink: true }}
               error={errors.APROVADOR_ID?true:false}
               helperText={errors.APROVADOR_ID && errors.APROVADOR_ID.message}
+              InputLabelProps={{ shrink: true }}
               inputRef={register}
-              onBlur={e=>handleGetAprovador(e.target.value)}
+              onBlur={e=>handleGetApprover(e.target.value)}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+            <TextField
+              fullWidth
+              type="text"
+              name="APROVADOR_EMAIL"
+              label="Aprovador: e-mail"
+              variant="outlined"
+              onBlur={ e=> handleGetApproverByEmail(e.target.value) }
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.APROVADOR_EMAIL?true:false}
+              helperText={errors.APROVADOR_EMAIL && errors.APROVADOR_EMAIL.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
             <TextField
               disabled
               fullWidth
@@ -451,13 +532,13 @@ export default function VirtualHostingCard() {
               label="Aprovador: Nome"
               variant="outlined"
               InputLabelProps={{ shrink: true }}
-              value={aprovador ? aprovador.FULL_NAME : "" }
+              value={approver ? approver.FULL_NAME : "" }
               inputRef={register}
               error={errors.APROVADOR_NOME?true:false}
               helperText={errors.APROVADOR_NOME && errors.APROVADOR_NOME.message}
             />
           </Grid>
-          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
             <TextField
               variant="outlined"
               disabled
@@ -465,15 +546,13 @@ export default function VirtualHostingCard() {
               type="text"
               name="APROVADOR_LEVEL"
               label="Aprovador: Nível"
-              value={aprovador && aprovador.APPROVAL_LEVEL_CODE}
+              value={approver && approver.APPROVAL_LEVEL_CODE}
               InputLabelProps={{ shrink: true }}
               inputRef={register}
               error={errors.APROVADOR_LEVEL?true:false}
               helperText={errors.APROVADOR_LEVEL && errors.APROVADOR_LEVEL.message}
             />
           </Grid>
-
-
 
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
             <TextField fullWidth variant="outlined" type="text"
@@ -482,6 +561,14 @@ export default function VirtualHostingCard() {
               error={errors.OBS_PARA_SOLICITACAO?true:false}
               helperText={errors.OBS_PARA_SOLICITACAO && errors.OBS_PARA_SOLICITACAO.message}
             />
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <InputLabel>
+              Anexos
+            </InputLabel>
+            <br/>
+            <input type="file" multiple onChange={e => blob(e)}/>
           </Grid>
 
           <Grid xs={12} sm={12} md={12} lg={12} xl={12} item justify="flex-end" alignItems="flex-end">
@@ -496,18 +583,11 @@ export default function VirtualHostingCard() {
           <Input inputRef={register} readOnly type="hidden" name="SOLICITANTE_EMPRESA_COD"
             value={solicitante && solicitante.COMPANY_CODE }
           />
-          <Input inputRef={register} readOnly type="hidden" name="SOLICITANTE_EMPRESA_NOME"
-            value={solicitante && solicitante.COMPANY_DESC }
-          />
+
           <Input inputRef={register} readOnly type="hidden" name="APROVADOR_EMPRESA_COD"
-            value={aprovador && aprovador.COMPANY_CODE }
+            value={approver && approver.COMPANY_CODE }
           />
-          <Input inputRef={register} readOnly type="hidden" name="APROVADOR_EMAIL"
-            value={aprovador && aprovador.WORK_EMAIL_ADDRESS }
-          />
-          <Input inputRef={register} readOnly type="hidden" name="APROVADOR_EMPRESA_NOME"
-            value={aprovador && aprovador.COMPANY_DESC }
-          />
+
         </Grid >
       </form>
 
@@ -521,6 +601,12 @@ export default function VirtualHostingCard() {
           {snackMessage.message}
         </Alert>
       </Snackbar>
+      </div>
+      <div>
+        <Backdrop className={classes.backdrop} open={openBackdrop}>
+          <Typography variant='h4'> Aguarde, estamos salvando as informações... </Typography>
+          <CircularProgress color="inherit" />
+        </Backdrop>
       </div>
     </Paper>
   );

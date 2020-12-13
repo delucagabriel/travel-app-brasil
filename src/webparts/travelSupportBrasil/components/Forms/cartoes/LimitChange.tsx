@@ -13,20 +13,37 @@ import { ISnack } from '../../../Interfaces/ISnack';
 import { IRequest_LimitChange } from '../../../Interfaces/Requests/IRequest_LimitChange';
 import HocDialog from '../../HOC/HocDialog';
 import { TestaCPF } from '../../../Utils/validaCPF';
+import { yup_pt_br } from '../../../Utils/yup_pt_br';
+import { setLocale } from 'yup';
+import { corporateCardConfig } from '../../../formConfigurations/corporateCards';
+
+setLocale(yup_pt_br);
 
 
 const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
   ALCADA_APROVACAO: yup.string()
-  .when(['TIPO_LIMITE_VALOR', 'TIPO_DE_LIMITE'], (TIPO_LIMITE_VALOR, TIPO_DE_LIMITE, sch) => {
-    if(TIPO_DE_LIMITE === 'Saque') return sch.default('D-2');
-    if(['Tipo I', 'Tipo II', 'Tipo III', 'Tipo IV'].indexOf(TIPO_LIMITE_VALOR) >=0 ) return sch.default('D-3');
-    if(['Tipo V', 'Tipo VI'].indexOf(TIPO_LIMITE_VALOR)>=0) return sch.default('D-2');
-    if(TIPO_LIMITE_VALOR === 'Tipo VII') return sch.default('D-1');
+  .when('TIPO_LIMITE_VALOR', (TIPO_LIMITE_VALOR, sch) => {
+    if(
+      [
+        corporateCardConfig.tipo_cartao_valor.Tipo_I,
+        corporateCardConfig.tipo_cartao_valor.Tipo_II,
+        corporateCardConfig.tipo_cartao_valor.Tipo_III,
+        corporateCardConfig.tipo_cartao_valor.Tipo_IV
+      ].indexOf(TIPO_LIMITE_VALOR) >=0 ) return sch.default('D-3');
+
+    if(
+      [
+        corporateCardConfig.tipo_cartao_valor.Tipo_V,
+        corporateCardConfig.tipo_cartao_valor.Tipo_VI
+      ].indexOf(TIPO_LIMITE_VALOR)>=0) return sch.default('D-2');
+
+      if(TIPO_LIMITE_VALOR === corporateCardConfig.tipo_cartao_valor.Tipo_VII) return sch.default('D-1');
   }),
   SLA: yup.number().default(48),
   AREA_RESOLVEDORA: yup.string().default("Bradesco"),
+  WF_APROVACAO: yup.boolean().default(true),
 
   APROVADOR_ID: yup.string().required(),
   APROVADOR_NOME: yup.string().required(),
@@ -35,9 +52,9 @@ const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
   APROVADOR_EMPRESA_NOME: yup.string().required(),
   APROVADOR_LEVEL: yup.string()
   .when('ALCADA_APROVACAO', (ALCADA_APROVACAO, sch) => {
-    if(ALCADA_APROVACAO === 'D-3') return sch.oneOf(['D-3', 'D-2', 'D-1', 'DE']);
-    if(ALCADA_APROVACAO === 'D-2') return sch.oneOf(['D-2', 'D-1', 'DE']);
-    if(ALCADA_APROVACAO === 'D-1') return sch.oneOf(['D-1', 'DE']);
+    if(ALCADA_APROVACAO === 'D-3') return sch.oneOf(['D-3', 'D-2', 'D-1', 'DE'], "Nível de aprovação mínimo é D-3");
+    if(ALCADA_APROVACAO === 'D-2') return sch.oneOf(['D-2', 'D-1', 'DE'], "Nível de aprovação mínimo é DE-2");
+    if(ALCADA_APROVACAO === 'D-1') return sch.oneOf(['D-1', 'DE'], "Nível de aprovação mínimo é DE-1");
     })
   .required(),
 
@@ -50,11 +67,12 @@ const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
   CPF: yup.string().test('validCPF','CPF inválido', (cpf)=>TestaCPF(cpf)).required(),
   TIPO_DE_LIMITE: yup.string().required(),
   TIPO_LIMITE_VALOR: yup.string(),
-  NOVO_LIMITE: yup.number(),
+  NOVO_LIMITE: yup.number()
+  .positive()
+  .max(60000),
   VALIDADE_NOVO_LIMITE: yup.string()
   .when('TIPO_DE_LIMITE', (tipo, schm)=> tipo === 'Saque'? schm.default('90 dias'):schm.oneOf(['90 dias', 'Indeterminado']))
   .required(),
-  WF_APROVACAO: yup.boolean().default(true),
   ULTIMOS_DIGITOS_DO_CARTAO: yup.string()
   .length(4)
   .matches(/^[0-9]{4}/)
@@ -62,7 +80,7 @@ const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
 });
 
 export default function LimitChange() {
-  const { register, handleSubmit, control, errors, reset } = useForm<IRequest_LimitChange>({
+  const { register, handleSubmit, control, errors, setValue } = useForm<IRequest_LimitChange>({
     resolver: yupResolver(schema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
@@ -77,11 +95,85 @@ export default function LimitChange() {
 
   console.log(errors, schema);
 
-  const handleGetEmployee = value =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-  .then(emp => setEmployee(emp));
+  const handleGetEmployee = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
 
-  const handleGetApprover = value =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-  .then(emp => setApprover(emp));
+  const handleGetEmployeeByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
+
+  const handleGetApprover = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
+  .then(emp => {
+    setApprover(emp);
+    setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+  });
+
+  const handleGetApproverByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
+  .then(emp => {
+    setApprover(emp);
+    setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+  });
 
   const onSubmit = (data:IRequest_LimitChange, e) => {
     newRequest(data)
@@ -130,12 +222,12 @@ export default function LimitChange() {
             <Controller
               as={
                 <Select disabled fullWidth>
-                  <MenuItem value="Alterar limite">Alterar limite</MenuItem>
+                  <MenuItem value="Alteração de limite">Alteração de limite</MenuItem>
                 </Select>
               }
               id="Process"
               name="PROCESSO"
-              defaultValue="Alterar limite"
+              defaultValue="Alteração de limite"
               control={control}
               error={errors.PROCESSO?true:false}
               helperText={errors.PROCESSO && errors.PROCESSO.message}
@@ -143,31 +235,46 @@ export default function LimitChange() {
           </Grid>
 
 
-          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-          <TextField fullWidth type="text" name="BENEFICIARIO_ID" variant="outlined"
-              label="Empregado: Matrícula" onBlur={ e=> handleGetEmployee(e.target.value) }
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField
+              fullWidth
+              variant="outlined"
+              type="search"
+              name="BENEFICIARIO_ID"
+              label="Empregado: Matrícula"
+              onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
+              InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
             />
           </Grid>
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
-            <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME"
-              label="Empregado: Nome" variant="outlined"
-              value={employee? employee.FULL_NAME : ""}
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+            <TextField
+              fullWidth
+              type="text"
+              name="BENEFICIARIO_EMAIL"
+              label="Empregado: e-mail"
+              variant="outlined"
+              inputRef={register}
+              onBlur={ e=> handleGetEmployeeByEmail(e.target.value) }
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_EMAIL?true:false}
+              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <TextField
+              disabled
+              fullWidth
+              type="text"
+              name="BENEFICIARIO_NOME"
+              label="Empregado: Nome"
+              variant="outlined"
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_NOME?true:false}
               helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-            <TextField disabled fullWidth type="text" name="BENEFICIARIO_EMAIL" label="Empregado: e-mail" variant="outlined"
-              value={employee ? employee.WORK_EMAIL_ADDRESS : "" }
-              inputRef={register}
-              InputLabelProps={{ shrink: true }}
-              error={errors.BENEFICIARIO_EMAIL?true:false}
-              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
             />
           </Grid>
 
@@ -186,15 +293,23 @@ export default function LimitChange() {
           </FormControl>
           </Grid>
           <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
-            <TextField fullWidth type="text" name="CPF"
-              label="Empregado: CPF" variant="outlined"
+            <TextField
+              fullWidth
+              type="text"
+              name="CPF"
+              label="Empregado: CPF"
+              variant="outlined"
               inputRef={register}
               error={errors.CPF?true:false}
               helperText={errors.CPF && errors.CPF.message}
             />
           </Grid>
           <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-            <TextField fullWidth variant="outlined" type="text" required
+            <TextField
+              fullWidth
+              variant="outlined"
+              type="text"
+              required
               name="ULTIMOS_DIGITOS_DO_CARTAO"
               label="Últimos 4 dígitos do cartão"
               InputLabelProps={{ shrink: true }}
@@ -211,13 +326,27 @@ export default function LimitChange() {
                 <Controller
                   as={
                     <Select fullWidth inputRef={register}>
-                      <MenuItem value="Tipo I">Tipo I - R$ 1.000,00</MenuItem>
-                      <MenuItem value="Tipo II">Tipo II - R$ 2.500,00</MenuItem>
-                      <MenuItem value="Tipo III">Tipo III - R$ 5.000,00</MenuItem>
-                      <MenuItem value="Tipo IV">Tipo IV - R$ 10.000,00</MenuItem>
-                      <MenuItem value="Tipo V">Tipo V - R$ 20.000,00</MenuItem>
-                      <MenuItem value="Tipo VI">Tipo VI - R$ 30.000,00</MenuItem>
-                      <MenuItem value="Tipo VII">Tipo VII - R$ 60.000,00</MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_I}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_I}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_II}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_II}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_III}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_III}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_IV}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_IV}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_V}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_V}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_VI}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_VI}
+                      </MenuItem>
+                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_VII}>
+                        {corporateCardConfig.tipo_cartao_valor.Tipo_VII}
+                      </MenuItem>
                     </Select>
                   }
                   required
@@ -231,9 +360,14 @@ export default function LimitChange() {
               </Grid>
             :
               <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-                <TextField fullWidth variant="outlined" type="number" required
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  type="number"
+                  required
                   name="NOVO_LIMITE"
                   label="Novo limite"
+                  inputProps={{ min: 1 }}
                   InputLabelProps={{ shrink: true }}
                   inputRef={register}
                   error={errors.NOVO_LIMITE?true:false}
@@ -258,17 +392,37 @@ export default function LimitChange() {
                 error={errors.VALIDADE_NOVO_LIMITE?true:false}
                 helperText={errors.VALIDADE_NOVO_LIMITE && errors.VALIDADE_NOVO_LIMITE.message}
               /></>
-            }
-            </Grid>
+          }
+          </Grid>
           <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-            <TextField fullWidth type="search" name="APROVADOR_ID" variant="outlined" label="Aprovador: Matrícula"
+            <TextField
+              fullWidth
+              type="search"
+              name="APROVADOR_ID"
+              variant="outlined"
+              label="Aprovador: Matrícula"
+              InputLabelProps={{ shrink: true }}
               error={errors.APROVADOR_ID?true:false}
               helperText={errors.APROVADOR_ID && errors.APROVADOR_ID.message}
               inputRef={register}
               onBlur={e=>handleGetApprover(e.target.value)}
             />
           </Grid>
-          <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+            <TextField
+              fullWidth
+              type="search"
+              name="APROVADOR_EMAIL"
+              variant="outlined"
+              label="Aprovador: E-mail"
+              InputLabelProps={{ shrink: true }}
+              error={errors.APROVADOR_EMAIL?true:false}
+              helperText={errors.APROVADOR_EMAIL && errors.APROVADOR_EMAIL.message}
+              inputRef={register}
+              onBlur={e=>handleGetApproverByEmail(e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
             <TextField
               disabled
               fullWidth
@@ -283,7 +437,7 @@ export default function LimitChange() {
               helperText={errors.APROVADOR_NOME && errors.APROVADOR_NOME.message}
             />
           </Grid>
-          <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
             <TextField
               variant="outlined"
               disabled
@@ -308,7 +462,6 @@ export default function LimitChange() {
         <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_NOME" name="BENEFICIARIO_EMPRESA_NOME" value={employee && employee.COMPANY_DESC } />
         <Input inputRef={register} readOnly type="hidden" id="CENTRO_DE_CUSTOS" name="CENTRO_DE_CUSTOS" value={employee && employee.COST_CENTER_CODE } />
 
-        <Input inputRef={register} readOnly type="hidden" id="APROVADOR_EMAIL" name="APROVADOR_EMAIL" value={approver && approver.WORK_EMAIL_ADDRESS } />
         <Input inputRef={register} readOnly type="hidden" id="APROVADOR_EMPRESA_COD" name="APROVADOR_EMPRESA_COD" value={approver && approver.COMPANY_CODE } />
         <Input inputRef={register} readOnly type="hidden" id="APROVADOR_EMPRESA_NOME" name="APROVADOR_EMPRESA_NOME" value={approver && approver.COMPANY_DESC } />
 

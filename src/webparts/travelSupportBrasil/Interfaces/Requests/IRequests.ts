@@ -54,6 +54,7 @@ export interface IRequests_AllFields {
   RESP_MEDICAO_EMPRESA_NOME?: string;
   EMPREGADO_TERCEIRO?: boolean;
   CNPJ_DE_FATURAMENTO?: string;
+  LIMITE_ATUAL?: number;
   NOVO_LIMITE?: number;
   TIPO_DE_LIMITE?: String;
   TIPO_LIMITE_VALOR?: string;
@@ -83,6 +84,8 @@ export interface IRequests_AllFields {
   APROVACAO_COMENTARIOS?: string;
   ATENDIMENTO_COMENTARIOS?: string;
   OS_AGENCIA?: string;
+  HORARIO?: string;
+  VIAGEM_IDA_E_VOLTA?: string;
   VIAGEM_ORIGEM?: string;
   VIAGEM_DESTINO?: string;
   TIPO_SERVICO_VIAGEM?: string;
@@ -104,6 +107,7 @@ export interface IRequests_AllFields {
   BENEFICIARIO_NASCIMENTO?: Date;
   BENEFICIARIO_NACIONALIDADE?: string;
   TIPO_PRESTACAO_DE_CONTAS?: string;
+  DESPESAS_INDISPONIVEIS?: string;
   Created?: Date;
   Modified?: Date;
 }

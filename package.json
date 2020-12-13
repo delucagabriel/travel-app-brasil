@@ -26,6 +26,7 @@
     "@pnp/graph": "^2.0.7",
     "@pnp/logging": "^2.0.7",
     "@pnp/odata": "^2.0.7",
+    "@pnp/polyfill-ie11": "^2.0.2",
     "@pnp/sp": "^2.0.7",
     "@pnp/spfx-controls-react": "1.19.0",
     "cep-promise": "^4.0.0",

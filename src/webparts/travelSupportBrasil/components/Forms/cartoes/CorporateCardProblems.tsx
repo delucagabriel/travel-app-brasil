@@ -13,7 +13,10 @@ import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
 import { TestaCPF } from '../../../Utils/validaCPF';
 import HocDialog from '../../HOC/HocDialog';
+import { yup_pt_br } from '../../../Utils/yup_pt_br';
+import { setLocale } from 'yup';
 
+setLocale(yup_pt_br);
 
 
 const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
@@ -34,17 +37,17 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   CPF: yup.string().test('validCPF','CPF inválido',(cpf)=>TestaCPF(cpf)).required(),
 
   VALOR: yup.number()
-  .positive()
-  .required(),
-  ESTABELECIMENTO: yup.string().min(10).required(),
-  DATA_DE_UTILIZACAO: yup.date().required(),
+  .positive(),
+  ULTIMOS_DIGITOS_DO_CARTAO: yup.string()
+  .max(4),
+  ESTABELECIMENTO: yup.string(),
+  DATA_DE_UTILIZACAO: yup.date().max(new Date()),
   MOTIVO: yup.string()
-  .min(50)
   .required()
 });
 
 export default function CorporateCardProblems() {
-  const { register, handleSubmit, control, errors, reset } = useForm<IRequests_AllFields>({
+  const { register, handleSubmit, control, errors, setValue } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
@@ -55,8 +58,45 @@ export default function CorporateCardProblems() {
   });
   const { updateContext } = useContext(Context);
 
-  const handleGetEmployee = value =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => setEmployee(emp));
+  const handleGetEmployee = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
+
+  const handleGetEmployeeByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
+  .then(emp => {
+    setEmployee(emp);
+    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
+    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+      shouldDirty: true
+    });
+  });
 
 
   const onSubmit = (data:IRequests_AllFields, e) => {
@@ -76,7 +116,7 @@ export default function CorporateCardProblems() {
     <Paper>
       <HocDialog>
         <p>
-          O primeiro contato para solução de problemas no cartão corporativo  deve ser realizado com a central exclusiva do Bradesco através do telefone 0800 723 1799.
+          O primeiro contato para solução de problemas no cartão corporativo deve ser realizado com a central exclusiva do Bradesco através do telefone 0800 723 1799.
         </p>
       </HocDialog>
       <div style={{padding:"20px"}}>
@@ -102,12 +142,12 @@ export default function CorporateCardProblems() {
             <Controller
               as={
                 <Select disabled fullWidth>
-                  <MenuItem value="Problemas com cartão">Problemas com cartão</MenuItem>
+                  <MenuItem value="Problema no cartão corporativo">Problema no cartão corporativo</MenuItem>
                 </Select>
               }
               id="Process"
               name="PROCESSO"
-              defaultValue="Problemas com cartão"
+              defaultValue="Problema no cartão corporativo"
               control={control}
               error={errors.PROCESSO?true:false}
               helperText={errors.PROCESSO && errors.PROCESSO.message}
@@ -115,11 +155,35 @@ export default function CorporateCardProblems() {
           </Grid>
 
           <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
-            <TextField fullWidth type="text" name="BENEFICIARIO_ID" variant="outlined"
-              label="Matrícula do empregado" onBlur={ e=> handleGetEmployee(e.target.value) }
+            <TextField type="text" required name="BENEFICIARIO_ID" variant="outlined"
+              label="Matrícula do empregado"
+              onBlur={ e=> handleGetEmployee(e.target.value) }
               inputRef={register}
+              InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
+            />
+          </Grid>
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+            <TextField fullWidth type="text" name="BENEFICIARIO_EMAIL" label="E-mail do empregado"
+              variant="outlined"
+              onBlur={ e=> handleGetEmployeeByEmail(e.target.value) }
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_EMAIL?true:false}
+              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do empregado" variant="outlined"
+              inputRef={register}
+              InputProps={{
+                readOnly: true,
+              }}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_NOME?true:false}
+              helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
             />
           </Grid>
           <Grid item xs={12} sm={5} md={5} lg={5} xl={5} >
@@ -138,32 +202,7 @@ export default function CorporateCardProblems() {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do empregado" variant="outlined"
-              value={employee? employee.FULL_NAME: ""}
-              inputRef={register}
-              InputProps={{
-                readOnly: true,
-              }}
-              InputLabelProps={{ shrink: true }}
-              error={errors.BENEFICIARIO_NOME?true:false}
-              helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField disabled fullWidth type="text" name="BENEFICIARIO_EMAIL" label="E-mail do empregado"
-              variant="outlined"  value={employee ? employee.WORK_EMAIL_ADDRESS : "" }
-              inputRef={register}
-              InputProps={{
-                readOnly: true,
-              }}
-              InputLabelProps={{ shrink: true }}
-              error={errors.BENEFICIARIO_EMAIL?true:false}
-              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
             <TextField
               variant="outlined"
               type="date"
@@ -183,7 +222,7 @@ export default function CorporateCardProblems() {
 
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
             <TextField fullWidth variant="outlined" type="number" name="VALOR" label="Valor da transação" inputRef={register}
-              error={errors.VALOR?true:false}
+              error={errors.VALOR?true:false} inputProps={{ min: 1 }}
               helperText={errors.VALOR && errors.VALOR.message}
             />
           </Grid>

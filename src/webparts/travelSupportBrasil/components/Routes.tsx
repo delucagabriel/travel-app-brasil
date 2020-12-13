@@ -33,6 +33,20 @@ import CardAndSystemUnlock from './Forms/prestacaoDeContas/CardAndSystemUnlock';
 import TravelDiscountConsultation from './Forms/prestacaoDeContas/TravelDiscountConsultation';
 import SendingValueForDiscount from './Forms/prestacaoDeContas/SendingValueForDiscount';
 import AccountingFailure from './Forms/prestacaoDeContas/AccountingFailure';
+import ExpensesNotAvailable from './Forms/prestacaoDeContas/ExpensesNotAvailable';
+import BaseCreation from './Forms/cartaoCombustivel/BaseCreation';
+import BaseContractLimitChange from './Forms/cartaoCombustivel/BaseContractLimitChange';
+import MasterAccessRelease from './Forms/cartaoCombustivel/MasterAccessRelease';
+import ChangeOfBaseManager from './Forms/cartaoCombustivel/ChangeOfBaseManager';
+import BaseClosure from './Forms/cartaoCombustivel/BaseClosure';
+import QuestionsAboutNormativeDocuments from './Forms/relatoriosEDocumentosNormativos/QuestionsAboutNormativeDocuments';
+import TravelReports from './Forms/relatoriosEDocumentosNormativos/TravelReports';
+import HostingRegularization from './Forms/solicitacaoDeViagem/HostingRegularization';
+import DetailsById from './Details/DetailsById';
+import AllPendingRequestsBradesco from './Lists/bradesco/AllPendingRequestsBradesco';
+import { ApproversHome } from './Approvers/ApproversHome';
+import AllCompletedApprovals from './Lists/AllCompletedApprovals';
+import AllPendingApprovals from './Lists/AllPendingApprovals';
 
 const theme = createMuiTheme({
   palette: {
@@ -59,8 +73,34 @@ export const Routes = ()=>{
       />
     );
   }
+  function PrivateApproversRoute({ children, ...rest }) {
+    return (
+      <Route {...rest } render={
+        ({ location }) => employeeInfos && employeeInfos.APPROVAL_LEVEL_CODE.toLowerCase() !== 'staff' ? ( children ) : ( <Redirect to={{ pathname: "/",  state: { from: location } }} /> )
+        }
+      />
+    );
+  }
+
+
+  function PartnerRoute({ children, ...rest }) {
+    return (
+      <Route {...rest } render={
+        ({ location }) => employeeInfos
+        // && ( employeeInfos.COMPANY_DESC === 'Bradesco' || employeeInfos.COMPANY_DESC === 'TicketLog' )
+        ? ( children )
+        : ( <Redirect to={{ pathname: "/",  state: { from: location } }} /> )
+        }
+      />
+    );
+  }
+
 
   return (
+    ((navigator.userAgent.toLowerCase().indexOf(".net") != -1 ) || (window.document['documentMode'] == true ))
+    ?
+      <h1> Navegador não suportado, utilize o Chrome para uma melhor experiência </h1>
+    :
     <HashRouter>
       <ThemeProvider theme={theme}>
         <Menu>
@@ -78,12 +118,20 @@ export const Routes = ()=>{
             <Route path="/liberarCompraPelaInternet" exact={true} component={InternetPurchaseUnlock} />
             <Route path="/ProblemasComCartaoCorporativo" exact={true} component={CorporateCardProblems} />
 
+            {/*  Cartão combustível  */}
+            <Route path="/criacaoDeBase" exact={true} component={BaseCreation} />
+            <Route path="/alterarLimiteDoContratoDaBase" exact={true} component={BaseContractLimitChange} />
+            <Route path="/liberarAcessoMaster" exact={true} component={MasterAccessRelease} />
+            <Route path="/alterarGestorDeBase" exact={true} component={ChangeOfBaseManager} />
+            <Route path="/encerramentoDeBase" exact={true} component={BaseClosure} />
+
             {/*  Solicitaçao de viagem  */}
             <Route path="/ProblemasNaSolicitacao" exact={true} component={TravelRequestIssue} />
             <Route path="/DelegacaoDaAprovacaoDaViagem" exact={true} component={ApprovalDelegation} />
             <Route path="/AprovadorInexistente" exact={true} component={NonExistentApprover} />
             <Route path="/emissaoBTB" exact={true} component={VirtualHostingCard} />
             <Route path="/CiaAereaNaoPreferencial" exact={true} component={NonPreferredAirline} />
+            <Route path="/regularizacaoDeHospedagem" exact={true} component={HostingRegularization} />
 
             {/*  Prestação de contas  */}
             <Route path="/DelegacaoDaPrestacao" exact={true} component={DelegationOfAccountability} />
@@ -97,9 +145,13 @@ export const Routes = ()=>{
             <Route path='/ConsultaADescontoDeViagens' exact={true} component={TravelDiscountConsultation} />
             <Route path='/EnvioDeValorParaDesconto' exact={true} component={SendingValueForDiscount} />
             <Route path='/FalhaNaContabilizacao' exact={true} component={AccountingFailure} />
-            <Route path='/DespesaNaoDisponivel' exact={true} component={CardAndSystemUnlock} />
+            <Route path='/DespesasNaoDisponiveis' exact={true} component={ExpensesNotAvailable} />
 
+            {/*  Documentos normativos e relatórios de viagens  */}
+            <Route path="/DuvidasSobreDocumentosNormativos" exact={true} component={QuestionsAboutNormativeDocuments} />
+            <Route path="/RelatoriosDeViagens" exact={true} component={TravelReports} />
 
+            <Route path="/request/details/:id" exact={true} component={DetailsById} />
 
           {/* { Private routes } */}
             {/*  Listas  */}
@@ -115,11 +167,31 @@ export const Routes = ()=>{
               <SupportHome/>
             </PrivateRoute>
 
+            {/*  Aprovações  */}
+            <PrivateApproversRoute path="/aprovacoes" exact={true} >
+              <ApproversHome/>
+            </PrivateApproversRoute>
+            <PrivateApproversRoute path="/aprovacoesPendentes" exact={true} >
+              <AllPendingApprovals/>
+            </PrivateApproversRoute>
+            <PrivateApproversRoute path="/aprovacoesConcluidas" exact={true} >
+              <AllCompletedApprovals/>
+            </PrivateApproversRoute>
+
             {/*  Atualização de empregados  */}
             <PrivateRoute path="/InsertOrUpdateEmployees" exact={true} >
               <InsertOrUpdateEmployees/>
             </PrivateRoute>
 
+
+
+
+            <PartnerRoute path="/chamadosBradesco" exact={true} >
+              <AllPendingRequestsBradesco/>
+            </PartnerRoute>
+            <PartnerRoute path="/chamadosTicketLog" exact={true} >
+              <AllPendingRequestsBradesco/>
+            </PartnerRoute>
             <Route component={NotFound}/>
           </Switch>
         </Menu>

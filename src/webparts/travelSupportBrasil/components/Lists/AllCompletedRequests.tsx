@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { useContext, useState, useEffect } from 'react';
 import { Context } from '../Context';
-import { CSVLink } from "react-csv";
 import { TableContainer, Paper, Table, TableHead, TableRow, TableCell,
   TableBody, Grid, Dialog, Hidden, TextField, Button } from '@material-ui/core';
-import { RequestDetailsComponent } from '../Details/RequestDetailsComponent';
 import CloseIcon from '@material-ui/icons/Close';
+import { HocRenderDetails } from '../HOC/HocRenderDetails';
 
 
 
@@ -14,32 +13,17 @@ export default function AllCompletedRequests() {
   const [requestDetails, setRequestDetails] = useState({...allRequests[0], open:false});
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [filter, setFilter] = useState('');
-  const [filteredDownload, setFilteredDownload] = useState(filteredRequests);
-
 
   useEffect(()=>{
     setFilteredRequests(allRequests.filter(request => request.STATUS.toLowerCase() === "sucesso" || request.STATUS.toLowerCase() === "rejeitado" ));
   }, [allRequests]);
 
-  const handleFilter= event => setFilter(event.target.value.toLowerCase());
-
-  useEffect(()=>{
-    setFilteredDownload(filteredRequests.filter( row => row.BENEFICIARIO_NOME.includes(filter) ));
-  }, [filter]);
+  const handleFilter= event => setFilter(event.target.value as string);
 
   return (
     <Grid container>
       <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-        <TextField label="Beneficiário" variant="outlined" onChange={handleFilter}/>
-        <Button color='secondary' style={{float:'right'}}>
-          <CSVLink
-            data={filteredDownload}
-            filename={"TS_Brasil_SOLICITACOES.csv"}
-            style={{textDecoration:'none'}}
-          >
-            Export
-          </CSVLink>
-        </Button>
+        <TextField label="Nº Chamado" type="text" variant="outlined" onChange={handleFilter}/>
       </Grid>
       <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
 
@@ -59,9 +43,6 @@ export default function AllCompletedRequests() {
                   <TableCell variant="head" align="center">Status do atendimento</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Beneficiário</TableCell>
-                </Hidden>
-                <Hidden smDown>
                   <TableCell variant="head" align="center">Data de abertura</TableCell>
                 </Hidden>
                 <Hidden smDown>
@@ -71,7 +52,8 @@ export default function AllCompletedRequests() {
           </TableHead>
           <TableBody>
             {filteredRequests
-              .filter(row => row.BENEFICIARIO_NOME.toLowerCase().includes(filter))
+              .filter( row => String(row.Id).includes( filter ))
+              .reverse()
               .map((row) => (
               <TableRow key={row.Id} onClick={() =>setRequestDetails({...row, open:true})}>
                 <TableCell align="center">{row.Id}</TableCell>
@@ -84,9 +66,6 @@ export default function AllCompletedRequests() {
                   </Hidden>
                   <Hidden smDown>
                     <TableCell variant="body" align="center">{row.STATUS_ATENDIMENTO}</TableCell>
-                  </Hidden>
-                  <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.BENEFICIARIO_NOME}</TableCell>
                   </Hidden>
                   <Hidden smDown>
                     <TableCell variant="body" align="center">{row.Created}</TableCell>
@@ -112,7 +91,10 @@ export default function AllCompletedRequests() {
           >
           <CloseIcon/>
         </Button>
-        <RequestDetailsComponent requestDetails={requestDetails}/>
+        <HocRenderDetails
+          type={requestDetails.MACROPROCESSO}
+          details={requestDetails}
+        />
       </Dialog>
       </Grid>
     </Grid>

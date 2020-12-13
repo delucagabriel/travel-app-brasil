@@ -5,7 +5,7 @@ import { DialogTitle, DialogContent, DialogContentText,
 export const RequestDetailsComponent = ({requestDetails, children=null})=>{
   return(
     <>
-      <DialogTitle id="alert-dialog-title">Request Details - ID: {requestDetails && requestDetails.Id}</DialogTitle>
+      <DialogTitle id="alert-dialog-title">Detalhes da solicitação - ID: {requestDetails && requestDetails.Id} { children } </DialogTitle>
       <DialogContent style={{width:'100%'}}>
         <DialogContentText id="alert-dialog-description">
           <Grid container spacing={2}>
@@ -178,9 +178,6 @@ export const RequestDetailsComponent = ({requestDetails, children=null})=>{
                   />
                 </Grid>
               </ListItem>
-                <Grid xs={12} sm={12} md={12} lg={12} xl={12}>
-                  { children }
-                </Grid>
             </Grid>
           </Grid>
         </DialogContentText>

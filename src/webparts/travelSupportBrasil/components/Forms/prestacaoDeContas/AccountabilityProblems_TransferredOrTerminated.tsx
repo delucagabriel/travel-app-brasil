@@ -12,7 +12,10 @@ import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
 import HocDialog from '../../HOC/HocDialog';
+import { yup_pt_br } from '../../../Utils/yup_pt_br';
+import { setLocale } from 'yup';
 
+setLocale(yup_pt_br);
 
 
 const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
@@ -25,16 +28,13 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   DATA_DE_APROVACAO: yup.date().default(new Date()),
   STATUS_APROVACAO: yup.string().default('Aprovado'),
 
-  BENEFICIARIO_ID: yup.string().required(),
+  BENEFICIARIO_ID: yup.string(),
   BENEFICIARIO_NOME: yup.string().required(),
-  BENEFICIARIO_EMAIL: yup.string().email().required(),
-  BENEFICIARIO_EMPRESA_COD: yup.string(),
-  BENEFICIARIO_EMPRESA_NOME: yup.string(),
+  BENEFICIARIO_EMAIL: yup.string().email(),
 
   TIPO_PRESTACAO_DE_CONTAS: yup.string().required(),
   RELATORIO_CONCUR: yup.string().required(),
   MOTIVO: yup.string()
-  .min(50)
   .required()
 });
 
@@ -51,16 +51,7 @@ export default function AccountabilityProblemsTransferredOrTerminated() {
   });
   const { updateContext } = useContext(Context);
 
-  const handleGetEmployee = value =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
-    .then(emp => {
-      setEmployee(emp);
-      setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
-        shouldDirty: true
-      });
-      setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
-        shouldDirty: true
-      });
-    });
+
 
   const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
@@ -82,7 +73,7 @@ export default function AccountabilityProblemsTransferredOrTerminated() {
           Prestação de contas de empregado desligado
         </Typography>
         <Typography variant='body2'>
-          Quando um empregado é desligado e deixa despesas pendentes, uma delegação é automaticamente atribuída ao gestor para a regularização das mesmas.Caso o gestor deseje delegar a prestação de contas para um outro empregado da sua equipe, abra um chamado de delegação. Para problema na prestação de contas, preencher o checklist a seguir.
+          Quando um empregado é desligado, uma delegação é automaticamente atribuída ao gestor para possível regularização de pendências. Caso o gestor deseje delegar a prestação de contas para um outro empregado da sua equipe, abra um chamado de delegação. Para problemas na prestação de contas, preencher o formulário a seguir.
         </Typography>
         <br/>
 
@@ -90,7 +81,7 @@ export default function AccountabilityProblemsTransferredOrTerminated() {
           Prestação de contas de empregado transferido/expatriado
         </Typography>
         <Typography variant='body2'>
-          Quando um empregado é transferido ou expatriado, suas despesas pendentes de prestação de contas são atribuídas ao seu último gestor imediato. Desta forma, o gestor deve entrar no seu próprio perfil para realizar a prestação de contas. Não é necessária delegação. Para problema na prestação de contas, preencher o checklist a seguir.
+          Quando um empregado é transferido ou expatriado, suas despesas pendentes de prestação de contas são atribuídas ao seu último gestor. Desta forma, o gestor deve entrar no seu próprio perfil para realizar a prestação de contas. Não é necessária delegação. Para problemas na prestação de contas, preencher o formulário a seguir.
         </Typography>
       </HocDialog>
       <div style={{padding:"20px"}}>
@@ -130,7 +121,7 @@ export default function AccountabilityProblemsTransferredOrTerminated() {
 
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
             <FormControl component="fieldset" error={errors.TIPO_PRESTACAO_DE_CONTAS?true:false}>
-            <FormLabel component="legend">Tipo de prestaão de contas </FormLabel>
+            <FormLabel component="legend">Tipo de prestação de contas </FormLabel>
             <RadioGroup aria-label="TIPO_PRESTACAO_DE_CONTAS" name="TIPO_PRESTACAO_DE_CONTAS"
             row>
               <FormControlLabel value="Empregado desligado" control={<Radio inputRef={register}/>} label="Empregado desligado" />
@@ -139,33 +130,43 @@ export default function AccountabilityProblemsTransferredOrTerminated() {
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
-            <TextField type="text" name="BENEFICIARIO_ID" variant="outlined"
-              label="Matrícula" onBlur={ e=> handleGetEmployee(e.target.value) }
+          <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+            <TextField
+              fullWidth
+              variant="outlined"
+              type="search"
+              name="BENEFICIARIO_ID"
+              label="Empregado: Matrícula"
               inputRef={register}
+              InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_ID?true:false}
               helperText={errors.BENEFICIARIO_ID && errors.BENEFICIARIO_ID.message}
             />
           </Grid>
+          <Grid item xs={12} sm={8} md={8} lg={8} xl={8} >
+            <TextField
+              fullWidth
+              type="text"
+              name="BENEFICIARIO_EMAIL"
+              label="Empregado: e-mail"
+              variant="outlined"
+              inputRef={register}
+              InputLabelProps={{ shrink: true }}
+              error={errors.BENEFICIARIO_EMAIL?true:false}
+              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
+            />
+          </Grid>
 
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField fullWidth type="text" name="BENEFICIARIO_NOME" label="Nome do empregado" variant="outlined"
+          <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
+            <TextField fullWidth type="text" name="BENEFICIARIO_NOME"
+              label="Empregado: Nome" variant="outlined"
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.BENEFICIARIO_NOME?true:false}
               helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
-            <TextField fullWidth type="email" name="BENEFICIARIO_EMAIL" label="E-mail do empregado"
-              variant="outlined"
-              inputRef={register}
-              InputLabelProps={{ shrink: true }}
-              error={errors.BENEFICIARIO_EMAIL?true:false}
-              helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
 
-            />
-          </Grid>
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
             <TextField type="text" name="RELATORIO_CONCUR" label="Código ou nome do relatório no Concur"
               variant="outlined"
@@ -189,12 +190,6 @@ export default function AccountabilityProblemsTransferredOrTerminated() {
             <Button type="submit"
             variant="contained" color="primary" style={{float:'right'}}> Enviar </Button>
           </Grid>
-
-          <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_COD" name="BENEFICIARIO_EMPRESA_COD"
-            value={employee && employee.COMPANY_CODE }
-          />
-          <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_NOME" name="BENEFICIARIO_EMPRESA_NOME"
-            value={employee && employee.COMPANY_DESC } />
         </Grid >
       </form>
 

@@ -2,10 +2,8 @@ import * as React from 'react';
 import { useContext, useState } from 'react';
 import { Context } from '../Context';
 import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Dialog, Hidden, Button } from '@material-ui/core';
-import { RequestDetailsComponent } from '../Details/RequestDetailsComponent';
 import CloseIcon from '@material-ui/icons/Close';
-
-
+import { HocRenderDetails } from '../HOC/HocRenderDetails';
 
 export default function MyCompletedRequests() {
   const { myRequests } = useContext(Context);
@@ -30,9 +28,6 @@ export default function MyCompletedRequests() {
                   <TableCell variant="head" align="center">Status: Atendimento</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Empregado</TableCell>
-                </Hidden>
-                <Hidden smDown>
                   <TableCell variant="head" align="center">Criação</TableCell>
                 </Hidden>
                 <Hidden smDown>
@@ -43,6 +38,7 @@ export default function MyCompletedRequests() {
           <TableBody>
             {myRequests
             .filter(request => request.STATUS === "Sucesso" || request.STATUS === "Rejeitado" )
+            .reverse()
             .map((row) => (
               <TableRow key={row.Id} onClick={() =>setRequestDetails({...row, open:true})}>
                 <TableCell align="center">{row.Id}</TableCell>
@@ -55,9 +51,6 @@ export default function MyCompletedRequests() {
                   </Hidden>
                   <Hidden smDown>
                     <TableCell variant="body" align="center">{row.STATUS_ATENDIMENTO}</TableCell>
-                  </Hidden>
-                  <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.BENEFICIARIO_NOME}</TableCell>
                   </Hidden>
                   <Hidden smDown>
                     <TableCell variant="body" align="center">{row.Created}</TableCell>
@@ -83,7 +76,7 @@ export default function MyCompletedRequests() {
           >
           <CloseIcon/>
         </Button>
-        <RequestDetailsComponent requestDetails={requestDetails}/>
+        <HocRenderDetails type={requestDetails.MACROPROCESSO} details={requestDetails}/>
       </Dialog>
       </Grid>
     </Grid>
