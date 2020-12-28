@@ -57,7 +57,7 @@ const schema: yup.ObjectSchema<IRequest_NewCard> = yup.object().shape({
   CENTRO_DE_CUSTOS: yup.string().required(),
   END_CEP: yup.string().required(),
   END_LOGRADOURO: yup.string().required(),
-  END_NUMERO: yup.number().required(),
+  END_NUMERO: yup.number(),
   END_COMPLEMENTO: yup.string(),
 
   APROVADOR_ID: yup.string().required(),

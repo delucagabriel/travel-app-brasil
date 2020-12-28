@@ -24,7 +24,10 @@ const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
   ALCADA_APROVACAO: yup.string()
-  .when('TIPO_LIMITE_VALOR', (TIPO_LIMITE_VALOR, sch) => {
+  .when(['TIPO_LIMITE_VALOR', 'TIPO_DE_LIMITE'], (TIPO_LIMITE_VALOR, TIPO_DE_LIMITE, sch) => {
+
+    if(TIPO_DE_LIMITE === 'Saque') return sch.default('D-2');
+
     if(
       [
         corporateCardConfig.tipo_cartao_valor.Tipo_I,
@@ -55,6 +58,7 @@ const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
     if(ALCADA_APROVACAO === 'D-3') return sch.oneOf(['D-3', 'D-2', 'D-1', 'DE'], "Nível de aprovação mínimo é D-3");
     if(ALCADA_APROVACAO === 'D-2') return sch.oneOf(['D-2', 'D-1', 'DE'], "Nível de aprovação mínimo é DE-2");
     if(ALCADA_APROVACAO === 'D-1') return sch.oneOf(['D-1', 'DE'], "Nível de aprovação mínimo é DE-1");
+    if(ALCADA_APROVACAO === 'DE') return sch.oneOf(['DE'], "Nível de aprovação mínimo é DE");
     })
   .required(),
 
@@ -92,8 +96,6 @@ export default function LimitChange() {
   });
   const [tipoAlteracao, setTipoAlteracao] = useState('Crédito');
   const { updateContext } = useContext(Context);
-
-  console.log(errors, schema);
 
   const handleGetEmployee = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
   .then(emp => {
@@ -322,7 +324,7 @@ export default function LimitChange() {
           { tipoAlteracao === 'Crédito'
             ?
               <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
-                <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Novo limite</FormLabel>
+                <FormLabel id="TIPO_LIMITE_VALOR" component="legend" required>Novo limite</FormLabel>
                 <Controller
                   as={
                     <Select fullWidth inputRef={register}>
@@ -377,7 +379,7 @@ export default function LimitChange() {
           }
             <Grid item xs={12} sm={6} md={6} lg={6} xl={6}>
           { tipoAlteracao === 'Crédito' && <>
-              <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Período do novo limite</FormLabel>
+              <FormLabel id="TIPO_LIMITE_VALOR" component="legend" required>Período do novo limite</FormLabel>
               <Controller
                 as={
                   <Select fullWidth inputRef={register}>

@@ -168,13 +168,13 @@ export const ChangeOfBaseManagerDetails = ({requestDetails, children=null})=>{
               <ListItem >
                 <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                   <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="Author"
-                    secondary={requestDetails.Author.Title}
+                    primary="Criado por"
+                    secondary={requestDetails.Author.EMail}
                   />
                 </Grid>
                 <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                   <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="Created"
+                    primary="Criado em"
                     secondary={requestDetails.Created}
                   />
                 </Grid>
@@ -182,13 +182,13 @@ export const ChangeOfBaseManagerDetails = ({requestDetails, children=null})=>{
               <ListItem >
                 <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                   <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="Editor"
-                    secondary={requestDetails.Editor.Title}
+                    primary="Modificado por"
+                    secondary={requestDetails.Editor.EMail}
                   />
                 </Grid>
                 <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                   <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="Last modified"
+                    primary="Modificado em"
                     secondary={requestDetails.Modified}
                   />
                 </Grid>

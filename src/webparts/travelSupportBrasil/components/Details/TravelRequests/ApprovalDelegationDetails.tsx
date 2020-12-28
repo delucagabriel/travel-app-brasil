@@ -1,7 +1,18 @@
 import * as React from 'react';
-import { ListItem, ListItemText, Grid, DialogTitle, DialogContent, DialogContentText, Divider } from '@material-ui/core';
+import { ListItem, ListItemText, Grid, DialogTitle, DialogContent, DialogContentText, Divider, Link } from '@material-ui/core';
+import { sp } from '@pnp/sp';
+import { IAttachmentInfo } from '@pnp/sp/attachments';
+import { useEffect, useState } from 'react';
 
 export const ApprovalDelegationDetails = ({requestDetails, children=null})=>{
+  const [attachments, setAttachments] = useState<IAttachmentInfo[]>([]);
+  useEffect(()=>{
+    sp.web.lists.getByTitle('SOLICITACOES')
+      .items.getById(requestDetails.Id)
+      .attachmentFiles()
+      .then(res => (setAttachments(res)));
+  },[]);
+
   return(
     <>
       <DialogTitle id="alert-dialog-title">Detalhes da solicitação - ID: {requestDetails && requestDetails.Id} { children } </DialogTitle>
@@ -80,6 +91,24 @@ export const ApprovalDelegationDetails = ({requestDetails, children=null})=>{
                     primary="MOTIVO" secondary={requestDetails.MOTIVO && requestDetails.MOTIVO && requestDetails.MOTIVO.replace(/(&nbsp;|<([^>]+)>)/ig, '')}/>
                   </Grid>
                 </ListItem>
+                <ListItem >
+                    <Grid xs={12} sm={12} md={12} lg={12} xl={12}>
+                      <ListItemText primaryTypographyProps={{color:"secondary"}}
+                      primary="Anexos"/>
+                      { attachments.map( attachment =>
+                        <Link
+                          href={ attachment.ServerRelativeUrl }
+                          target="_blank"
+                          component="a"
+                          variant="body2"
+                          color='primary'
+                          underline='none'
+                        >
+                          { attachment.FileName }
+                        </Link>
+                      ) }
+                    </Grid>
+                  </ListItem>
 
               </Grid>
             </Grid>
@@ -153,13 +182,13 @@ export const ApprovalDelegationDetails = ({requestDetails, children=null})=>{
               <ListItem >
                 <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                   <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="Author"
-                    secondary={requestDetails.Author.Title}
+                    primary="Criado por"
+                    secondary={requestDetails.Author.EMail}
                   />
                 </Grid>
                 <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                   <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="Created"
+                    primary="Criado em"
                     secondary={requestDetails.Created}
                   />
                 </Grid>
@@ -167,13 +196,13 @@ export const ApprovalDelegationDetails = ({requestDetails, children=null})=>{
               <ListItem >
                 <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                   <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="Editor"
-                    secondary={requestDetails.Editor.Title}
+                    primary="Modificado por"
+                    secondary={requestDetails.Editor.EMail}
                   />
                 </Grid>
                 <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                   <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="Last modified"
+                    primary="Modificado em"
                     secondary={requestDetails.Modified}
                   />
                 </Grid>

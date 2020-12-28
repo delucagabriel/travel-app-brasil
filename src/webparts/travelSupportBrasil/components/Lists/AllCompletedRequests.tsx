@@ -5,12 +5,15 @@ import { TableContainer, Paper, Table, TableHead, TableRow, TableCell,
   TableBody, Grid, Dialog, Hidden, TextField, Button } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import { HocRenderDetails } from '../HOC/HocRenderDetails';
+import { IRequests_AllFields } from '../../Interfaces/Requests/IRequests';
 
-
+interface IRequest extends IRequests_AllFields {
+  open:boolean;
+}
 
 export default function AllCompletedRequests() {
   const { allRequests } = useContext(Context);
-  const [requestDetails, setRequestDetails] = useState({...allRequests[0], open:false});
+  const [requestDetails, setRequestDetails] = useState<IRequest>({...allRequests[0], open:false});
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [filter, setFilter] = useState('');
 

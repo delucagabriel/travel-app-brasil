@@ -29,6 +29,7 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
           'BENEFICIARIO_EMAIL',
           'BENEFICIARIO_EMPRESA_COD',
           'BENEFICIARIO_EMPRESA_NOME',
+          'BENEFICIARIO_LEVEL',
           'END_CEP',
           'END_LOGRADOURO',
           'END_NUMERO',
@@ -58,6 +59,7 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
           'DONO_DA_DESPESA_EMPRESA_NOME',
           'DONO_DA_DESPESA_ID',
           'DONO_DA_DESPESA_NOME',
+          'DONO_DA_DESPESA_LEVEL',
           'EMPREGADO_ATIVO',
           'ESTABELECIMENTO',
           'GESTOR_DA_BASE_EMAIL',
@@ -82,8 +84,11 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
           'TIPO_DE_SOLICITACAO',
           'ULTIMOS_DIGITOS_DO_CARTAO',
           'VALOR',
+          'VALIDADE_NOVO_LIMITE',
           'Author/Title',
-          'Editor/Title'
+          'Author/EMail',
+          'Editor/Title',
+          'Editor/EMail'
         )
         .expand('Author', 'Editor')
         .top(4999)
@@ -117,6 +122,7 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
     'BENEFICIARIO_EMAIL',
     'BENEFICIARIO_EMPRESA_COD',
     'BENEFICIARIO_EMPRESA_NOME',
+    'BENEFICIARIO_LEVEL',
     'END_CEP',
     'END_LOGRADOURO',
     'END_NUMERO',
@@ -145,6 +151,7 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
     'DONO_DA_DESPESA_EMPRESA_NOME',
     'DONO_DA_DESPESA_ID',
     'DONO_DA_DESPESA_NOME',
+    'DONO_DA_DESPESA_LEVEL',
     'EMPREGADO_ATIVO',
     'ESTABELECIMENTO',
     'GESTOR_DA_BASE_EMAIL',
@@ -169,8 +176,11 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
     'TIPO_DE_SOLICITACAO',
     'ULTIMOS_DIGITOS_DO_CARTAO',
     'VALOR',
+    'VALIDADE_NOVO_LIMITE',
     'Author/Title',
-    'Editor/Title'
+    'Author/EMail',
+    'Editor/Title',
+    'Editor/EMail'
   )
   .expand('Author', 'Editor')
   .get();
