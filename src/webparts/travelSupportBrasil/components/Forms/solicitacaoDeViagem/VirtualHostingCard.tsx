@@ -31,8 +31,8 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   APROVADOR_ID: yup.string().required(),
   APROVADOR_NOME: yup.string().required(),
   APROVADOR_EMAIL: yup.string().email().required(),
-  APROVADOR_EMPRESA_COD: yup.string().required(),
-  APROVADOR_EMPRESA_NOME: yup.string().required(),
+  APROVADOR_EMPRESA_COD: yup.string(),
+  APROVADOR_EMPRESA_NOME: yup.string(),
   APROVADOR_LEVEL: yup.string()
   .when('ALCADA_APROVACAO', (ALCADA_APROVACAO, sch) => {
     if(ALCADA_APROVACAO === 'SUP') return sch.notOneOf(['STAFF']);
@@ -47,7 +47,7 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   SOLICITANTE_NOME: yup.string().required(),
   SOLICITANTE_EMAIL: yup.string().email().required(),
   SOLICITANTE_EMPRESA_COD: yup.string(),
-  SOLICITANTE_EMPRESA_NOME: yup.string().required(),
+  SOLICITANTE_EMPRESA_NOME: yup.string(),
 
   TIPO_DE_VIAJANTE: yup.string()
     .default('Empregado')
@@ -586,6 +586,14 @@ export default function VirtualHostingCard() {
 
           <Input inputRef={register} readOnly type="hidden" name="APROVADOR_EMPRESA_COD"
             value={approver && approver.COMPANY_CODE }
+          />
+
+          <Input inputRef={register} readOnly type="hidden" name="APROVADOR_EMPRESA_NOME"
+            value={approver && approver.COMPANY_DESC }
+          />
+
+          <Input inputRef={register} readOnly type="hidden" name="SOLICITANTE_EMPRESA_NOME"
+            value={solicitante && solicitante.COMPANY_DESC }
           />
 
         </Grid >

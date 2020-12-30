@@ -30,6 +30,19 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
           'BENEFICIARIO_EMPRESA_COD',
           'BENEFICIARIO_EMPRESA_NOME',
           'BENEFICIARIO_LEVEL',
+          'BENEFICIARIO_DOC_IDENTIF',
+          'BENEFICIARIO_NASCIMENTO',
+          'BENEFICIARIO_NACIONALIDADE',
+          'TIPO_PRESTACAO_DE_CONTAS',
+          'DESPESAS_INDISPONIVEIS',
+          'VIAGEM_IDA_E_VOLTA',
+          'LIMITE_ATUAL',
+          'HORARIO',
+          'SOLICITANTE_ID',
+          'SOLICITANTE_NOME',
+          'SOLICITANTE_EMAIL',
+          'SOLICITANTE_EMPRESA_COD',
+          'SOLICITANTE_EMPRESA_NOME',
           'END_CEP',
           'END_LOGRADOURO',
           'END_NUMERO',
@@ -38,6 +51,7 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
           'NOVO_LIMITE',
           'TIPO_DE_LIMITE',
           'TIPO_LIMITE_VALOR',
+          'TIPO_DE_VIAJANTE',
           'APROVADOR_ID',
           'APROVADOR_LEVEL',
           'APROVADOR_NOME',
@@ -68,6 +82,7 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
           'GESTOR_DA_BASE_ID',
           'GESTOR_DA_BASE_NOME',
           'MOTIVO',
+          'MOTIVO_DA_VIAGEM',
           'NACIONAL_INTERNACIONAL',
           'PERIODO_INICIO',
           'PERIODO_FIM',
@@ -88,7 +103,14 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
           'Author/Title',
           'Author/EMail',
           'Editor/Title',
-          'Editor/EMail'
+          'Editor/EMail',
+
+          'OBS_PARA_SOLICITACAO',
+          'ID_SOLICITACAO_CARTAO',
+          'TIPO_SOLICITACAO_CARTAO',
+          'PORTADOR_SOLIC_CARTAO',
+          'TFD',
+          'CENTRO_DE_CUSTOS'
         )
         .expand('Author', 'Editor')
         .top(4999)
@@ -123,6 +145,19 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
     'BENEFICIARIO_EMPRESA_COD',
     'BENEFICIARIO_EMPRESA_NOME',
     'BENEFICIARIO_LEVEL',
+    'BENEFICIARIO_DOC_IDENTIF',
+    'BENEFICIARIO_NASCIMENTO',
+    'BENEFICIARIO_NACIONALIDADE',
+    'TIPO_PRESTACAO_DE_CONTAS',
+    'DESPESAS_INDISPONIVEIS',
+    'VIAGEM_IDA_E_VOLTA',
+    'LIMITE_ATUAL',
+    'HORARIO',
+    'SOLICITANTE_ID',
+    'SOLICITANTE_NOME',
+    'SOLICITANTE_EMAIL',
+    'SOLICITANTE_EMPRESA_COD',
+    'SOLICITANTE_EMPRESA_NOME',
     'END_CEP',
     'END_LOGRADOURO',
     'END_NUMERO',
@@ -130,6 +165,7 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
     'NOVO_LIMITE',
     'TIPO_DE_LIMITE',
     'TIPO_LIMITE_VALOR',
+    'TIPO_DE_VIAJANTE',
     'APROVADOR_ID',
     'APROVADOR_LEVEL',
     'APROVADOR_NOME',
@@ -160,6 +196,7 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
     'GESTOR_DA_BASE_ID',
     'GESTOR_DA_BASE_NOME',
     'MOTIVO',
+    'MOTIVO_DA_VIAGEM',
     'NACIONAL_INTERNACIONAL',
     'PERIODO_INICIO',
     'PERIODO_FIM',
@@ -180,7 +217,15 @@ export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTit
     'Author/Title',
     'Author/EMail',
     'Editor/Title',
-    'Editor/EMail'
+    'Editor/EMail',
+
+
+    'OBS_PARA_SOLICITACAO',
+    'ID_SOLICITACAO_CARTAO',
+    'TIPO_SOLICITACAO_CARTAO',
+    'PORTADOR_SOLIC_CARTAO',
+    'TFD',
+    'CENTRO_DE_CUSTOS'
   )
   .expand('Author', 'Editor')
   .get();

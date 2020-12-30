@@ -41,6 +41,26 @@ export const NonExistentApproverDetails = ({requestDetails, children=null})=>{
                     primary="VIAJANTE: EMPRESA" secondary={requestDetails.BENEFICIARIO_EMPRESA_NOME}/>
                   </Grid>
                 </ListItem>
+                <ListItem >
+                  <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <ListItemText primaryTypographyProps={{color:"secondary"}}
+                    primary="APROVADOR: MATRICULA" secondary={requestDetails.SOLICITANTE_ID}/>
+                  </Grid>
+                  <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <ListItemText primaryTypographyProps={{color:"secondary"}}
+                    primary="APROVADOR: NOME" secondary={requestDetails.SOLICITANTE_NOME}/>
+                  </Grid>
+                </ListItem>
+                <ListItem >
+                  <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <ListItemText primaryTypographyProps={{color:"secondary"}}
+                    primary="APROVADOR: EMAIL" secondary={requestDetails.SOLICITANTE_EMAIL}/>
+                  </Grid>
+                  <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
+                    <ListItemText primaryTypographyProps={{color:"secondary"}}
+                    primary="APROVADOR: EMPRESA" secondary={requestDetails.SOLICITANTE_EMPRESA_NOME}/>
+                  </Grid>
+                </ListItem>
 
                 <ListItem >
                   <Grid xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -53,17 +73,20 @@ export const NonExistentApproverDetails = ({requestDetails, children=null})=>{
                     <ListItemText primaryTypographyProps={{color:"secondary"}}
                     primary="Anexos"/>
                     { attachments.map( attachment =>
-                      <Link
-                        href={ attachment.ServerRelativeUrl }
-                        target="_blank"
-                        component="a"
-                        variant="body2"
-                        color='primary'
-                        underline='none'
-                      >
-                        { attachment.FileName }
-                      </Link>
-                    ) }
+                        <>
+                          <Link
+                            href={ attachment.ServerRelativeUrl }
+                            target="_blank"
+                            rel="noopener"
+                            component="a"
+                            variant="body2"
+                            color='primary'
+                            underline='none'
+                          >
+                            { attachment.FileName }
+                          </Link> <br/>
+                        </>
+                      ) }
                   </Grid>
                 </ListItem>
               </Grid>

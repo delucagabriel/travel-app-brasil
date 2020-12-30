@@ -41,12 +41,6 @@ export const HostingRegularizationDetails = ({requestDetails, children=null})=>{
                     primary="SOLICITANTE: EMPRESA" secondary={requestDetails.SOLICITANTE_EMPRESA_NOME}/>
                   </Grid>
                 </ListItem>
-                <ListItem >
-                  <Grid xs={12} sm={12} md={12} lg={12} xl={12}>
-                    <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="SOLICITANTE: LEVEL" secondary={requestDetails.SOLICITANTE_LEVEL}/>
-                  </Grid>
-                </ListItem>
 
                 <ListItem >
                   <Grid xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -132,7 +126,7 @@ export const HostingRegularizationDetails = ({requestDetails, children=null})=>{
                   </Grid>
                   <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                     <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="OBS. PARA SOLICITAÇÃO" secondary={requestDetails.OBS_PARA_SOLICITACAO}/>
+                    primary="OBS. PARA SOLICITAÇÃO" secondary={requestDetails.OBS_PARA_SOLICITACAO.replace(/(&nbsp;|<([^>]+)>)/ig, '')}/>
                   </Grid>
                 </ListItem>
 
@@ -143,7 +137,7 @@ export const HostingRegularizationDetails = ({requestDetails, children=null})=>{
                   </Grid>
                   <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                     <ListItemText primaryTypographyProps={{color:"secondary"}}
-                      primary="ACOMPANHANTES" secondary={requestDetails.ACOMPANHANTES}/>
+                      primary="ACOMPANHANTES" secondary={requestDetails.ACOMPANHANTES.replace(/(&nbsp;|<([^>]+)>)/ig, '')}/>
                   </Grid>
                 </ListItem>
 

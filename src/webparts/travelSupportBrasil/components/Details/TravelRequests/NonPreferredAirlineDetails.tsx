@@ -122,17 +122,20 @@ export const NonPreferredAirlineDetails = ({requestDetails, children=null})=>{
                     <ListItemText primaryTypographyProps={{color:"secondary"}}
                     primary="Anexos"/>
                     { attachments.map( attachment =>
-                      <Link
-                        href={ attachment.ServerRelativeUrl }
-                        target="_blank"
-                        component="a"
-                        variant="body2"
-                        color='primary'
-                        underline='none'
-                      >
-                        { attachment.FileName }
-                      </Link>
-                    ) }
+                        <>
+                          <Link
+                            href={ attachment.ServerRelativeUrl }
+                            target="_blank"
+                            rel="noopener"
+                            component="a"
+                            variant="body2"
+                            color='primary'
+                            underline='none'
+                          >
+                            { attachment.FileName }
+                          </Link> <br/>
+                        </>
+                      ) }
                   </Grid>
                 </ListItem>
               </Grid>

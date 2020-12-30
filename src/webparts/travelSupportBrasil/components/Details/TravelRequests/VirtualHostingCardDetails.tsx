@@ -40,12 +40,6 @@ export const VirtualHostingCardDetails = ({requestDetails, children=null})=>{
                     primary="SOLICITANTE: EMPRESA" secondary={requestDetails.SOLICITANTE_EMPRESA_NOME}/>
                   </Grid>
                 </ListItem>
-                <ListItem >
-                  <Grid xs={12} sm={12} md={12} lg={12} xl={12}>
-                    <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="SOLICITANTE: LEVEL" secondary={requestDetails.SOLICITANTE_LEVEL}/>
-                  </Grid>
-                </ListItem>
 
                 <ListItem >
                   <Grid xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -184,17 +178,20 @@ export const VirtualHostingCardDetails = ({requestDetails, children=null})=>{
                     <ListItemText primaryTypographyProps={{color:"secondary"}}
                     primary="Anexos"/>
                     { attachments.map( attachment =>
-                      <Link
-                        href={ attachment.ServerRelativeUrl }
-                        target="_blank"
-                        component="a"
-                        variant="body2"
-                        color='primary'
-                        underline='none'
-                      >
-                        { attachment.FileName }
-                      </Link>
-                    ) }
+                        <>
+                          <Link
+                            href={ attachment.ServerRelativeUrl }
+                            target="_blank"
+                            rel="noopener"
+                            component="a"
+                            variant="body2"
+                            color='primary'
+                            underline='none'
+                          >
+                            { attachment.FileName }
+                          </Link> <br/>
+                        </>
+                      ) }
                   </Grid>
                 </ListItem>
               </Grid>
