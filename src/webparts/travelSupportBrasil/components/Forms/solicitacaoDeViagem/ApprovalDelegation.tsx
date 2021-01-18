@@ -26,7 +26,7 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   SLA: yup.number().default(48),
   AREA_RESOLVEDORA: yup.string().default("Viagens Corporativas"),
   ALCADA_APROVACAO: yup.string().default(""),
-  WF_APROVACAO: yup.boolean().default(false),
+  WF_APROVACAO: yup.boolean().default(true),
   DATA_DE_APROVACAO: yup.date().default(new Date()),
   STATUS_APROVACAO: yup.string().default('Aprovado'),
 
@@ -54,6 +54,13 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   })
   .required(),
 
+  APROVADOR_ID: yup.string().required(),
+  APROVADOR_NOME: yup.string().required(),
+  APROVADOR_EMAIL: yup.string().email().required(),
+  APROVADOR_EMPRESA_COD: yup.string(),
+  APROVADOR_EMPRESA_NOME: yup.string(),
+  APROVADOR_LEVEL: yup.string(),
+
   TIPO_DE_DELEGACAO: yup.string().default('Aprovação de viagem'),
   PERIODO_INICIO: yup.date().min(new Date(), 'Data precisa ser posterior ao dia de hoje'),
   PERIODO_FIM: yup.date().min(new Date(), 'Data precisa ser posterior ao dia de hoje'),
@@ -70,9 +77,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function ApprovalDelegation() {
-  const { register, handleSubmit, control, errors, reset, setValue } = useForm<IRequests_AllFields>({
+  const { register, handleSubmit, control, watch, errors, reset, setValue } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
+  const [approver, setApprover] = useState<IEmployee>();
   const [delegante, setDelegante] = useState<IEmployee>();
   const [delegado, setDelegado] = useState<IEmployee>();
   const [snackMessage, setSnackMessage] = useState<ISnack>({
@@ -84,8 +92,10 @@ export default function ApprovalDelegation() {
   const classes = useStyles();
   const [openBackdrop, setOpenBackdrop] = useState(false);
   const [fileInfos, setFileInfos] = useState<IAttachmentFileInfo[]>([]);
+  const watchAllFields = watch();
 
 
+  console.log(watchAllFields);
   console.log(errors);
 
   const handleGetDelegado = value =>getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
@@ -106,6 +116,20 @@ export default function ApprovalDelegation() {
     setValue("BENEFICIARIO_LEVEL", emp?emp.APPROVAL_LEVEL_CODE:"", {
       shouldDirty: true
     });
+
+    setApprover(emp);
+    setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+      shouldDirty: true
+    });
   });
 
   const handleGetDelegadoByEmail = value =>getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
@@ -124,6 +148,20 @@ export default function ApprovalDelegation() {
       shouldDirty: true
     });
     setValue("BENEFICIARIO_LEVEL", emp?emp.APPROVAL_LEVEL_CODE:"", {
+      shouldDirty: true
+    });
+
+    setApprover(emp);
+    setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+      shouldDirty: true
+    });
+    setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
       shouldDirty: true
     });
   });
@@ -396,12 +434,57 @@ function uploadListAttachments(id) {
             id="BENEFICIARIO_EMPRESA_NOME"
             name="BENEFICIARIO_EMPRESA_NOME"
             hidden
-            value={delegado && delegado.COMPANY_DESC } />
+            value={ delegado && delegado.COMPANY_DESC } />
 
-          <Input inputRef={register} readOnly type="hidden" id="DONO_DA_DESPESA_EMPRESA_COD" name="DONO_DA_DESPESA_EMPRESA_COD"
+          <Input inputRef={register} readOnly
+            type="hidden"
+            name="APROVADOR_ID"
+            hidden
+            value = { approver && approver.IAM_ACCESS_IDENTIFIER }
+          />
+
+          <Input inputRef={register} readOnly
+            type="hidden"
+            name="APROVADOR_NOME"
+            hidden
+            value = { approver && approver.FULL_NAME }
+          />
+
+          <Input inputRef={register} readOnly
+            type="hidden"
+            name="APROVADOR_EMPRESA_COD"
+            hidden
+            value = { approver && approver.COMPANY_CODE }
+          />
+
+          <Input inputRef={register} readOnly
+            type="hidden"
+            name="APROVADOR_EMPRESA_NOME"
+            hidden
+            value = { approver && approver.COMPANY_DESC }
+          />
+
+          <Input inputRef={register} readOnly
+            type="hidden"
+            name="APROVADOR_EMAIL"
+            hidden
+            value = { approver && approver.WORK_EMAIL_ADDRESS }
+          />
+
+          <Input inputRef={register} readOnly
+            type="hidden"
+            name="APROVADOR_LEVEL"
+            hidden
+            value = { approver && approver.APPROVAL_LEVEL_CODE }
+          />
+
+          <Input inputRef={register} readOnly
+            type="hidden"
+            name="DONO_DA_DESPESA_EMPRESA_COD"
             value={delegante && delegante.COMPANY_CODE }
             hidden
           />
+
           <Input inputRef={register} readOnly
             hidden
             type="hidden"

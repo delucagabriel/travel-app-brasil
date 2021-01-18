@@ -126,7 +126,7 @@ export const HostingRegularizationDetails = ({requestDetails, children=null})=>{
                   </Grid>
                   <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                     <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="OBS. PARA SOLICITAÇÃO" secondary={requestDetails.OBS_PARA_SOLICITACAO.replace(/(&nbsp;|<([^>]+)>)/ig, '')}/>
+                    primary="OBS. PARA SOLICITAÇÃO" secondary={requestDetails.OBS_PARA_SOLICITACAO && requestDetails.OBS_PARA_SOLICITACAO.replace(/(&nbsp;|<([^>]+)>)/ig, '')}/>
                   </Grid>
                 </ListItem>
 
@@ -137,7 +137,7 @@ export const HostingRegularizationDetails = ({requestDetails, children=null})=>{
                   </Grid>
                   <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                     <ListItemText primaryTypographyProps={{color:"secondary"}}
-                      primary="ACOMPANHANTES" secondary={requestDetails.ACOMPANHANTES.replace(/(&nbsp;|<([^>]+)>)/ig, '')}/>
+                      primary="ACOMPANHANTES" secondary={requestDetails.ACOMPANHANTES && requestDetails.ACOMPANHANTES.replace(/(&nbsp;|<([^>]+)>)/ig, '')}/>
                   </Grid>
                 </ListItem>
 

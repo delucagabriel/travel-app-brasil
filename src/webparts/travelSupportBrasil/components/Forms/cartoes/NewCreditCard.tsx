@@ -206,7 +206,7 @@ console.log(errors);
             Alçadas de aprovação de acordo com a NFN-0018:<br/>
             {corporateCardConfig.tipo_cartao_valor.Tipo_I} - Aprovação DE-3<br/>
             {corporateCardConfig.tipo_cartao_valor.Tipo_II} - Aprovação DE-3<br/>
-            {corporateCardConfig.tipo_cartao_valor.Tipo_II} - Aprovação DE-3<br/>
+            {corporateCardConfig.tipo_cartao_valor.Tipo_III} - Aprovação DE-3<br/>
             {corporateCardConfig.tipo_cartao_valor.Tipo_IV} - Aprovação DE-3<br/>
             {corporateCardConfig.tipo_cartao_valor.Tipo_V} - Aprovação DE-2<br/>
             {corporateCardConfig.tipo_cartao_valor.Tipo_VI} - Aprovação DE-2<br/>

@@ -150,7 +150,7 @@ export const VirtualHostingCardDetails = ({requestDetails, children=null})=>{
                 <ListItem >
                   <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                     <ListItemText primaryTypographyProps={{color:"secondary"}}
-                    primary="APROVADOR: MATRICULA" secondary={requestDetails.SOLICITANTE_ID}/>
+                    primary="APROVADOR: MATRICULA" secondary={requestDetails.APROVADOR_ID}/>
                   </Grid>
                   <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                     <ListItemText primaryTypographyProps={{color:"secondary"}}
