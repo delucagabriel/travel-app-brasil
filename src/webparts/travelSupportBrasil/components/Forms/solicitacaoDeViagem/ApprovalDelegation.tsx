@@ -264,8 +264,12 @@ function uploadListAttachments(id) {
     <Paper>
       <HocDialog>
         <p>
-          A delegação deve ser realizada pelo aprovador, no Sistema de Viagens, antes da sua ausência. <br/>
-          Em caso de dúvidas sobre como realizar a delegação, consulte o passo a passo disponível na intranet, em Institucional e serviços > Viagens > Solicitação de viagem >  Aprovação das solicitações de viagens. <br/>
+          A delegação deve ser realizada pelo aprovador, no Sistema de Viagens, antes da sua ausência. 
+          <br/>
+          Em caso de dúvidas sobre como realizar a delegação, consulte o passo a passo disponível na intranet, 
+          em Institucional e serviços {'>'} Viagens {'>'} Solicitação de viagem {'>'} Aprovação das solicitações 
+          de viagens. 
+          <br/>
           Caso o gestor tenha se ausentado antes de realizar a delegação, preencha este formulário.
         </p>
       </HocDialog>

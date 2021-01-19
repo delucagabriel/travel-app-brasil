@@ -97,10 +97,6 @@ export const Routes = ()=>{
 
 
   return (
-    ((navigator.userAgent.toLowerCase().indexOf(".net") != -1 ) || (window.document['documentMode'] == true ))
-    ?
-      <h1> Navegador não suportado, utilize o Chrome para uma melhor experiência </h1>
-    :
     <HashRouter>
       <ThemeProvider theme={theme}>
         <Menu>
@@ -182,10 +178,6 @@ export const Routes = ()=>{
             <PrivateRoute path="/InsertOrUpdateEmployees" exact={true} >
               <InsertOrUpdateEmployees/>
             </PrivateRoute>
-
-
-
-
             <PartnerRoute path="/chamadosBradesco" exact={true} >
               <AllPendingRequestsBradesco/>
             </PartnerRoute>

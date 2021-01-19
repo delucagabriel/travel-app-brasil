@@ -1,10 +1,19 @@
 import * as React from 'react';
-import { ListItem, ListItemText, Grid, DialogTitle, DialogContent, DialogContentText, Divider } from '@material-ui/core';
+import { ListItem, ListItemText, Grid, DialogTitle, DialogContent, DialogContentText, Divider, Link } from '@material-ui/core';
+import { sp } from '@pnp/sp';
+import { IAttachmentInfo } from '@pnp/sp/attachments';
 
 export const LimitChangeDetails = ({requestDetails, children=null})=>{
+  const [attachments, setAttachments] = React.useState<IAttachmentInfo[]>([]);
+  React.useEffect(()=>{
+    sp.web.lists.getByTitle('SOLICITACOES')
+      .items.getById(requestDetails.Id)
+      .attachmentFiles()
+      .then(res => (setAttachments(res)));
+  },[]);
+
   return(
     <>
-    { console.log(requestDetails) }
       <DialogTitle id="alert-dialog-title">Detalhes da solicitação - ID: {requestDetails && requestDetails.Id} { children } </DialogTitle>
       <DialogContent style={{width:'100%'}}>
         <DialogContentText id="alert-dialog-description">
@@ -101,6 +110,24 @@ export const LimitChangeDetails = ({requestDetails, children=null})=>{
                     <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                       <ListItemText primaryTypographyProps={{color:"secondary"}}
                       primary="CENTRO DE CUSTOS" secondary={requestDetails.CENTRO_DE_CUSTOS}/>
+                    </Grid>
+                  </ListItem>
+                  <ListItem >
+                    <Grid xs={12} sm={12} md={12} lg={12} xl={12}>
+                      <ListItemText primaryTypographyProps={{color:"secondary"}}
+                      primary="Anexos"/>
+                      { attachments.map( attachment =>
+                        <Link
+                          href={ attachment.ServerRelativeUrl }
+                          target="_blank"
+                          component="a"
+                          variant="body2"
+                          color='primary'
+                          underline='none'
+                        >
+                          { attachment.FileName }
+                        </Link>
+                      ) }
                     </Grid>
                   </ListItem>
               </Grid>
