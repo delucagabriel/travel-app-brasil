@@ -13,6 +13,8 @@ export interface IRequest_NewCard extends IRequests{
   BENEFICIARIO_EMPRESA_COD: string;
   BENEFICIARIO_EMPRESA_NOME: string;
   BENEFICIARIO_LEVEL: string;
+  BENEFICIARIO_NASCIMENTO: Date;
+  BENEFICIARIO_CARGO: string;
   CPF: string;
   TELEFONE: string;
   CENTRO_DE_CUSTOS: string;

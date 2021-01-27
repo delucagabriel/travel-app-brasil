@@ -26,6 +26,7 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import DescriptionSharpIcon from '@material-ui/icons/DescriptionSharp';
 import HotelIcon from '@material-ui/icons/Hotel';
+import HomeWorkIcon from '@material-ui/icons/HomeWork';
 
 const CreateServices = ()=> {
   const cartaoCorporativo =
@@ -204,6 +205,11 @@ const CreateServices = ()=> {
         text: "Cia Aérea não preferencial",
         icon:<AirplanemodeInactiveIcon />,
         path: "/CiaAereaNaoPreferencial"
+      },
+      {
+        text: "Airbnb para hospedagem acima de 30 dias",
+        icon:<HomeWorkIcon />,
+        path: "/Airbnb"
       },
     ]
   };

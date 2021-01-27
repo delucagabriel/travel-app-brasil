@@ -40,15 +40,24 @@ export const NewCreditCardDetails = ({requestDetails, children=null})=>{
                       primary="PORTADOR: EMPRESA" secondary={requestDetails.BENEFICIARIO_EMPRESA_NOME}/>
                     </Grid>
                   </ListItem>
-
                   <ListItem >
                     <Grid xs={12} sm={6} md={6} lg={6} xl={6}>
                       <ListItemText primaryTypographyProps={{color:"secondary"}}
-                      primary="CPF" secondary={requestDetails.CPF}/>
+                      primary="PORTADOR: NASCIMENTO" secondary={requestDetails.BENEFICIARIO_NASCIMENTO}/>
                     </Grid>
                     <Grid xs={12} sm={6} md={6} lg={6} xl={6}>
                       <ListItemText primaryTypographyProps={{color:"secondary"}}
-                      primary="TELEFONE" secondary={requestDetails.TELEFONE}/>
+                      primary="PORTADOR: CARGO" secondary={requestDetails.BENEFICIARIO_CARGO}/>
+                    </Grid>
+                  </ListItem>
+                  <ListItem >
+                    <Grid xs={12} sm={6} md={6} lg={6} xl={6}>
+                      <ListItemText primaryTypographyProps={{color:"secondary"}}
+                      primary="PORTADOR: CPF" secondary={requestDetails.CPF}/>
+                    </Grid>
+                    <Grid xs={12} sm={6} md={6} lg={6} xl={6}>
+                      <ListItemText primaryTypographyProps={{color:"secondary"}}
+                      primary="PORTADOR: TELEFONE" secondary={requestDetails.TELEFONE}/>
                     </Grid>
                   </ListItem>
 

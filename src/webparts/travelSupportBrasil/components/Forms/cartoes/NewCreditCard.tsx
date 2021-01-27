@@ -48,9 +48,11 @@ const schema: yup.ObjectSchema<IRequest_NewCard> = yup.object().shape({
 
   BENEFICIARIO_ID: yup.string().required(),
   BENEFICIARIO_NOME: yup.string().required(),
+  BENEFICIARIO_NASCIMENTO: yup.date().required(),
   BENEFICIARIO_EMPRESA_NOME: yup.string().required(),
   BENEFICIARIO_EMAIL: yup.string().email().notRequired(),
   BENEFICIARIO_EMPRESA_COD: yup.string().required(),
+  BENEFICIARIO_CARGO: yup.string().required(),
   BENEFICIARIO_LEVEL: yup.string().required(),
   TELEFONE: yup.string(),
   CPF: yup.string().test('validCPF','CPF inválido',(cpf)=>TestaCPF(cpf)).required(),
@@ -58,7 +60,7 @@ const schema: yup.ObjectSchema<IRequest_NewCard> = yup.object().shape({
   END_CEP: yup.string().required(),
   END_LOGRADOURO: yup.string().required(),
   END_NUMERO: yup.number(),
-  END_COMPLEMENTO: yup.string(),
+  END_COMPLEMENTO: yup.string(), 
 
   APROVADOR_ID: yup.string().required(),
   APROVADOR_NOME: yup.string().required(),
@@ -125,6 +127,12 @@ export default function NewCreditCard(){
     setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
       shouldDirty: true
     });
+    setValue("BENEFICIARIO_LEVEL", emp?emp.APPROVAL_LEVEL_CODE:"", {
+      shouldDirty: true
+    });    
+    setValue("BENEFICIARIO_CARGO", emp?emp.JOB_DESCRIPTION:"", {
+      shouldDirty: true
+    });
     setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
       shouldDirty: true
     });
@@ -146,6 +154,12 @@ export default function NewCreditCard(){
       shouldDirty: true
     });
     setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+      shouldDirty: true
+    });
+    setValue("BENEFICIARIO_LEVEL", emp?emp.APPROVAL_LEVEL_CODE:"", {
+      shouldDirty: true
+    });    
+    setValue("BENEFICIARIO_CARGO", emp?emp.JOB_DESCRIPTION:"", {
       shouldDirty: true
     });
     setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
@@ -198,7 +212,7 @@ export default function NewCreditCard(){
       });
     e.target.reset();
   };
-console.log(errors);
+
   return (
     <Paper>
         <HocDialog>
@@ -273,28 +287,7 @@ console.log(errors);
                   helperText={errors.BENEFICIARIO_EMAIL && errors.BENEFICIARIO_EMAIL.message}
                 />
               </Grid>
-
-              <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-                <TextField fullWidth type="text" name="CPF"
-                  label="Empregado: CPF" variant="outlined"
-                  inputRef={register}
-                  InputLabelProps={{ shrink: true }}
-                  error={errors.CPF?true:false}
-                  helperText={errors.CPF && errors.CPF.message}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3} md={3} lg={3} xl={3} >
-                <TextField fullWidth type="tel" name="TELEFONE"
-                  label="Empregado: Telefone" variant="outlined"
-                  inputRef={register}
-                  InputLabelProps={{ shrink: true }}
-                  error={errors.TELEFONE?true:false}
-                  helperText={errors.TELEFONE && errors.TELEFONE.message}
-                />
-              </Grid>
-
-
-              <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
+              <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
                 <TextField disabled fullWidth type="text" name="BENEFICIARIO_NOME"
                   label="Empregado: Nome" variant="outlined"
                   inputRef={register}
@@ -303,6 +296,36 @@ console.log(errors);
                   helperText={errors.BENEFICIARIO_NOME && errors.BENEFICIARIO_NOME.message}
                 />
               </Grid>
+
+              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+                <TextField fullWidth type="text" name="CPF"
+                  label="Empregado: CPF" variant="outlined"
+                  inputRef={register}
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.CPF?true:false}
+                  helperText={errors.CPF && errors.CPF.message}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+                <TextField fullWidth type="tel" name="TELEFONE"
+                  label="Empregado: Telefone" variant="outlined"
+                  inputRef={register}
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.TELEFONE?true:false}
+                  helperText={errors.TELEFONE && errors.TELEFONE.message}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
+                <TextField fullWidth type="date" name="BENEFICIARIO_NASCIMENTO"
+                  label="Empregado: Data de nascimento" variant="outlined"
+                  inputRef={register}
+                  InputLabelProps={{ shrink: true }}
+                  error={errors.BENEFICIARIO_NASCIMENTO?true:false}
+                  helperText={errors.BENEFICIARIO_NASCIMENTO && errors.BENEFICIARIO_NASCIMENTO.message}
+                />
+              </Grid>
+
+
 
               <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
                 <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Limite</FormLabel>
@@ -469,6 +492,7 @@ console.log(errors);
         <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_COD" name="BENEFICIARIO_EMPRESA_COD" value={employee && employee.COMPANY_CODE } />
         <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_EMPRESA_NOME" name="BENEFICIARIO_EMPRESA_NOME" value={employee && employee.COMPANY_DESC } />
         <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_LEVEL" name="BENEFICIARIO_LEVEL" value={employee && employee.APPROVAL_LEVEL_CODE } />
+        <Input inputRef={register} readOnly type="hidden" id="BENEFICIARIO_CARGO" name="BENEFICIARIO_CARGO" value={employee && employee.JOB_DESCRIPTION } />
         <Input inputRef={register} readOnly type="hidden" id="CENTRO_DE_CUSTOS" name="CENTRO_DE_CUSTOS" value={employee && employee.COST_CENTER_CODE } />
 
         <Input inputRef={register} readOnly type="hidden" id="APROVADOR_EMPRESA_COD" name="APROVADOR_EMPRESA_COD" value={approver && approver.COMPANY_CODE } />

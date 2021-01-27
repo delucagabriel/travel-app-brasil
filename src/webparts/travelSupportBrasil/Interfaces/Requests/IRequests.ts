@@ -34,6 +34,10 @@ export interface IRequests_AllFields {
   BENEFICIARIO_LEVEL?: string;
   BENEFICIARIO_EMPRESA_COD?: string;
   BENEFICIARIO_EMPRESA_NOME?: string;
+  BENEFICIARIO_DOC_IDENTIF?: string;
+  BENEFICIARIO_NASCIMENTO?: Date;
+  BENEFICIARIO_CARGO?: string;
+  BENEFICIARIO_NACIONALIDADE?: string;
   CPF?: string;
   TELEFONE?: string;
   END_CEP?: string;
@@ -103,9 +107,6 @@ export interface IRequests_AllFields {
   VISA_INFINITE?: string;
   TFD?: boolean;
   TIPO_DE_VIAJANTE?: string;
-  BENEFICIARIO_DOC_IDENTIF?: string;
-  BENEFICIARIO_NASCIMENTO?: Date;
-  BENEFICIARIO_NACIONALIDADE?: string;
   TIPO_PRESTACAO_DE_CONTAS?: string;
   DESPESAS_INDISPONIVEIS?: string;
   Created?: Date;
