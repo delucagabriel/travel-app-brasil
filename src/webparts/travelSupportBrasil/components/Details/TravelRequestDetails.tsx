@@ -5,6 +5,7 @@ import { NonExistentApproverDetails } from './TravelRequests/NonExistentApprover
 import { NonPreferredAirlineDetails } from './TravelRequests/NonPreferredAirlineDetails';
 import { VirtualHostingCardDetails } from './TravelRequests/VirtualHostingCardDetails';
 import { TravelRequestIssueDetails } from './TravelRequests/TravelRequestIssueDetails';
+import { AirBnBHostingDetails } from './TravelRequests/AirBnBHostingDetails';
 
 
 export const TravelRequestDetails = ({requestDetails, children=null})=>{
@@ -22,6 +23,9 @@ export const TravelRequestDetails = ({requestDetails, children=null})=>{
 
   if(requestDetails.PROCESSO === 'Cartão virtual para empregados')
     return <VirtualHostingCardDetails requestDetails={requestDetails}>{children}</VirtualHostingCardDetails>;
+  
+  if(requestDetails.PROCESSO === 'Airbnb para hospedagem')
+    return <AirBnBHostingDetails requestDetails={requestDetails}>{children}</AirBnBHostingDetails>;
 
   return <TravelRequestIssueDetails requestDetails={requestDetails}>{children}</TravelRequestIssueDetails>;
 };

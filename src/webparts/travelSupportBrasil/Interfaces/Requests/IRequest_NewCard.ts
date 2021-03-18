@@ -24,4 +24,5 @@ export interface IRequest_NewCard extends IRequests{
   END_NUMERO: number;
   END_COMPLEMENTO: string;
   VISA_INFINITE: string;
+  VIA_CARTAO: string;
 }

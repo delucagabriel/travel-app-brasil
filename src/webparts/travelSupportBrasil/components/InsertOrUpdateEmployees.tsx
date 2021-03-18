@@ -43,7 +43,7 @@ const handleInsertOrUpdateEmployees = ()=>{
               "EMPLOYMENT_STATUS_DESC":d[4].v,
               "DEPARTMENT_NAME":d[5].v,
               "JOB_DESCRIPTION":d[6].v,
-              "WORK_EMAIL_ADDRESS":String(d[7].v).toLowerCase(),
+              "WORK_EMAIL_ADDRESS": d[7].v ? String(d[7].v).toLowerCase(): `${d[11].v}@vale.com`,
               "FACILITY_COUNTRY":d[8].v,
               "FACILITY_PROVINCE":d[9].v,
               "FACILITY_CITY":d[10].v,

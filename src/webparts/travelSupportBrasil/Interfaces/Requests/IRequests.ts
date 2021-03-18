@@ -109,6 +109,7 @@ export interface IRequests_AllFields {
   TIPO_DE_VIAJANTE?: string;
   TIPO_PRESTACAO_DE_CONTAS?: string;
   DESPESAS_INDISPONIVEIS?: string;
+  VIA_CARTAO?: string;
   Created?: Date;
   Modified?: Date;
 }

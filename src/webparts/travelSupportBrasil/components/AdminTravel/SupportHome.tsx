@@ -1,19 +1,13 @@
 import * as React from 'react';
 import HocCard from '../HOC/HocCardCard';
+import ClearAllIcon from '@material-ui/icons/ClearAll';
 import { Grid, Avatar, Paper, Typography, makeStyles, Theme, createStyles, Card, CardContent } from '@material-ui/core';
 import { useContext, useState, useEffect } from 'react';
 import { Context } from '../Context';
 import DoneAllSharpIcon from '@material-ui/icons/DoneAllSharp';
+import PersonAddSharpIcon from '@material-ui/icons/PersonAddSharp';
 import TimerIcon from '@material-ui/icons/Timer';
-import * as moment from 'moment';
-
-const countOccurrences = arr => arr.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
-const unique = arr => arr.reduce((acc, el) => acc.includes(el) ? acc : [...acc, el], []);
-const average = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
-const averagePerDay = arr => {
-  const occurrences = countOccurrences( arr.map( req => moment(req.Created).format('YYYY-MM-DD') ) );
-  return Math.round( average( Object.keys(occurrences).map(key => occurrences[key]) ) );
-};
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -38,21 +32,16 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export function SupportHome() {
   const classes = useStyles();
+  const history = useHistory();
   const { employeeInfos, allRequests } = useContext(Context);
   const [pendingReqTotal, setPendingReqTotal] = useState(0);
   const [completedReqTotal, setCompletedReqTotal] = useState(0);
-  const [uniqueRequesters, setUniqueRequesters] = useState(0);
-  const [employeesServed, setEmployeesServed] = useState(0);
-  const [averageRequestsPerDay, setAverageRequestsPerDay] = useState(0);
-  const [requestsInThisYear, setRequestsInThisYear] = useState(0);
+  const [allReqTotal, setAllReqTotal] = useState(0);
 
   const handleStatistics = async()=>{
-    setUniqueRequesters( unique( allRequests.map( req => req.Author.Title ) ).length );
-    setEmployeesServed( unique( allRequests.map( req => req.BENEFICIARIO_ID ) ).length );
-    setAverageRequestsPerDay( averagePerDay( allRequests ) );
-    setRequestsInThisYear( allRequests.filter( req => moment(req.Created).year === moment().year ).length );
     setPendingReqTotal( allRequests.filter( req => req.STATUS_APROVACAO === "Aprovado" && req.STATUS != "Sucesso" && req.STATUS != "Rejeitado" ).length );
     setCompletedReqTotal( allRequests.filter( req => req.STATUS == "Sucesso" || req.STATUS == "Rejeitado" ).length );
+    setAllReqTotal( allRequests.length );
   };
 
   useEffect(()=> {
@@ -77,71 +66,41 @@ export function SupportHome() {
           </Grid>
         </Paper>
       </Grid>
-      <Grid item xs={12} sm={6} md={6} lg={6}>
-        <HocCard content="Solicitações pendentes" qtd={pendingReqTotal} destination="/todasSolicitacoesPendentes" icon={<TimerIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
-      </Grid>
-      <Grid item xs={12} sm={6} md={6} lg={6}>
-        <HocCard content="Solicitações concluídas" qtd={completedReqTotal} destination="/todasSolicitacoesConcluidas" icon={<DoneAllSharpIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
-      </Grid>
-
+      
       <Grid item xs={12} sm={12} md={12} lg={12}>
-        <Card>
-          <CardContent>
-            <Typography align="center" variant="h6" component="header">
-              Estatísticas
-            </Typography>
-          </CardContent>
+        <Card style={{cursor:"pointer"}} onClick={ ()=> history.push('/cadastrarEmpregado')}>
+            <CardContent>
+              <PersonAddSharpIcon style={{ fontSize: 100, opacity:"0.3", alignSelf:"center"}}/> 
+                <Typography align="center" variant="subtitle1" component="p">
+                    Cadastrar Empregado
+                </Typography>
+            </CardContent>
         </Card>
       </Grid>
+      
+      <Grid item xs={12} sm={6} md={6} lg={6}>
+        <HocCard content="Solicitações pendentes" 
+          qtd={pendingReqTotal} 
+          destination="/todasSolicitacoesPendentes" 
+          icon={<TimerIcon style={{ fontSize: 60, opacity:"0.3" }}/>}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6} md={6} lg={6}>
+        <HocCard content="Solicitações concluídas" 
+          qtd={completedReqTotal} 
+          destination="/todasSolicitacoesConcluidas" 
+          icon={<DoneAllSharpIcon style={{ fontSize: 60, opacity:"0.3" }}/>}
+        />
+      </Grid>
+      <Grid item xs={12} sm={12} md={12} lg={12}>
+        <HocCard content="Todas solicitações" 
+          qtd={allReqTotal} 
+          destination="/todasSolicitacoes" 
+          icon={<ClearAllIcon style={{ fontSize: 100, opacity:"0.3" }}/>}
+        />
+      </Grid>
+      
 
-      <Grid item xs={12} sm={6} md={6} lg={6}>
-        <Card>
-          <CardContent>
-            <Typography align="center" variant="h5" component="p">
-              { uniqueRequesters }
-            </Typography>
-            <Typography align="center" variant="subtitle1" component="p">
-              Solicitantes atendidos
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} sm={6} md={6} lg={6}>
-        <Card>
-          <CardContent>
-            <Typography align="center" variant="h5" component="p">
-            { employeesServed }
-            </Typography>
-            <Typography align="center" variant="subtitle1" component="p">
-              Empregados atendidos
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} sm={6} md={6} lg={6}>
-        <Card>
-          <CardContent>
-            <Typography align="center" variant="h5" component="p">
-            { averageRequestsPerDay }
-            </Typography>
-            <Typography align="center" variant="subtitle1" component="p">
-              Média diária
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} sm={6} md={6} lg={6}>
-        <Card>
-          <CardContent>
-            <Typography align="center" variant="h5" component="p">
-            { requestsInThisYear }
-            </Typography>
-            <Typography align="center" variant="subtitle1" component="p">
-              Solicitações neste ano
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
     </Grid>
   );
 }

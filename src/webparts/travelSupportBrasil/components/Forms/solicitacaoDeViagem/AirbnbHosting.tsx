@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { TextField, Select, MenuItem, FormLabel, Grid, Button, Input, Paper, Snackbar, FormControl, RadioGroup, FormControlLabel, Radio, makeStyles, Theme, createStyles, InputLabel, Backdrop, Typography, CircularProgress } from '@material-ui/core';
+import { TextField, Select, MenuItem, FormLabel, Grid, Button, Input, Paper, Snackbar, 
+  makeStyles, Theme, createStyles, InputLabel, Backdrop, Typography, 
+  CircularProgress } from '@material-ui/core';
 import { useState, useContext } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { Alert } from '@material-ui/lab';
@@ -47,7 +49,7 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
     .when('PERIODO_INICIO', (PERIODO_INICIO, sch)=> {
       const dataInicio = new Date(PERIODO_INICIO);
       const dataMinima = new Date(dataInicio.getFullYear(),dataInicio.getMonth(), dataInicio.getDate() + 30); 
-      return sch.min(dataMinima, 'Período precisa ser maior do que 30 dias')
+      return sch.min(dataMinima, 'Período precisa ser maior do que 30 dias');
     }),
 
   BENEFICIARIO_ID: yup.string().required(),
@@ -100,6 +102,9 @@ export default function AirbnbHosting() {
       setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
         shouldDirty: true
       });
+      setValue("BENEFICIARIO_LEVEL", emp?emp.APPROVAL_LEVEL_CODE:"", {
+        shouldDirty: true
+      });
       setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
         shouldDirty: true
       });
@@ -118,6 +123,12 @@ export default function AirbnbHosting() {
         shouldDirty: true
       });
       setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+        shouldDirty: true
+      });
+      setValue("BENEFICIARIO_LEVEL", emp?emp.APPROVAL_LEVEL_CODE:"", {
+        shouldDirty: true
+      });
+      setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
         shouldDirty: true
       });
     });
@@ -214,15 +225,14 @@ export default function AirbnbHosting() {
     <Paper>
       <HocDialog>
         <p>
-        É permitida reserva em Airbnb exclusivamente para hospedagem acima de 30 dias consecutivos, sendo responsabilidade do empregado:
-        <br/> • realização da reserva;
-        <br/> • análise das condições comerciais acordadas no que se refere à política de cancelamento;
-        <br/> • pagamento exclusivamente com cartão corporativo de viagens;
-        <br/> • vistoria no imóvel na entrada e no término do período da locação;
-        <br/> • solução de possíveis imprevistos diretamente com o responsável pelo imóvel através da plataforma do Airbnb;
-        <br/> • comunicação ao Centro de Controle Corporativo da Vale informando o período e local da estadia;
-        <br/> • preenchimento deste formulário anexando termo de responsabilidade assinado
-
+          É permitida reserva em Airbnb exclusivamente para hospedagem acima de 30 dias consecutivos, sendo responsabilidade do empregado:
+          <br/> • realização da reserva;
+          <br/> • análise das condições comerciais acordadas no que se refere à política de cancelamento;
+          <br/> • pagamento exclusivamente com cartão corporativo de viagens;
+          <br/> • vistoria no imóvel na entrada e no término do período da locação;
+          <br/> • solução de possíveis imprevistos diretamente com o responsável pelo imóvel através da plataforma do Airbnb;
+          <br/> • comunicação ao Centro de Controle Corporativo da Vale informando o período e local da estadia;
+          <br/> • preenchimento deste formulário anexando termo de responsabilidade assinado, que pode ser obtido em: <a href="https://intranet.valepub.net/pt/brasil/Paginas/servicos/viagens/hotel.aspx" target="_blank">https://intranet.valepub.net/pt/brasil/Paginas/servicos/viagens/hotel.aspx</a>
         </p>
       </HocDialog>
       <div style={{padding:"20px"}}>
@@ -389,6 +399,9 @@ export default function AirbnbHosting() {
 
           <Input inputRef={register} readOnly type="hidden" name="BENEFICIARIO_EMPRESA_NOME"
             value={empregado && empregado.COMPANY_DESC }/>
+
+          <Input inputRef={register} readOnly type="hidden" name="BENEFICIARIO_LEVEL"
+            value={empregado && empregado.APPROVAL_LEVEL_CODE }/>
 
           <Input inputRef={register} readOnly type="hidden" name="APROVADOR_EMPRESA_COD"
             value={approver && approver.COMPANY_CODE }

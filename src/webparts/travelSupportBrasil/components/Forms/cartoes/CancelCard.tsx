@@ -14,6 +14,7 @@ import { Context } from '../../Context';
 import { TestaCPF } from '../../../Utils/validaCPF';
 import { yup_pt_br } from '../../../Utils/yup_pt_br';
 import { setLocale } from 'yup';
+import HocDialog from '../../HOC/HocDialog';
 
 setLocale(yup_pt_br);
 
@@ -110,6 +111,11 @@ export default function CancelCard() {
 
   return (
     <Paper>
+      <HocDialog>
+        <p>
+        Cartões corporativos emitidos não são passíveis de cancelamento, exceto por desligamento ou transferência de empresa. Para outros motivos, poderá ser alterado o limite do cartão corporativo do empregado, caso necessário.
+        </p>
+      </HocDialog>
       <div style={{padding:"20px"}}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={3} justify="space-between">

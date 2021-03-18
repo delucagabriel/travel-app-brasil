@@ -19,8 +19,7 @@ export const getEmployee = (key:string, value:string, fields?:string[]):Promise<
   .then( resp => resp[0] );
 
   export const NewEmployee = (employee:IEmployee) => sp.web.lists.getByTitle(listName).items
-  .add(employee)
-  .then( response => response);
+  .add(employee);
 
 export const GetAllEmployees = async()=>{
   let employees = [];
@@ -70,3 +69,13 @@ export const batchUpdateEmployees = async (data:IEmployee[]) => {
   await batch.execute();
   return results;
 };
+
+export const getEmployeeInMdmApi = (iamAccessId: string) => 
+fetch(
+  `https://mdm-prod-api.valedigital.io/mdm-api/mdm?iamAccessIdentifier=${iamAccessId}`, 
+  {
+    method:'GET', 
+    headers: {'Authorization': 'Basic ' + btoa('coviduser:5C2BAB54-39E7-4245-A773-E14C37CCA0ED')}
+  })
+.then(response => response.json())
+.then(employee => employee[0]);

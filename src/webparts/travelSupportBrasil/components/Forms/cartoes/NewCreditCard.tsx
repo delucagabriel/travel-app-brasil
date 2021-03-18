@@ -59,8 +59,9 @@ const schema: yup.ObjectSchema<IRequest_NewCard> = yup.object().shape({
   CENTRO_DE_CUSTOS: yup.string().required(),
   END_CEP: yup.string().required(),
   END_LOGRADOURO: yup.string().required(),
-  END_NUMERO: yup.number(),
-  END_COMPLEMENTO: yup.string(), 
+  END_NUMERO: yup.number().default(0),
+  END_COMPLEMENTO: yup.string(),
+  VIA_CARTAO: yup.string(), 
 
   APROVADOR_ID: yup.string().required(),
   APROVADOR_NOME: yup.string().required(),
@@ -112,28 +113,28 @@ export default function NewCreditCard(){
   const handleGetEmployee = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
   .then(emp => {
     setEmployee(emp);
-    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+    setValue("BENEFICIARIO_ID", emp.IAM_ACCESS_IDENTIFIER, {
       shouldDirty: true
     });
-    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+    setValue("BENEFICIARIO_NOME", emp.FULL_NAME, {
       shouldDirty: true
     });
-    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+    setValue("BENEFICIARIO_EMAIL", emp.WORK_EMAIL_ADDRESS, {
       shouldDirty: true
     });
-    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+    setValue("BENEFICIARIO_EMPRESA_NOME", emp.COMPANY_DESC, {
       shouldDirty: true
     });
-    setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+    setValue("BENEFICIARIO_NACIONALIDADE", emp.FACILITY_COUNTRY, {
       shouldDirty: true
     });
-    setValue("BENEFICIARIO_LEVEL", emp?emp.APPROVAL_LEVEL_CODE:"", {
+    setValue("BENEFICIARIO_LEVEL", emp.APPROVAL_LEVEL_CODE, {
       shouldDirty: true
     });    
-    setValue("BENEFICIARIO_CARGO", emp?emp.JOB_DESCRIPTION:"", {
+    setValue("BENEFICIARIO_CARGO", emp.JOB_DESCRIPTION, {
       shouldDirty: true
     });
-    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+    setValue("CENTRO_DE_CUSTOS", emp.COST_CENTER_CODE, {
       shouldDirty: true
     });
   });
@@ -141,28 +142,28 @@ export default function NewCreditCard(){
   const handleGetEmployeeByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
   .then(emp => {
     setEmployee(emp);
-    setValue("BENEFICIARIO_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+    setValue("BENEFICIARIO_ID",emp.IAM_ACCESS_IDENTIFIER, {
       shouldDirty: true
     });
-    setValue("BENEFICIARIO_NOME", emp?emp.FULL_NAME:"", {
+    setValue("BENEFICIARIO_NOME",emp.FULL_NAME, {
       shouldDirty: true
     });
-    setValue("BENEFICIARIO_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+    setValue("BENEFICIARIO_EMAIL",emp.WORK_EMAIL_ADDRESS, {
       shouldDirty: true
     });
-    setValue("BENEFICIARIO_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+    setValue("BENEFICIARIO_EMPRESA_NOME",emp.COMPANY_DESC, {
       shouldDirty: true
     });
-    setValue("BENEFICIARIO_NACIONALIDADE", emp?emp.FACILITY_COUNTRY:"", {
+    setValue("BENEFICIARIO_NACIONALIDADE",emp.FACILITY_COUNTRY, {
       shouldDirty: true
     });
-    setValue("BENEFICIARIO_LEVEL", emp?emp.APPROVAL_LEVEL_CODE:"", {
+    setValue("BENEFICIARIO_LEVEL",emp.APPROVAL_LEVEL_CODE, {
       shouldDirty: true
     });    
-    setValue("BENEFICIARIO_CARGO", emp?emp.JOB_DESCRIPTION:"", {
+    setValue("BENEFICIARIO_CARGO",emp.JOB_DESCRIPTION, {
       shouldDirty: true
     });
-    setValue("CENTRO_DE_CUSTOS", emp?emp.COST_CENTER_CODE:"", {
+    setValue("CENTRO_DE_CUSTOS",emp.COST_CENTER_CODE, {
       shouldDirty: true
     });
   });
@@ -170,16 +171,16 @@ export default function NewCreditCard(){
   const handleGetApprover = value => getEmployee("IAM_ACCESS_IDENTIFIER", value.toUpperCase())
   .then(emp => {
     setApprover(emp);
-    setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+    setValue("APROVADOR_ID",emp.IAM_ACCESS_IDENTIFIER, {
       shouldDirty: true
     });
-    setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+    setValue("APROVADOR_NOME",emp.FULL_NAME, {
       shouldDirty: true
     });
-    setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+    setValue("APROVADOR_EMAIL",emp.WORK_EMAIL_ADDRESS, {
       shouldDirty: true
     });
-    setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+    setValue("APROVADOR_EMPRESA_NOME",emp.COMPANY_DESC, {
       shouldDirty: true
     });
   });
@@ -187,16 +188,16 @@ export default function NewCreditCard(){
   const handleGetApproverByEmail = value => getEmployee("WORK_EMAIL_ADDRESS", value.toLowerCase())
   .then(emp => {
     setApprover(emp);
-    setValue("APROVADOR_ID", emp?emp.IAM_ACCESS_IDENTIFIER:"", {
+    setValue("APROVADOR_ID",emp.IAM_ACCESS_IDENTIFIER, {
       shouldDirty: true
     });
-    setValue("APROVADOR_NOME", emp?emp.FULL_NAME:"", {
+    setValue("APROVADOR_NOME",emp.FULL_NAME, {
       shouldDirty: true
     });
-    setValue("APROVADOR_EMAIL", emp?emp.WORK_EMAIL_ADDRESS:"", {
+    setValue("APROVADOR_EMAIL",emp.WORK_EMAIL_ADDRESS, {
       shouldDirty: true
     });
-    setValue("APROVADOR_EMPRESA_NOME", emp?emp.COMPANY_DESC:"", {
+    setValue("APROVADOR_EMPRESA_NOME",emp.COMPANY_DESC, {
       shouldDirty: true
     });
   });
@@ -325,9 +326,7 @@ export default function NewCreditCard(){
                 />
               </Grid>
 
-
-
-              <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+              <Grid item xs={12} sm={9} md={9} lg={9} xl={9}>
                 <FormLabel id="TIPO_LIMITE_VALOR" component="legend">Limite</FormLabel>
                 <Controller
                   as={
@@ -370,7 +369,7 @@ export default function NewCreditCard(){
                 />
               </Grid>
               { employee && (employee.APPROVAL_LEVEL_CODE === 'D-1' || employee.APPROVAL_LEVEL_CODE === 'DE') &&
-                <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                <Grid item xs={12} sm={9} md={9} lg={9} xl={9}>
                   <FormLabel id="VISA_INFINITE" component="legend">Bandeira do cartão</FormLabel>
                   <Controller
                     as={
@@ -388,6 +387,23 @@ export default function NewCreditCard(){
                   />
                 </Grid>
               }
+              <Grid item xs={12} sm={3} md={3} lg={3} xl={3}>
+                  <FormLabel id="VIA_CARTAO" component="legend">Via do cartão</FormLabel>
+                  <Controller
+                    as={
+                      <Select inputRef={register}>
+                        <MenuItem value="1ª via">1ª via</MenuItem>
+                        <MenuItem value="2ª via">2ª via</MenuItem>
+                      </Select>
+                    }
+                    id="VIA_CARTAO"
+                    name="VIA_CARTAO"
+                    defaultValue="1ª via"
+                    control={control}
+                    error={errors.VIA_CARTAO?true:false}
+                    helperText={errors.VIA_CARTAO && errors.VIA_CARTAO.message}
+                  />
+                </Grid>
               <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
                 <TextField fullWidth type="text" name="END_CEP"
                   label="CEP" variant="outlined"
@@ -409,7 +425,7 @@ export default function NewCreditCard(){
               </Grid>
               <Grid item xs={12} sm={4} md={4} lg={4} xl={4} >
                 <TextField fullWidth type="number" name="END_NUMERO"
-                  label="Número" variant="outlined" inputProps={{ min: 1 }}
+                  label="Número" variant="outlined"
                   inputRef={register}
                   error={errors.END_NUMERO?true:false}
                   helperText={errors.END_NUMERO && errors.END_NUMERO.message}

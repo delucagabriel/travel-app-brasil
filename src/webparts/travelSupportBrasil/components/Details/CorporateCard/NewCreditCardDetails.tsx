@@ -72,6 +72,10 @@ export const NewCreditCardDetails = ({requestDetails, children=null})=>{
                         primary="NOVO LIMITE" secondary={requestDetails.TIPO_LIMITE_VALOR}/>
                       </Grid>
                     }
+                    <Grid xs={12} sm={6} md={6} lg={6} xl={6}>
+                      <ListItemText primaryTypographyProps={{color:"secondary"}}
+                      primary="VIA DO CARTÃO" secondary={requestDetails.VIA_CARTAO}/>
+                    </Grid>
                   </ListItem>
 
                   <ListItem >

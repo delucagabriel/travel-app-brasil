@@ -9,6 +9,7 @@
     "**/lib-amd": true,
     "src/**/*.scss.ts": true
   },
+
   "typescript.tsdk": ".\\node_modules\\typescript\\lib",
   "cSpell.words": [
     "Importante"

@@ -2,7 +2,8 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { createStyles, makeStyles, useTheme, Theme } from '@material-ui/core/styles';
 import { Drawer, AppBar, CssBaseline, Toolbar, IconButton, Typography,
-  List, ListItem, ListItemIcon, ListItemText, Accordion, AccordionSummary, CircularProgress, Button, Divider  } from '@material-ui/core';
+  List, ListItem, ListItemIcon, ListItemText, Accordion, AccordionSummary, 
+  CircularProgress, Button, Divider, BottomNavigation  } from '@material-ui/core';
 import { Menu, ChevronLeft, ChevronRight, HowToReg } from '@material-ui/icons';
 import SpellcheckIcon from '@material-ui/icons/Spellcheck';
 import { useHistory } from 'react-router-dom';

@@ -48,6 +48,10 @@ import { ApproversHome } from './Approvers/ApproversHome';
 import AllCompletedApprovals from './Lists/AllCompletedApprovals';
 import AllPendingApprovals from './Lists/AllPendingApprovals';
 import AirbnbHosting from './Forms/solicitacaoDeViagem/AirbnbHosting';
+import HomePage from './HomeUsers/HomePage';
+import MenuBradesco from './Drawer/MenuBradesco';
+import AllRequests from './Lists/AllRequests';
+import EmployeeRegister from './Forms/EmployeeRegister';
 
 const theme = createMuiTheme({
   palette: {
@@ -59,6 +63,7 @@ const theme = createMuiTheme({
     },
   },
 });
+
 
 const NotFound = ()=> <h1>Página não encontrada :( </h1>;
 
@@ -100,95 +105,113 @@ export const Routes = ()=>{
   return (
     <HashRouter>
       <ThemeProvider theme={theme}>
-        <Menu>
-          <Switch>
-          {/* { Public routes } */}
-            {/*  Listas  */}
-            <Route path="/" exact={true} component={Home} />
-            <Route path="/minhasSolicitacoesPendentes" exact={true} component={MyPendingRequests} />
-            <Route path="/minhasSolicitacoesConcluidas" exact={true} component={MyCompletedRequests} />
+        <Switch>
+        <PartnerRoute path="/bradesco" exact={true}>
+            <MenuBradesco />
+            <AllPendingRequestsBradesco/>
+          </PartnerRoute>
 
-            {/*  Cartões  */}
-            <Route path="/novoCartao" exact={true} component={NewCreditCard} />
-            <Route path="/cancelarCartao" exact={true} component={CancelCard} />
-            <Route path="/alterarLimite" exact={true} component={LimitChange} />
-            <Route path="/liberarCompraPelaInternet" exact={true} component={InternetPurchaseUnlock} />
-            <Route path="/ProblemasComCartaoCorporativo" exact={true} component={CorporateCardProblems} />
+          <PartnerRoute path="/ticketlog" exact={true}>
+            <AllPendingRequestsBradesco/>
+          </PartnerRoute>
 
-            {/*  Cartão combustível  */}
-            <Route path="/criacaoDeBase" exact={true} component={BaseCreation} />
-            <Route path="/alterarLimiteDoContratoDaBase" exact={true} component={BaseContractLimitChange} />
-            <Route path="/liberarAcessoMaster" exact={true} component={MasterAccessRelease} />
-            <Route path="/alterarGestorDeBase" exact={true} component={ChangeOfBaseManager} />
-            <Route path="/encerramentoDeBase" exact={true} component={BaseClosure} />
+          <Route>
+            <Menu>
+              <Switch>
+              {/* { Public routes } */}
+                {/*  Listas  */}
+                <Route path="/" exact={true} component={HomePage} />
+                <Route path="/solicitacoes" exact={true} component={Home} />
+                <Route path="/minhasSolicitacoesPendentes" exact={true} component={MyPendingRequests} />
+                <Route path="/minhasSolicitacoesConcluidas" exact={true} component={MyCompletedRequests} />
 
-            {/*  Solicitaçao de viagem  */}
-            <Route path="/ProblemasNaSolicitacao" exact={true} component={TravelRequestIssue} />
-            <Route path="/DelegacaoDaAprovacaoDaViagem" exact={true} component={ApprovalDelegation} />
-            <Route path="/AprovadorInexistente" exact={true} component={NonExistentApprover} />
-            <Route path="/emissaoBTB" exact={true} component={VirtualHostingCard} />
-            <Route path="/CiaAereaNaoPreferencial" exact={true} component={NonPreferredAirline} />
-            <Route path="/regularizacaoDeHospedagem" exact={true} component={HostingRegularization} />
-            <Route path="/Airbnb" exact={true} component={AirbnbHosting} />
+                {/*  Cartões  */}
+                <Route path="/novoCartao" exact={true} component={NewCreditCard} />
+                <Route path="/cancelarCartao" exact={true} component={CancelCard} />
+                <Route path="/alterarLimite" exact={true} component={LimitChange} />
+                <Route path="/liberarCompraPelaInternet" exact={true} component={InternetPurchaseUnlock} />
+                <Route path="/ProblemasComCartaoCorporativo" exact={true} component={CorporateCardProblems} />
 
-            {/*  Prestação de contas  */}
-            <Route path="/DelegacaoDaPrestacao" exact={true} component={DelegationOfAccountability} />
-            <Route path="/PagamentoDeReembolsoEmpregadoAtivo" exact={true} component={ActiveEmployeeReimbursement} />
-            <Route path="/PagamentoDeReembolsoEmpregadoDesligado" exact={true} component={EmployeeRefund} />
-            <Route path='/PrestacaoDeContasEmpregadoAtivo' exact={true} component={AccountabilityProblemsActiveEmployee} />
-            <Route path='/PrestacaoEmpregadoDesligadoExpatriado' exact={true} component={AccountabilityProblemsTransferredOrTerminated} />
-            <Route path='/DespesaNaoReconhecida' exact={true} component={UnrecognizedExpense} />
-            <Route path='/AprovacaoDaPrestacao' exact={true} component={ApprovalOfAccountability} />
-            <Route path='/DesbloqueioDeCartaoESistema' exact={true} component={CardAndSystemUnlock} />
-            <Route path='/ConsultaADescontoDeViagens' exact={true} component={TravelDiscountConsultation} />
-            <Route path='/EnvioDeValorParaDesconto' exact={true} component={SendingValueForDiscount} />
-            <Route path='/FalhaNaContabilizacao' exact={true} component={AccountingFailure} />
-            <Route path='/DespesasNaoDisponiveis' exact={true} component={ExpensesNotAvailable} />
+                {/*  Cartão combustível  */}
+                <Route path="/criacaoDeBase" exact={true} component={BaseCreation} />
+                <Route path="/alterarLimiteDoContratoDaBase" exact={true} component={BaseContractLimitChange} />
+                <Route path="/liberarAcessoMaster" exact={true} component={MasterAccessRelease} />
+                <Route path="/alterarGestorDeBase" exact={true} component={ChangeOfBaseManager} />
+                <Route path="/encerramentoDeBase" exact={true} component={BaseClosure} />
 
-            {/*  Documentos normativos e relatórios de viagens  */}
-            <Route path="/DuvidasSobreDocumentosNormativos" exact={true} component={QuestionsAboutNormativeDocuments} />
-            <Route path="/RelatoriosDeViagens" exact={true} component={TravelReports} />
+                {/*  Solicitaçao de viagem  */}
+                <Route path="/ProblemasNaSolicitacao" exact={true} component={TravelRequestIssue} />
+                <Route path="/DelegacaoDaAprovacaoDaViagem" exact={true} component={ApprovalDelegation} />
+                <Route path="/AprovadorInexistente" exact={true} component={NonExistentApprover} />
+                <Route path="/emissaoBTB" exact={true} component={VirtualHostingCard} />
+                <Route path="/CiaAereaNaoPreferencial" exact={true} component={NonPreferredAirline} />
+                <Route path="/regularizacaoDeHospedagem" exact={true} component={HostingRegularization} />
+                <Route path="/Airbnb" exact={true} component={AirbnbHosting} />
 
-            <Route path="/request/details/:id" exact={true} component={DetailsById} />
+                {/*  Prestação de contas  */}
+                <Route path="/DelegacaoDaPrestacao" exact={true} component={DelegationOfAccountability} />
+                <Route path="/PagamentoDeReembolsoEmpregadoAtivo" exact={true} component={ActiveEmployeeReimbursement} />
+                <Route path="/PagamentoDeReembolsoEmpregadoDesligado" exact={true} component={EmployeeRefund} />
+                <Route path='/PrestacaoDeContasEmpregadoAtivo' exact={true} component={AccountabilityProblemsActiveEmployee} />
+                <Route path='/PrestacaoEmpregadoDesligadoExpatriado' exact={true} component={AccountabilityProblemsTransferredOrTerminated} />
+                <Route path='/DespesaNaoReconhecida' exact={true} component={UnrecognizedExpense} />
+                <Route path='/AprovacaoDaPrestacao' exact={true} component={ApprovalOfAccountability} />
+                <Route path='/DesbloqueioDeCartaoESistema' exact={true} component={CardAndSystemUnlock} />
+                <Route path='/ConsultaADescontoDeViagens' exact={true} component={TravelDiscountConsultation} />
+                <Route path='/EnvioDeValorParaDesconto' exact={true} component={SendingValueForDiscount} />
+                <Route path='/FalhaNaContabilizacao' exact={true} component={AccountingFailure} />
+                <Route path='/DespesasNaoDisponiveis' exact={true} component={ExpensesNotAvailable} />
 
-          {/* { Private routes } */}
-            {/*  Listas  */}
-            <PrivateRoute path="/todasSolicitacoesPendentes" exact={true} >
-              <AllPendingRequests/>
-            </PrivateRoute>
-            <PrivateRoute path="/todasSolicitacoesConcluidas" exact={true} >
-              <AllCompletedRequests/>
-            </PrivateRoute>
+                {/*  Documentos normativos e relatórios de viagens  */}
+                <Route path="/DuvidasSobreDocumentosNormativos" exact={true} component={QuestionsAboutNormativeDocuments} />
+                <Route path="/RelatoriosDeViagens" exact={true} component={TravelReports} />
 
-            {/*  Atendimento  */}
-            <PrivateRoute path="/atendimento" exact={true} >
-              <SupportHome/>
-            </PrivateRoute>
+                <Route path="/request/details/:id" exact={true} component={DetailsById} />
 
-            {/*  Aprovações  */}
-            <PrivateApproversRoute path="/aprovacoes" exact={true} >
-              <ApproversHome/>
-            </PrivateApproversRoute>
-            <PrivateApproversRoute path="/aprovacoesPendentes" exact={true} >
-              <AllPendingApprovals/>
-            </PrivateApproversRoute>
-            <PrivateApproversRoute path="/aprovacoesConcluidas" exact={true} >
-              <AllCompletedApprovals/>
-            </PrivateApproversRoute>
+              {/* { Private routes } */}
+                {/*  Listas  */}
+                <PrivateRoute path="/todasSolicitacoesPendentes" exact={true} >
+                  <AllPendingRequests/>
+                </PrivateRoute>
 
-            {/*  Atualização de empregados  */}
-            <PrivateRoute path="/InsertOrUpdateEmployees" exact={true} >
-              <InsertOrUpdateEmployees/>
-            </PrivateRoute>
-            <PartnerRoute path="/chamadosBradesco" exact={true} >
-              <AllPendingRequestsBradesco/>
-            </PartnerRoute>
-            <PartnerRoute path="/chamadosTicketLog" exact={true} >
-              <AllPendingRequestsBradesco/>
-            </PartnerRoute>
-            <Route component={NotFound}/>
-          </Switch>
-        </Menu>
+                <PrivateRoute path="/todasSolicitacoesConcluidas" exact={true} >
+                  <AllCompletedRequests/>
+                </PrivateRoute>
+
+                <PrivateRoute path="/todasSolicitacoes" exact={true} >
+                  <AllRequests/>
+                </PrivateRoute>
+
+                {/*  Atendimento  */}
+                <PrivateRoute path="/atendimento" exact={true} >
+                  <SupportHome/>
+                </PrivateRoute>
+
+                {/*  Aprovações  */}
+                <PrivateApproversRoute path="/aprovacoes" exact={true} >
+                  <ApproversHome/>
+                </PrivateApproversRoute>
+                <PrivateApproversRoute path="/aprovacoesPendentes" exact={true} >
+                  <AllPendingApprovals/>
+                </PrivateApproversRoute>
+                <PrivateApproversRoute path="/aprovacoesConcluidas" exact={true} >
+                  <AllCompletedApprovals/>
+                </PrivateApproversRoute>
+
+                {/*  Atualização de empregados  */}
+                <PrivateRoute path="/InsertOrUpdateEmployees" exact={true} >
+                  <InsertOrUpdateEmployees/>
+                </PrivateRoute>
+
+                <PrivateRoute path="/cadastrarEmpregado" exact={true} >
+                  <EmployeeRegister/>
+                </PrivateRoute>
+
+                <Route component={NotFound}/>
+              </Switch>
+            </Menu>
+          </Route>
+        </Switch>
       </ThemeProvider>
     </ HashRouter>
   );
