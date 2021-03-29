@@ -146,7 +146,8 @@ export const Routes = ()=>{
                 <Route path="/emissaoBTB" exact={true} component={VirtualHostingCard} />
                 <Route path="/CiaAereaNaoPreferencial" exact={true} component={NonPreferredAirline} />
                 <Route path="/regularizacaoDeHospedagem" exact={true} component={HostingRegularization} />
-                <Route path="/Airbnb" exact={true} component={AirbnbHosting} />
+                  {//<Route path="/Airbnb" exact={true} component={AirbnbHosting} />
+                  }
 
                 {/*  Prestação de contas  */}
                 <Route path="/DelegacaoDaPrestacao" exact={true} component={DelegationOfAccountability} />

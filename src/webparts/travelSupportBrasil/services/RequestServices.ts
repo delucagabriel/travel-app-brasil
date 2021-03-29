@@ -1,5 +1,6 @@
 import { sp } from "@pnp/sp";
 import { IRequests_AllFields } from '../Interfaces/Requests/IRequests';
+import { Log } from "./LogService";
 
 const requestFields = [
   'Id',
@@ -105,7 +106,17 @@ const requestFields = [
 ];
 
 export const newRequest = (data:IRequests_AllFields) => sp.web.lists.getByTitle('SOLICITACOES').items
-  .add(data);
+  .add(data)
+  .then(res => { 
+    Log({Title: "Success", Request: JSON.stringify(data), Response: JSON.stringify(res.data)});
+    return res;
+  })
+  .catch(error=>{
+    Log({Title: "Error", Request: JSON.stringify(data), Response: JSON.stringify(error)});
+    return error;
+  })
+  
+  ;
 
 export const updateRequest = (data:IRequests_AllFields) => sp.web.lists.getByTitle('SOLICITACOES').items
   .getById(data.Id)

@@ -44,7 +44,7 @@ export default function HomePage() {
             <CardContent>
              <AssignmentIcon style={{ fontSize: 100, opacity:"0.3" }}/> 
                 <Typography align="center" variant="subtitle2" component="p">
-                    Área de solicitações
+                    Área do solicitante
                 </Typography>
             </CardContent>
         </Card>
@@ -54,7 +54,7 @@ export default function HomePage() {
             <CardContent>
              <SpellcheckSharpIcon style={{ fontSize: 100, opacity:"0.3", alignSelf:"center"}}/> 
                 <Typography align="center" variant="subtitle2" component="p">
-                    Área de aprovações
+                    Área do aprovador
                 </Typography>
             </CardContent>
         </Card>
