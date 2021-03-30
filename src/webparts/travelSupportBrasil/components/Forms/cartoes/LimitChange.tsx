@@ -10,17 +10,17 @@ import { getEmployee } from '../../../services/EmployeesService';
 import { newRequest } from '../../../services/RequestServices';
 import { IEmployee } from '../../../Interfaces/IEmployee';
 import { ISnack } from '../../../Interfaces/ISnack';
-import { IRequest_LimitChange } from '../../../Interfaces/Requests/IRequest_LimitChange';
 import HocDialog from '../../HOC/HocDialog';
 import { TestaCPF } from '../../../Utils/validaCPF';
 import { yup_pt_br } from '../../../Utils/yup_pt_br';
 import { setLocale } from 'yup';
 import { corporateCardConfig } from '../../../formConfigurations/corporateCards';
+import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 
 setLocale(yup_pt_br);
 
 
-const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
+const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
   ALCADA_APROVACAO: yup.string()
@@ -84,7 +84,7 @@ const schema: yup.ObjectSchema<IRequest_LimitChange> = yup.object().shape({
 });
 
 export default function LimitChange() {
-  const { register, handleSubmit, control, errors, setValue } = useForm<IRequest_LimitChange>({
+  const { register, handleSubmit, control, errors, setValue } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
@@ -177,7 +177,7 @@ export default function LimitChange() {
     });
   });
 
-  const onSubmit = (data:IRequest_LimitChange, e) => {
+  const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
       .then(res => {
         setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID:${res.data.ID}`, severity:"success"});

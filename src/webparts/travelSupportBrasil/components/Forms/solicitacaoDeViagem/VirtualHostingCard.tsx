@@ -11,7 +11,6 @@ import { IEmployee } from '../../../Interfaces/IEmployee';
 import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
-import { IRequest_NewCard } from '../../../Interfaces/Requests/IRequest_NewCard';
 import HocDialog from '../../HOC/HocDialog';
 import { yup_pt_br } from '../../../Utils/yup_pt_br';
 import { setLocale } from 'yup';
@@ -93,7 +92,7 @@ export default function VirtualHostingCard() {
   const { register, handleSubmit, control, errors, reset, setValue, watch } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
-  const [requisicaoCartao, setRequisicaoCartao] = useState<IRequest_NewCard>();
+  const [requisicaoCartao, setRequisicaoCartao] = useState<IRequests_AllFields>();
   const [approver, setApprover] = useState<IEmployee>();
   const [solicitante, setSolicitante] = useState<IEmployee>();
   const [empregado, setEmpregado] = useState<IEmployee>();

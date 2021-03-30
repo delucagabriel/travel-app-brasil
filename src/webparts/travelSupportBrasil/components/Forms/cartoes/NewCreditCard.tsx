@@ -1,9 +1,9 @@
 import * as React from 'react';
+import * as cep from 'cep-promise';
 import { useState, useContext } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers';
 import * as yup from "yup";
-import * as cep from 'cep-promise';
 import { TextField, Select, MenuItem, FormLabel, Button,
   Grid, Input, Paper, Snackbar } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
@@ -12,16 +12,16 @@ import { getEmployee } from '../../../services/EmployeesService';
 import { newRequest } from '../../../services/RequestServices';
 import { IEmployee } from '../../../Interfaces/IEmployee';
 import { ISnack } from '../../../Interfaces/ISnack';
-import { IRequest_NewCard } from '../../../Interfaces/Requests/IRequest_NewCard';
 import { TestaCPF } from '../../../Utils/validaCPF';
 import HocDialog from '../../HOC/HocDialog';
 import { yup_pt_br } from '../../../Utils/yup_pt_br';
 import { setLocale } from 'yup';
 import { corporateCardConfig } from '../../../formConfigurations/corporateCards';
+import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 
 setLocale(yup_pt_br);
 
-const schema: yup.ObjectSchema<IRequest_NewCard> = yup.object().shape({
+const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
   ALCADA_APROVACAO: yup.string()
@@ -91,7 +91,7 @@ interface IAddress {
 
 
 export default function NewCreditCard(){
-  const { register, handleSubmit, control, errors, reset, getValues, watch, setValue } = useForm<IRequest_NewCard>({
+  const { register, handleSubmit, control, errors, reset, getValues, watch, setValue } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
@@ -202,7 +202,7 @@ export default function NewCreditCard(){
     });
   });
 
-  const onSubmit = (data:IRequest_NewCard, e) => {
+  const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
       .then(res => {
         setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID::${res.data.ID}`, severity:"success"});

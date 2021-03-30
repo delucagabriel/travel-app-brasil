@@ -8,17 +8,17 @@ import { yupResolver } from '@hookform/resolvers';
 import { getEmployee } from '../../../services/EmployeesService';
 import { newRequest } from '../../../services/RequestServices';
 import { IEmployee } from '../../../Interfaces/IEmployee';
-import { IRequest_CancelCard } from '../../../Interfaces/Requests/IRequest_CancelCard';
 import { ISnack } from '../../../Interfaces/ISnack';
 import { Context } from '../../Context';
 import { TestaCPF } from '../../../Utils/validaCPF';
 import { yup_pt_br } from '../../../Utils/yup_pt_br';
 import { setLocale } from 'yup';
 import HocDialog from '../../HOC/HocDialog';
+import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
 
 setLocale(yup_pt_br);
 
-const schema: yup.ObjectSchema<IRequest_CancelCard> = yup.object().shape({
+const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
   SLA: yup.number().default(24),
@@ -44,7 +44,7 @@ const schema: yup.ObjectSchema<IRequest_CancelCard> = yup.object().shape({
 });
 
 export default function CancelCard() {
-  const { register, handleSubmit, control, errors, setValue } = useForm<IRequest_CancelCard>({
+  const { register, handleSubmit, control, errors, setValue } = useForm<IRequests_AllFields>({
     resolver: yupResolver(schema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
@@ -96,7 +96,7 @@ export default function CancelCard() {
   });
 
 
-  const onSubmit = (data:IRequest_CancelCard, e) => {
+  const onSubmit = (data:IRequests_AllFields, e) => {
     newRequest(data)
       .then(res => {
         setSnackMessage({open:true, message: `Solicitação gravada com sucesso! ID:${res.data.ID}`, severity:"success"});
