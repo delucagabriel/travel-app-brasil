@@ -204,7 +204,7 @@ function uploadListAttachments(id) {
 
           <Grid item xs={12} sm={12} md={12} lg={12} xl={12} >
             <TextField type="number" name="VALOR" label="Valor do reembolso"
-              variant="outlined" inputProps={{ min: 1 }}
+              variant="outlined" inputProps={{ min: 0.1, step: 0.5 }}
               inputRef={register}
               InputLabelProps={{ shrink: true }}
               error={errors.VALOR?true:false}

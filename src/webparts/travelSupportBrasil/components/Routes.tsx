@@ -1,3 +1,4 @@
+import "./globalStyles.module.scss";
 import * as React from 'react';
 import { useContext } from 'react';
 import { Switch, Route, HashRouter, Redirect } from 'react-router-dom';
@@ -5,7 +6,6 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import Home from './HomeUsers/Home';
 import MyPendingRequests from './Lists/MyPendingRequests';
 import MyCompletedRequests from './Lists/MyCompletedRequests';
-import NewCreditCard from './Forms/cartoes/NewCreditCard';
 import CancelCard from './Forms/cartoes/CancelCard';
 import LimitChange from './Forms/cartoes/LimitChange';
 import Menu from './Drawer/Menu';
@@ -52,6 +52,7 @@ import HomePage from './HomeUsers/HomePage';
 import MenuBradesco from './Drawer/MenuBradesco';
 import AllRequests from './Lists/AllRequests';
 import EmployeeRegister from './Forms/EmployeeRegister';
+import NewCreditCard from './Forms/cartoes/NewCreditCard/NewCreditCard';
 
 const theme = createMuiTheme({
   palette: {

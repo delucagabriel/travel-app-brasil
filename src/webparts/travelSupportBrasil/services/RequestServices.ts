@@ -99,6 +99,7 @@ const requestFields = [
   'PORTADOR_SOLIC_CARTAO',
   'TFD',
   'CENTRO_DE_CUSTOS',
+  'DATA_FIM_ATENDIMENTO',
   'Author/Title',
   'Author/EMail',
   'Editor/Title',

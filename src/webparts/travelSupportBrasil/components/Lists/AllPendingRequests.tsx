@@ -90,17 +90,22 @@ export default function AllPendingRequests() {
                   <TableCell variant="head" align="center">Processo</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Criado em</TableCell>
+                  <TableCell variant="head" align="center">Data da aprovação</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Modificado em</TableCell>
+                  <TableCell variant="head" align="center">Data limite (SLA)</TableCell>
                 </Hidden>
               </TableRow>
             </TableHead>
             <TableBody>
               {
                 solicitacoesFiltradas
-                .reverse()
+                  .sort((a, b) => {
+                    let r = 0;
+                    if(a.DATA_FIM_ATENDIMENTO < b.DATA_FIM_ATENDIMENTO) r = -1;
+                    if(a.DATA_FIM_ATENDIMENTO > b.DATA_FIM_ATENDIMENTO) r = 1;
+                    return r;
+                  })
                   .map((row) => (
                     <TableRow key={row.Id}
                       onClick={() =>setRequestDetails({...row, open:true})}
@@ -112,10 +117,10 @@ export default function AllPendingRequests() {
                         <TableCell variant="body" align="center">{row.PROCESSO}</TableCell>
                       </Hidden>
                       <Hidden smDown>
-                        <TableCell variant="body" align="center">{row.Created}</TableCell>
+                        <TableCell variant="body" align="center">{row.DATA_DE_APROVACAO}</TableCell>
                       </Hidden>
                       <Hidden smDown>
-                        <TableCell variant="body" align="center">{row.Modified}</TableCell>
+                        <TableCell variant="body" align="center">{row.DATA_FIM_ATENDIMENTO}</TableCell>
                       </Hidden>
                     </TableRow>
                   ))

@@ -202,7 +202,7 @@ export default function SendingValueForDiscount() {
               variant="outlined"
               inputRef={register}
               InputLabelProps={{ shrink: true }}
-              inputProps={{ min: 1 }}
+              inputProps={{ min: 0.1, step: 0.5 }}
               error={errors.VALOR?true:false}
               helperText={errors.VALOR && errors.VALOR.message}
 

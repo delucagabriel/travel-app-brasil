@@ -3,7 +3,7 @@ import { useState, useContext } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers';
 import * as yup from "yup";
-import cep from 'cep-promise';
+import * as cep from 'cep-promise';
 import { TextField, Select, MenuItem, FormLabel, Button,
   Grid, Input, Paper, Snackbar, Backdrop, Typography, CircularProgress, makeStyles, Theme, createStyles, InputLabel } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';

@@ -114,6 +114,13 @@ export const TravelRequestIssueDetails = ({requestDetails, children=null})=>{
                 </Grid>
               </ListItem>
               <ListItem >
+                <Grid xs={12} sm={12} md={12} lg={12} xl={12}>
+                  <ListItemText primaryTypographyProps={{color:"secondary"}}
+                  primary="DATA LIMITE PARA ATENDIMENTO" 
+                  secondary={requestDetails.DATA_FIM_ATENDIMENTO}/>
+                </Grid>
+              </ListItem>
+              <ListItem >
                 <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                   <ListItemText primaryTypographyProps={{color:"secondary"}}
                   primary="STATUS DA APROVAÇÃO" secondary={requestDetails.STATUS_APROVACAO}/>

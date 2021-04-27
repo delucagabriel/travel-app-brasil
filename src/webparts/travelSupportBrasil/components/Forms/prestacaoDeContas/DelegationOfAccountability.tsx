@@ -60,8 +60,10 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
 
 
   TIPO_DE_DELEGACAO: yup.string(),
-  PERIODO_INICIO: yup.date().min(new Date(), 'Data precisa ser posterior ao dia de hoje'),
-  PERIODO_FIM: yup.date().min(new Date(), 'Data precisa ser posterior ao dia de hoje')
+  PERIODO_INICIO: yup.date()
+    .min(new Date(), 'Data precisa ser posterior ao dia de hoje'),
+  PERIODO_FIM: yup.date()
+    .min(new Date(), 'Data precisa ser posterior ao dia de hoje')
 });
 
 export default function DelegationOfAccountability() {
@@ -179,7 +181,7 @@ export default function DelegationOfAccountability() {
           Delegação da aprovação da prestação de contas:
         </Typography>
         <Typography variant='body2'>
-          Antes de sair de férias, o próprio gestor deve realizar a delegação no SAP Concur. Para mais informações, consulte o tutorial disponível na intranet : Institucional e serviços > Viagens > Prestação de contas de viagens e cartões. <br/>
+          Antes de sair de férias, o próprio gestor deve realizar a delegação no SAP Concur. Para mais informações, consulte o tutorial disponível na intranet : Institucional e serviços &gt; Viagens &gt; Prestação de contas de viagens e cartões. <br/>
           Caso ele tenha se ausentado sem fazer a delegação, preencha o formulário a seguir. De acordo com a NFN-0018, a delegação de aprovação é permitida para outro gestor de mesmo nível, superior ou um nível abaixo.
         </Typography>
         <br/>
@@ -188,7 +190,7 @@ export default function DelegationOfAccountability() {
           Delegação da prestação de contas:
         </Typography>
         <Typography variant='body2'>
-          Em caso de ausência, o empregado deve delegar previamente a atividade de prestação de contas a outro empregado, diretamente no sistema. Para isso, na página inicial do Concur, clique em Perfil > Configurações de Perfil > Delegados de Despesas > Adicionar. Pesquise o empregado para quem será atribuída a permissão de prestação de contas, clique sobre o nome para adicionar, marque as opções que o delegado poderá executar e clique em salvar. <br/>
+          Em caso de ausência, o empregado deve delegar previamente a atividade de prestação de contas a outro empregado, diretamente no sistema. Para isso, na página inicial do Concur, clique em Perfil &gt; Configurações de Perfil &gt; Delegados de Despesas &gt; Adicionar. Pesquise o empregado para quem será atribuída a permissão de prestação de contas, clique sobre o nome para adicionar, marque as opções que o delegado poderá executar e clique em salvar. <br/>
           Caso o empregado não tenha acesso a computador, preencha o formulário a seguir.
         </Typography>
       </HocDialog>

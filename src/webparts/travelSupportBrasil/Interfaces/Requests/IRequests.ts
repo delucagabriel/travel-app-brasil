@@ -110,6 +110,7 @@ export interface IRequests_AllFields {
   TIPO_PRESTACAO_DE_CONTAS?: string;
   DESPESAS_INDISPONIVEIS?: string;
   VIA_CARTAO?: string;
+  DATA_FIM_ATENDIMENTO?: Date;
   Created?: Date;
   Modified?: Date;
 }

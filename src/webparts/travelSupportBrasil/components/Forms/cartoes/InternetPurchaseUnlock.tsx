@@ -227,7 +227,7 @@ export default function InternetPurchaseUnlock() {
 
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6} >
             <TextField fullWidth variant="outlined" type="number" name="VALOR" label="Valor da transação" inputRef={register}
-              error={errors.VALOR?true:false} inputProps={{ min: 1 }}
+              error={errors.VALOR?true:false} inputProps={{ min: 0.1, step: 0.5 }}
               helperText={errors.VALOR && errors.VALOR.message}
             />
           </Grid>
