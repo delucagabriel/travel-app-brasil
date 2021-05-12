@@ -9,11 +9,20 @@
           "manifest": "./src/webparts/travelSupportBrasil/TravelSupportBrasilWebPart.manifest.json"
         }
       ]
+    },
+    "bradesco-admin-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/bradescoAdmin/BradescoAdminWebPart.js",
+          "manifest": "./src/webparts/bradescoAdmin/BradescoAdminWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
   "localizedResources": {
     "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js",
-    "TravelSupportBrasilWebPartStrings": "lib/webparts/travelSupportBrasil/loc/{locale}.js"
+    "TravelSupportBrasilWebPartStrings": "lib/webparts/travelSupportBrasil/loc/{locale}.js",
+    "BradescoAdminWebPartStrings": "lib/webparts/bradescoAdmin/loc/{locale}.js"
   }
 }

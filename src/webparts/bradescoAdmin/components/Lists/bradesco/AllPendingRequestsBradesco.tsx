@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { useContext, useState, useEffect } from 'react';
-import { Context } from '../../Context';
 import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Dialog, Hidden, Button, Snackbar, Select, MenuItem, FormLabel } from '@material-ui/core';
-import ServiceApproval from '../../Forms/ServiceApproval';
 import { Alert } from '@material-ui/lab';
 import CloseIcon from '@material-ui/icons/Close';
-import { HocRenderDetails } from '../../HOC/HocRenderDetails';
-import { ISnack } from '../../../Interfaces/ISnack';
-import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
+import { Context } from '../../../../travelSupportBrasil/components/Context';
+import ServiceApproval from '../../../../travelSupportBrasil/components/Forms/ServiceApproval';
+import { HocRenderDetails } from '../../../../travelSupportBrasil/components/HOC/HocRenderDetails';
+import { ISnack } from '../../../../travelSupportBrasil/Interfaces/ISnack';
+import { IRequests_AllFields } from '../../../../travelSupportBrasil/Interfaces/Requests/IRequests';
+
 
 export default function AllPendingRequestsBradesco() {
   const { allRequestsBradesco } = useContext(Context);
@@ -80,16 +81,22 @@ export default function AllPendingRequestsBradesco() {
                   <TableCell variant="head" align="center">Processo</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Criado em</TableCell>
+                  <TableCell variant="head" align="center">Data da aprovação</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Modificado em</TableCell>
+                  <TableCell variant="head" align="center">Data limite (SLA)</TableCell>
                 </Hidden>
               </TableRow>
             </TableHead>
             <TableBody>
               {
                 solicitacoesFiltradas
+                  .sort((a, b) => {
+                    let r = 0;
+                    if(a.DATA_FIM_ATENDIMENTO < b.DATA_FIM_ATENDIMENTO) r = -1;
+                    if(a.DATA_FIM_ATENDIMENTO > b.DATA_FIM_ATENDIMENTO) r = 1;
+                    return r;
+                  })
                   .map((row) => (
                     <TableRow key={row.Id}
                       onClick={() =>setRequestDetails({...row, open:true})}
@@ -101,10 +108,10 @@ export default function AllPendingRequestsBradesco() {
                         <TableCell variant="body" align="center">{row.PROCESSO}</TableCell>
                       </Hidden>
                       <Hidden smDown>
-                        <TableCell variant="body" align="center">{row.Created}</TableCell>
+                        <TableCell variant="body" align="center">{row.DATA_DE_APROVACAO}</TableCell>
                       </Hidden>
                       <Hidden smDown>
-                        <TableCell variant="body" align="center">{row.Modified}</TableCell>
+                        <TableCell variant="body" align="center">{row.DATA_FIM_ATENDIMENTO}</TableCell>
                       </Hidden>
                     </TableRow>
                   ))

@@ -15,10 +15,10 @@ export const LimitChangeDetails = ({requestDetails, children=null})=>{
   return(
     <>
       <DialogTitle id="alert-dialog-title">Detalhes da solicitação - ID: {requestDetails && requestDetails.Id} { children } </DialogTitle>
-      <DialogContent style={{width:'100%'}}>
+      <DialogContent style={{width:'97%'}}>
         <DialogContentText id="alert-dialog-description">
-          <Grid container spacing={2}>
-            <Grid xs={12} sm={12} md={6} lg={6} xl={6} style={{padding:'10px'}}>
+          <Grid container spacing={1}>
+            <Grid xs={12} sm={12} md={5} lg={5} xl={5} >
               <Grid container>
                   <ListItem >
                     <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
@@ -135,7 +135,7 @@ export const LimitChangeDetails = ({requestDetails, children=null})=>{
 
             <Divider orientation="vertical" flexItem variant='fullWidth'/>
 
-            <Grid xs={12} sm={12} md={5} lg={5} xl={5} style={{padding:'10px'}}>
+            <Grid xs={12} sm={12} md={6} lg={6} xl={6} >
               <ListItem >
                 <Grid xs={12} sm={12} md={6} lg={6} xl={6}>
                   <ListItemText primaryTypographyProps={{color:"secondary"}}

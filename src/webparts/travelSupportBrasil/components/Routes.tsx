@@ -43,7 +43,6 @@ import QuestionsAboutNormativeDocuments from './Forms/relatoriosEDocumentosNorma
 import TravelReports from './Forms/relatoriosEDocumentosNormativos/TravelReports';
 import HostingRegularization from './Forms/solicitacaoDeViagem/HostingRegularization';
 import DetailsById from './Details/DetailsById';
-import AllPendingRequestsBradesco from './Lists/bradesco/AllPendingRequestsBradesco';
 import { ApproversHome } from './Approvers/ApproversHome';
 import AllCompletedApprovals from './Lists/AllCompletedApprovals';
 import AllPendingApprovals from './Lists/AllPendingApprovals';
@@ -107,15 +106,6 @@ export const Routes = ()=>{
     <HashRouter>
       <ThemeProvider theme={theme}>
         <Switch>
-        <PartnerRoute path="/bradesco" exact={true}>
-            <MenuBradesco />
-            <AllPendingRequestsBradesco/>
-          </PartnerRoute>
-
-          <PartnerRoute path="/ticketlog" exact={true}>
-            <AllPendingRequestsBradesco/>
-          </PartnerRoute>
-
           <Route>
             <Menu>
               <Switch>

@@ -3,7 +3,7 @@
   "solution": {
     "name": "travel-app",
     "id": "d3ee3725-1aa9-440d-85a5-0da1668ad87e",
-    "version": "1.0.0.2",
+    "version": "1.0.1.2",
     "includeClientSideAssets": true,
     "isDomainIsolated": false,
     "developer": {
