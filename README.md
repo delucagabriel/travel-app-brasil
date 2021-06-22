@@ -4,7 +4,7 @@
 
 SPA para atendimento de chamados de viagens corporativas da Vale S/A, desenvolvido em React com backend em listas Sharepoint e fluxo de notificação e aprovação em Power Automate.
 
-![Telas](./projectImages/TSB_Telas.gif)
+![Telas](projectImages/TSB_Telas.gif?raw=true)
 
 ## Used SharePoint Framework Version
 
