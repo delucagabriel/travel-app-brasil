@@ -34,11 +34,10 @@ export default function Home() {
   const [completedReqTotal, setCompletedReqTotal] = useState(0);
 
   useEffect(()=> {
-    setPendingReqTotal(myRequests.filter(req => req.STATUS.toLowerCase() !== 'sucesso' && req.STATUS.toLowerCase() !== 'rejeitado').length);
+    setPendingReqTotal(myRequests.filter(req => req.STATUS.toLowerCase() !== 'cancelado' && req.STATUS.toLowerCase() !== 'sucesso' && req.STATUS.toLowerCase() !== 'rejeitado').length);
     setCompletedReqTotal(myRequests.filter(req => req.STATUS.toLowerCase() == 'sucesso' || req.STATUS.toLowerCase() == 'rejeitado').length);
   }, [myRequests]);
-
-
+  
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={12} md={12} lg={12} >

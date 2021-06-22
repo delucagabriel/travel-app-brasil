@@ -10,7 +10,7 @@
     "build": "gulp bundle",
     "clean": "gulp clean",
     "test": "gulp test",
-    "production": "gulp bundle --ship && gulp package-solution --ship"
+    "prod": "gulp bundle --ship && gulp package-solution --ship"
   },
   "dependencies": {
     "@hookform/error-message": "0.0.3",

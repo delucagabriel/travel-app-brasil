@@ -14,6 +14,11 @@ interface User {
 }
 interface Employee extends User, IEmployee{}
 
+import { GetCorporateCardConfig } from "../services/ConfigService";
+export var globalTipoCartao: any = {};
+
+
+
 const Context = createContext(null);
 
 const Provider = ({children}) => {
@@ -26,6 +31,7 @@ const Provider = ({children}) => {
   const [allRequestsTicketLog, setAllRequestsTicketLog] = useState<IRequests_AllFields[]>([]);
   const [loading, setLoading] = useState(true);
   const [updateInfos, setUpdateInfos] = useState(true);
+
 
   const handleGetMyRequests = ()=> {
     myInfos? sp.web.lists.getByTitle("SOLICITACOES").items
@@ -51,8 +57,17 @@ const Provider = ({children}) => {
   setLoading(false);
   };
 
-  useEffect(()=> {handleGetMyInfos()
+  useEffect(()=> {
+    handleGetMyInfos()
     .then(res => setMyInfos(res));
+
+    GetCorporateCardConfig().then(configs => {
+      configs.map(
+        limiteConfig => {
+          globalTipoCartao[String(limiteConfig.Title).replace(' ', '_')] = `${limiteConfig.Title} - ${limiteConfig.Limite.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+        });
+    });
+      
   },[]);
 
   useEffect(

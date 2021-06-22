@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useContext, useState, useEffect } from 'react';
 import { Context } from '../Context';
-import { CSVLink } from "react-csv";
 import { TableContainer, Paper, Table, TableHead, TableRow, TableCell,
   TableBody, Grid, Dialog, Hidden, TextField, Button } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
@@ -16,7 +15,8 @@ export default function AllCompletedApprovals() {
   const [filter, setFilter] = useState("");
 
   useEffect(()=>{
-    setFilteredRequests(myApprovals.filter((request:IRequests_AllFields) => request.STATUS_APROVACAO.toLowerCase() !== "pendente" ));
+    setFilteredRequests(myApprovals.filter((request:IRequests_AllFields) => request.STATUS_APROVACAO.toLowerCase() !== "pendente"
+    && request.STATUS_APROVACAO.toLowerCase() !== "cancelado" ));
   }, [myApprovals]);
 
   const handleFilter= event => setFilter(event.target.value as string);

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { batchInsertEmployees, GetAllEmployees, batchUpdateEmployees } from '../services/EmployeesService';
+import { batchInsertEmployees, GetAllEmployees, batchUpdateEmployees, deleteEmployeeExcel } from '../services/EmployeesService';
 import { IEmployee } from '../Interfaces/IEmployee';
 import * as moment from 'moment';
 
@@ -111,8 +111,9 @@ export const InsertOrUpdateEmployees = () => {
   return(
   <>
     <button onClick={handleInsertOrUpdateEmployees}> Insert/Update </button>
+    <br /><br />
+    <button onClick={deleteEmployeeExcel}> Delete Employees </button>
   </>);
 
 };
-
 

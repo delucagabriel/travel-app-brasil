@@ -7,12 +7,11 @@ import Typography from '@material-ui/core/Typography';
 import More from '@material-ui/icons/ForwardSharp';
 import { useHistory } from 'react-router-dom';
 
-
 export default function HocCard({content, qtd, destination, icon=null}) {
   const history = useHistory();
 
     return (
-    <Card>
+    <Card style={{cursor:"pointer"}} onClick={ ()=> history.push(destination) }>
       <CardContent>
       { icon }
         <Typography align="center" variant="h5" component="p">
@@ -22,9 +21,6 @@ export default function HocCard({content, qtd, destination, icon=null}) {
           { content }
         </Typography>
       </CardContent>
-      <CardActions style={{float:"right"}}>
-        <Button onClick={ ()=> history.push(destination) } size="small"> <small>Detalhes</small><More/></Button>
-      </CardActions>
     </Card>
   );
 }

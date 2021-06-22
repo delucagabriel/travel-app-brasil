@@ -4,23 +4,21 @@ import { TextField, Select, MenuItem, FormLabel, Button, Grid, Input, Paper, Sna
 import { Alert } from '@material-ui/lab';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers';
-import * as yup from "yup";
-import { Context } from '../../Context';
+import { Context, globalTipoCartao } from '../../Context';
 import { getEmployee } from '../../../services/EmployeesService';
 import { newRequest } from '../../../services/RequestServices';
 import { IEmployee } from '../../../Interfaces/IEmployee';
 import { ISnack } from '../../../Interfaces/ISnack';
 import HocDialog from '../../HOC/HocDialog';
-import { TestaCPF } from '../../../Utils/validaCPF';
 import { yup_pt_br } from '../../../Utils/yup_pt_br';
 import { setLocale } from 'yup';
-import { corporateCardConfig } from '../../../formConfigurations/corporateCards';
 import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
+import * as yup from "yup";
+import { TestaCPF } from '../../../Utils/validaCPF';
 
 setLocale(yup_pt_br);
 
-
-const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
+const LimitChangeSchema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   MACROPROCESSO: yup.string().required(),
   PROCESSO: yup.string().required(),
   ALCADA_APROVACAO: yup.string()
@@ -28,21 +26,29 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
 
     if(TIPO_DE_LIMITE === 'Saque') return sch.default('D-2');
 
-    if(
-      [
-        corporateCardConfig.tipo_cartao_valor.Tipo_I,
-        corporateCardConfig.tipo_cartao_valor.Tipo_II,
-        corporateCardConfig.tipo_cartao_valor.Tipo_III,
-        corporateCardConfig.tipo_cartao_valor.Tipo_IV
-      ].indexOf(TIPO_LIMITE_VALOR) >=0 ) return sch.default('D-3');
+    switch (TIPO_LIMITE_VALOR) {
+      case globalTipoCartao.Tipo_I:
+        return sch.default('D-3');
 
-    if(
-      [
-        corporateCardConfig.tipo_cartao_valor.Tipo_V,
-        corporateCardConfig.tipo_cartao_valor.Tipo_VI
-      ].indexOf(TIPO_LIMITE_VALOR)>=0) return sch.default('D-2');
+      case globalTipoCartao.Tipo_II:
+        return sch.default('D-3');
 
-      if(TIPO_LIMITE_VALOR === corporateCardConfig.tipo_cartao_valor.Tipo_VII) return sch.default('D-1');
+      case globalTipoCartao.Tipo_III:
+        return sch.default('D-3');
+
+      case globalTipoCartao.Tipo_IV:
+        return sch.default('D-3');
+      
+      case globalTipoCartao.Tipo_V:
+        return sch.default('D-2');
+
+      case globalTipoCartao.Tipo_VI:
+        return sch.default('D-2');
+    
+      default:
+        return sch.default('D-1');
+    }
+
   }),
   SLA: yup.number().default(48),
   AREA_RESOLVEDORA: yup.string().default("Bradesco"),
@@ -83,9 +89,10 @@ const schema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
   .required(),
 });
 
+
 export default function LimitChange() {
   const { register, handleSubmit, control, errors, setValue } = useForm<IRequests_AllFields>({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(LimitChangeSchema)
   });
   const [employee, setEmployee] = useState<IEmployee>();
   const [approver, setApprover] = useState<IEmployee>();
@@ -328,27 +335,11 @@ export default function LimitChange() {
                 <Controller
                   as={
                     <Select fullWidth inputRef={register}>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_I}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_I}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_II}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_II}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_III}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_III}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_IV}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_IV}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_V}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_V}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_VI}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_VI}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_VII}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_VII}
-                      </MenuItem>
+                      { Object.keys(globalTipoCartao).map(key => 
+                        <MenuItem value={globalTipoCartao[key]}>
+                          {globalTipoCartao[key]}
+                        </MenuItem>
+                      )}
                     </Select>
                   }
                   required
@@ -369,11 +360,11 @@ export default function LimitChange() {
                   required
                   name="NOVO_LIMITE"
                   label="Novo limite"
-                  inputProps={{ min: 1 }}
+                  inputProps={{ min: 800, step: 0.5 }}
                   InputLabelProps={{ shrink: true }}
                   inputRef={register}
                   error={errors.NOVO_LIMITE?true:false}
-                  helperText={errors.NOVO_LIMITE && errors.NOVO_LIMITE.message}
+                  helperText={errors.NOVO_LIMITE && errors.NOVO_LIMITE.message} 
                 />
               </Grid>
           }

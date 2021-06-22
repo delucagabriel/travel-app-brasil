@@ -10,7 +10,6 @@ import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import * as strings from 'TravelSupportBrasilWebPartStrings';
 import TravelSupportBrasil from './components/TravelSupportBrasil';
 import { ITravelSupportBrasilProps } from './components/ITravelSupportBrasilProps';
-import "@pnp/polyfill-ie11";
 import { sp } from "@pnp/sp/presets/all";
 
 export interface ITravelSupportBrasilWebPartProps {
@@ -22,7 +21,6 @@ export default class TravelSupportBrasilWebPart extends BaseClientSideWebPart<IT
 
     return super.onInit().then(_ => {
       sp.setup({
-        ie11: true,
         spfxContext: this.context
       });
     });

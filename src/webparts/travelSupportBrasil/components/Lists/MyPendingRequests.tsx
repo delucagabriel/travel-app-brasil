@@ -4,11 +4,23 @@ import { Context } from '../Context';
 import { TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Grid, Dialog, Hidden, Button } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import { HocRenderDetails } from '../HOC/HocRenderDetails';
+import CancelRequest from '../Forms/CancelRequest';
+import { ISnack } from '../../Interfaces/ISnack';
 
 
 export default function MyPendingRequests() {
   const { myRequests } = useContext(Context);
   const [requestDetails, setRequestDetails] = useState({...myRequests[0], open:false});
+  const [snackMessage, setSnackMessage] = useState<ISnack>({
+    open: false,
+    message: "",
+    severity:'info'
+  });
+
+  const onChildChanged = callback => {
+    setSnackMessage(callback.snack);
+    setRequestDetails({...requestDetails, open:callback.dialogOpen});
+  };
 
   return (
     <Grid container>
@@ -32,13 +44,17 @@ export default function MyPendingRequests() {
                   <TableCell variant="head" align="center">Criação</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Modificação</TableCell>
+                  <TableCell variant="head" align="center">Data limite (SLA)</TableCell>
                 </Hidden>
               </TableRow>
             </TableHead>
             <TableBody>
               {myRequests
-              .filter(request => request.STATUS.toLowerCase() !== "sucesso" && request.STATUS.toLowerCase() !=="rejeitado" )
+              .filter(
+                request => request.STATUS.toLowerCase() !== "sucesso" 
+                && request.STATUS.toLowerCase() !=="rejeitado"
+                && request.STATUS.toLowerCase() !=="cancelado" 
+              )
               .reverse()
               .map((row) => (
                 <TableRow key={row.Id}
@@ -59,7 +75,7 @@ export default function MyPendingRequests() {
                     <TableCell variant="body" align="center">{row.Created}</TableCell>
                   </Hidden>
                   <Hidden smDown>
-                    <TableCell variant="body" align="center">{row.Modified}</TableCell>
+                    <TableCell variant="body" align="center">{row.DATA_FIM_ATENDIMENTO}</TableCell> 
                   </Hidden>
                 </TableRow>
               ))
@@ -75,8 +91,10 @@ export default function MyPendingRequests() {
           >
             <CloseIcon/>
           </Button>
-          <HocRenderDetails type={requestDetails.MACROPROCESSO} details={requestDetails} />
-
+          <HocRenderDetails type={requestDetails.MACROPROCESSO} details={requestDetails}>
+            <CancelRequest request={requestDetails} callbackParent={cb => onChildChanged(cb)}/>
+          </HocRenderDetails>
+ 
         </Dialog>
       </Grid>
 

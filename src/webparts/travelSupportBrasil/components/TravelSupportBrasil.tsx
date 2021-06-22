@@ -33,10 +33,7 @@ export default class TravelSupportBrasil extends React.Component<ITravelSupportB
         sBrowser = "Microsoft Internet Explorer";
     }
     
-
-    console.log(sBrowser);
-
-  return (
+    return (
     sBrowser === "Google Chrome"
     ? 
     <Provider>

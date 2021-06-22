@@ -46,12 +46,13 @@ import DetailsById from './Details/DetailsById';
 import { ApproversHome } from './Approvers/ApproversHome';
 import AllCompletedApprovals from './Lists/AllCompletedApprovals';
 import AllPendingApprovals from './Lists/AllPendingApprovals';
-import AirbnbHosting from './Forms/solicitacaoDeViagem/AirbnbHosting';
 import HomePage from './HomeUsers/HomePage';
-import MenuBradesco from './Drawer/MenuBradesco';
 import AllRequests from './Lists/AllRequests';
 import EmployeeRegister from './Forms/EmployeeRegister';
-import NewCreditCard from './Forms/cartoes/NewCreditCard/NewCreditCard';
+import NewCreditCard from './Forms/cartoes/NewCreditCard';
+import { red } from "@material-ui/core/colors";
+import AirbnbHosting from "./Forms/solicitacaoDeViagem/AirbnbHosting";
+
 
 const theme = createMuiTheme({
   palette: {
@@ -60,7 +61,7 @@ const theme = createMuiTheme({
     },
     secondary: {
       main: '#ff9800',
-    },
+    }
   },
 });
 
@@ -83,19 +84,6 @@ export const Routes = ()=>{
     return (
       <Route {...rest } render={
         ({ location }) => employeeInfos && employeeInfos.APPROVAL_LEVEL_CODE.toLowerCase() !== 'staff' ? ( children ) : ( <Redirect to={{ pathname: "/",  state: { from: location } }} /> )
-        }
-      />
-    );
-  }
-
-
-  function PartnerRoute({ children, ...rest }) {
-    return (
-      <Route {...rest } render={
-        ({ location }) => employeeInfos
-        // && ( employeeInfos.COMPANY_DESC === 'Bradesco' || employeeInfos.COMPANY_DESC === 'TicketLog' )
-        ? ( children )
-        : ( <Redirect to={{ pathname: "/",  state: { from: location } }} /> )
         }
       />
     );
@@ -137,8 +125,8 @@ export const Routes = ()=>{
                 <Route path="/emissaoBTB" exact={true} component={VirtualHostingCard} />
                 <Route path="/CiaAereaNaoPreferencial" exact={true} component={NonPreferredAirline} />
                 <Route path="/regularizacaoDeHospedagem" exact={true} component={HostingRegularization} />
-                  {//<Route path="/Airbnb" exact={true} component={AirbnbHosting} />
-                  }
+                <Route path="/Airbnb" exact={true} component={AirbnbHosting} />
+                  
 
                 {/*  Prestação de contas  */}
                 <Route path="/DelegacaoDaPrestacao" exact={true} component={DelegationOfAccountability} />

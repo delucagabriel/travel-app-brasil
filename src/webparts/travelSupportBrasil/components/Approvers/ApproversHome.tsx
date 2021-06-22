@@ -42,19 +42,11 @@ export function ApproversHome() {
   const { employeeInfos, allRequests, myApprovals } = useContext(Context);
   const [pendingReqTotal, setPendingReqTotal] = useState(0);
   const [completedReqTotal, setCompletedReqTotal] = useState(0);
-  const [uniqueRequesters, setUniqueRequesters] = useState(0);
-  const [employeesServed, setEmployeesServed] = useState(0);
-  const [averageRequestsPerDay, setAverageRequestsPerDay] = useState(0);
-  const [requestsInThisYear, setRequestsInThisYear] = useState(0);
 
   const handleStatistics = async()=>{
-    setUniqueRequesters( unique( myApprovals.map( req => req.Author.Title ) ).length);
-    setEmployeesServed( unique( myApprovals.map( (req:IRequests_AllFields) => req.BENEFICIARIO_ID ) ).length);
-    setAverageRequestsPerDay( averagePerDay( myApprovals ) || 0);
-    setRequestsInThisYear( myApprovals.filter( (req:IRequests_AllFields) => moment(req.DATA_DE_APROVACAO).year === moment().year ).length );
-
     setPendingReqTotal( myApprovals.filter( (req:IRequests_AllFields) => req.STATUS_APROVACAO.toLowerCase() === "pendente").length );
-    setCompletedReqTotal( myApprovals.filter( (req:IRequests_AllFields) => req.STATUS_APROVACAO.toLowerCase() !== "pendente" ).length );
+    setCompletedReqTotal( myApprovals.filter( (req:IRequests_AllFields) => req.STATUS_APROVACAO.toLowerCase() !== "pendente" 
+      && req.STATUS_APROVACAO.toLowerCase() !== "cancelado" ).length );
   };
 
   useEffect(()=> {
@@ -92,64 +84,7 @@ export function ApproversHome() {
           icon={<DoneAllSharpIcon style={{ fontSize: 60, opacity:"0.3" }}/>}/>
       </Grid>
 
-      <Grid item xs={12} sm={12} md={12} lg={12}>
-        <Card>
-          <CardContent>
-            <Typography align="center" variant="h6" component="header">
-              Estatísticas
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-
-      <Grid item xs={12} sm={6} md={6} lg={6}>
-        <Card>
-          <CardContent>
-            <Typography align="center" variant="h5" component="p">
-              { uniqueRequesters }
-            </Typography>
-            <Typography align="center" variant="subtitle1" component="p">
-              Solicitantes atendidos
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} sm={6} md={6} lg={6}>
-        <Card>
-          <CardContent>
-            <Typography align="center" variant="h5" component="p">
-            { employeesServed }
-            </Typography>
-            <Typography align="center" variant="subtitle1" component="p">
-              Empregados atendidos
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} sm={6} md={6} lg={6}>
-        <Card>
-          <CardContent>
-            <Typography align="center" variant="h5" component="p">
-            { averageRequestsPerDay }
-            </Typography>
-            <Typography align="center" variant="subtitle1" component="p">
-              Média diária
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12} sm={6} md={6} lg={6}>
-        <Card>
-          <CardContent>
-            <Typography align="center" variant="h5" component="p">
-            { requestsInThisYear }
-            </Typography>
-            <Typography align="center" variant="subtitle1" component="p">
-              Solicitações neste ano
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
+      
     </Grid>
   );
 }

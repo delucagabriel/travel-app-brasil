@@ -206,11 +206,11 @@ const CreateServices = ()=> {
         icon:<AirplanemodeInactiveIcon />,
         path: "/CiaAereaNaoPreferencial"
       },
-      /*{
+      {
         text: "Airbnb para hospedagem acima de 30 dias",
         icon:<HomeWorkIcon />,
         path: "/Airbnb"
-      },*/
+      },
     ]
   };
 

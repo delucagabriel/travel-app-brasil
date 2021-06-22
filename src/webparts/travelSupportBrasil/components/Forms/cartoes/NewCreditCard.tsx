@@ -6,17 +6,17 @@ import { yupResolver } from '@hookform/resolvers';
 import { TextField, Select, MenuItem, FormLabel, Button,
   Grid, Input, Paper, Snackbar } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { newCreditCardSchema } from './validations';
 import { setLocale } from 'yup';
-import { corporateCardConfig } from '../../../../formConfigurations/corporateCards';
-import { IEmployee } from '../../../../Interfaces/IEmployee';
-import { ISnack } from '../../../../Interfaces/ISnack';
-import { IRequests_AllFields } from '../../../../Interfaces/Requests/IRequests';
-import { getEmployee } from '../../../../services/EmployeesService';
-import { newRequest } from '../../../../services/RequestServices';
-import { yup_pt_br } from '../../../../Utils/yup_pt_br';
-import { Context } from '../../../Context';
-import HocDialog from '../../../HOC/HocDialog';
+import { IEmployee } from '../../../Interfaces/IEmployee';
+import { ISnack } from '../../../Interfaces/ISnack';
+import { IRequests_AllFields } from '../../../Interfaces/Requests/IRequests';
+import { getEmployee } from '../../../services/EmployeesService';
+import { newRequest } from '../../../services/RequestServices';
+import { yup_pt_br } from '../../../Utils/yup_pt_br';
+import { Context, globalTipoCartao } from '../../Context';
+import HocDialog from '../../HOC/HocDialog';
+import { TestaCPF } from "../../../Utils/validaCPF";
+import * as yup from "yup";
 
 setLocale(yup_pt_br);
 
@@ -28,7 +28,72 @@ interface IAddress {
     neighborhood: string;
 }
 
+const newCreditCardSchema: yup.ObjectSchema<IRequests_AllFields> = yup.object().shape({
+  MACROPROCESSO: yup.string().required(),
+  PROCESSO: yup.string().required(),
+  ALCADA_APROVACAO: yup.string()
+  .when('TIPO_LIMITE_VALOR', (TIPO_LIMITE_VALOR, sch) => {
+    switch (TIPO_LIMITE_VALOR) {
+      case globalTipoCartao.Tipo_I:
+        return sch.default('D-3');
 
+      case globalTipoCartao.Tipo_II:
+        return sch.default('D-3');
+
+      case globalTipoCartao.Tipo_III:
+        return sch.default('D-3');
+
+      case globalTipoCartao.Tipo_IV:
+        return sch.default('D-3');
+      
+      case globalTipoCartao.Tipo_V:
+        return sch.default('D-2');
+
+      case globalTipoCartao.Tipo_VI:
+        return sch.default('D-2');
+    
+      default:
+        return sch.default('D-1');
+    }
+            
+  }),
+  SLA: yup.number().default(72),
+  AREA_RESOLVEDORA: yup.string().default("Viagens Corporativas"),
+  WF_APROVACAO: yup.boolean().default(true),
+
+  BENEFICIARIO_ID: yup.string().required(),
+  BENEFICIARIO_NOME: yup.string().required(),
+  BENEFICIARIO_NASCIMENTO: yup.date().required(),
+  BENEFICIARIO_EMPRESA_NOME: yup.string().required(),
+  BENEFICIARIO_EMAIL: yup.string().email().notRequired(),
+  BENEFICIARIO_EMPRESA_COD: yup.string().required(),
+  BENEFICIARIO_CARGO: yup.string().required(),
+  BENEFICIARIO_LEVEL: yup.string().required(),
+  TELEFONE: yup.string(),
+  CPF: yup.string().test('validCPF','CPF inválido',(cpf)=>TestaCPF(cpf)).required(),
+  CENTRO_DE_CUSTOS: yup.string().required(),
+  END_CEP: yup.string().required(),
+  END_LOGRADOURO: yup.string().required(),
+  END_NUMERO: yup.number().default(0),
+  END_COMPLEMENTO: yup.string(),
+  VIA_CARTAO: yup.string(), 
+
+  APROVADOR_ID: yup.string().required(),
+  APROVADOR_NOME: yup.string().required(),
+  APROVADOR_EMAIL: yup.string().email().required(),
+  APROVADOR_EMPRESA_COD: yup.string().required(),
+  APROVADOR_EMPRESA_NOME: yup.string().required(),
+  APROVADOR_LEVEL: yup.string()
+  .when('ALCADA_APROVACAO', (ALCADA_APROVACAO, sch) => {
+    if(ALCADA_APROVACAO === 'D-3') return sch.oneOf(['D-3', 'D-2', 'D-1', 'DE'], "Nível de aprovação mínimo é D-3");
+    if(ALCADA_APROVACAO === 'D-2') return sch.oneOf(['D-2', 'D-1', 'DE'], "Nível de aprovação mínimo é DE-2");
+    if(ALCADA_APROVACAO === 'D-1') return sch.oneOf(['D-1', 'DE'], "Nível de aprovação mínimo é DE-1");
+    })
+  .required(),
+
+  TIPO_LIMITE_VALOR: yup.string().required(),
+  VISA_INFINITE: yup.string().default("Visa Corporativo")
+});
 
 export default function NewCreditCard(){
   const { register, handleSubmit, control, errors, watch, setValue } = useForm<IRequests_AllFields>({
@@ -159,13 +224,13 @@ export default function NewCreditCard(){
         <HocDialog>
           <p>
             Alçadas de aprovação de acordo com a NFN-0018:<br/>
-            {corporateCardConfig.tipo_cartao_valor.Tipo_I} - Aprovação DE-3<br/>
-            {corporateCardConfig.tipo_cartao_valor.Tipo_II} - Aprovação DE-3<br/>
-            {corporateCardConfig.tipo_cartao_valor.Tipo_III} - Aprovação DE-3<br/>
-            {corporateCardConfig.tipo_cartao_valor.Tipo_IV} - Aprovação DE-3<br/>
-            {corporateCardConfig.tipo_cartao_valor.Tipo_V} - Aprovação DE-2<br/>
-            {corporateCardConfig.tipo_cartao_valor.Tipo_VI} - Aprovação DE-2<br/>
-            {corporateCardConfig.tipo_cartao_valor.Tipo_VII} - Aprovação DE-1
+            {globalTipoCartao.Tipo_I} - Aprovação DE-3<br/>
+            {globalTipoCartao.Tipo_II} - Aprovação DE-3<br/>
+            {globalTipoCartao.Tipo_III} - Aprovação DE-3<br/>
+            {globalTipoCartao.Tipo_IV} - Aprovação DE-3<br/>
+            {globalTipoCartao.Tipo_V} - Aprovação DE-2<br/>
+            {globalTipoCartao.Tipo_VI} - Aprovação DE-2<br/>
+            {globalTipoCartao.Tipo_VII} ou maior - Aprovação DE-1<br/> 
           </p>
         </HocDialog>
         <div style={{padding:"20px"}}>
@@ -278,27 +343,11 @@ export default function NewCreditCard(){
                     </Select>
                     :
                     <Select inputRef={register}>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_I}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_I}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_II}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_II}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_III}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_III}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_IV}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_IV}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_V}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_V}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_VI}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_VI}
-                      </MenuItem>
-                      <MenuItem value={corporateCardConfig.tipo_cartao_valor.Tipo_VII}>
-                        {corporateCardConfig.tipo_cartao_valor.Tipo_VII}
-                      </MenuItem>
+                      { Object.keys(globalTipoCartao).map(key => 
+                        <MenuItem value={globalTipoCartao[key]}>
+                          {globalTipoCartao[key]}
+                        </MenuItem>
+                      )}
                     </Select>
                   }
                   id="TIPO_LIMITE_VALOR"

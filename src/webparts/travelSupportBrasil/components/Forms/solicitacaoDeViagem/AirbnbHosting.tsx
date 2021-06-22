@@ -232,7 +232,7 @@ export default function AirbnbHosting() {
           <br/> • vistoria no imóvel na entrada e no término do período da locação;
           <br/> • solução de possíveis imprevistos diretamente com o responsável pelo imóvel através da plataforma do Airbnb;
           <br/> • comunicação ao Centro de Controle Corporativo da Vale informando o período e local da estadia;
-          <br/> • preenchimento deste formulário anexando termo de responsabilidade assinado, que pode ser obtido em: <a href="https://intranet.valepub.net/pt/brasil/Paginas/servicos/viagens/hotel.aspx" target="_blank">https://intranet.valepub.net/pt/brasil/Paginas/servicos/viagens/hotel.aspx</a>
+          <br/> • preenchimento deste formulário anexando termo de responsabilidade assinado. O termo está disponível na intranet, página <a href="https://intranet.valepub.net/pt/brasil/Paginas/servicos/viagens/hotel.aspx" target="_blank">https://intranet.valepub.net/pt/brasil/Paginas/servicos/viagens/hotel.aspx</a>
         </p>
       </HocDialog>
       <div style={{padding:"20px"}}>

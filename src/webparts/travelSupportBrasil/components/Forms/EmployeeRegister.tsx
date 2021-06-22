@@ -62,23 +62,23 @@ interface EmployeeApiMDM {
 
 const schema: yup.ObjectSchema<IEmployee> = yup.object().shape({
     Id: yup.number().notRequired(),
-    Title: yup.string().notRequired(),
+    Title: yup.string().default("Cadastro Manual"),
     isAdmin:yup.boolean().required(),
-    COMPANY_CODE:yup.string(),
-    COMPANY_DESC:yup.string(),
+    COMPANY_CODE:yup.string().required(),
+    COMPANY_DESC:yup.string().required(),
     FULL_NAME:yup.string().required(),
-    WORK_EMAIL_ADDRESS:yup.string(),
+    WORK_EMAIL_ADDRESS:yup.string().required(),
     APPROVAL_LEVEL_CODE:yup.string().required(),
-    COST_CENTER_CODE:yup.string().required(),
+    COST_CENTER_CODE:yup.string().min(10).required(),
     BUSINESS_UNIT:yup.string(),
-    FACILITY_DESCRIPTION:yup.string(),
+    FACILITY_DESCRIPTION:yup.string().required(),
     IAM_ACCESS_IDENTIFIER:yup.string().required(),
-    JOB_DESCRIPTION:yup.string(),
-    DEPARTMENT_NAME:yup.string(),
+    JOB_DESCRIPTION:yup.string().required(),
+    DEPARTMENT_NAME:yup.string().required(),
     EMPLOYMENT_STATUS_DESC: yup.string(),
-    FACILITY_CITY: yup.string(),
-    FACILITY_COUNTRY: yup.string(),
-    FACILITY_PROVINCE: yup.string(),
+    FACILITY_CITY: yup.string().required(),
+    FACILITY_COUNTRY: yup.string().required(),
+    FACILITY_PROVINCE: yup.string().required(),
     UPDATE_DATE_TIME: yup.date().default(new Date()),
 });
 
@@ -312,6 +312,7 @@ console.log(errors);
                 type="text"
                 name="COST_CENTER_CODE"
                 label="Empregado: Centro de custos"
+                placeholder="0001010376"
                 inputRef={register}
                 InputLabelProps={{ shrink: true }}
                 error={errors.COST_CENTER_CODE?true:false}

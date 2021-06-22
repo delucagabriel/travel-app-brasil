@@ -31,7 +31,7 @@ export default function MyCompletedRequests() {
                   <TableCell variant="head" align="center">Criação</TableCell>
                 </Hidden>
                 <Hidden smDown>
-                  <TableCell variant="head" align="center">Modificação</TableCell>
+                  <TableCell variant="head" align="center">Última Modificação</TableCell>
                 </Hidden>
             </TableRow>
           </TableHead>
